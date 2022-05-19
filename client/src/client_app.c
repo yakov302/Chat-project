@@ -1,17 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "client_net.h"
 #include "client_app.h"
-#include "protocol.h"
-#include "ui.h"
-#include "vector.h"
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <signal.h>
+
 #define _GNU_SOURCE
 #define BUFFER_SIZE 800
 #define REGISTRATION 1
@@ -22,27 +10,9 @@
 #define JOIN_GROUP 3
 #define LEAVE_GROUP 4
 #define EXIT_CHAT 5
-#define NAME_SIZE 40
 #define MAGIC_NUMBER 65465198
 
 int flag = 0;
-
-struct GroupAndId 
-{
-char m_name [NAME_SIZE];
-int m_idUser;
-int m_idGroup;
-};
-
-struct Client
-{
-char m_name [NAME_SIZE];
-char m_passWord [NAME_SIZE];
-int m_socket;
-Vector* m_groupVector;
-int m_magicNumber;
-};
-
 
 /*********************FunctionSignatures**********************/
 
@@ -64,19 +34,20 @@ int UserWindow(char* _ip,char* _userName, char* _groupName);
 
 Client* ClientCreate(void)
 {
-Client* newClient;
-struct sockaddr_in sin;
+	Client* newClient;
+	struct sockaddr_in sin;
 
 	newClient = (Client*) malloc (sizeof(Client));
 	if (newClient == NULL)
 	{
-       		return NULL;
+       	return NULL;
    	}
+
    	newClient->m_groupVector = VectorCreate(20, 5);
    	newClient -> m_magicNumber = MAGIC_NUMBER;
    	newClient -> m_socket = ClientInitialization(&sin);
-   	
-return newClient;
+
+	return newClient;
 }
 
 /*******************DestroyClient***********************/
@@ -104,35 +75,35 @@ int resFromMenu;
 	{
 		switch(_resFromMenu)
       		{
-			case REGISTRATION:
-          			newClient = ClientCreate();
+				case REGISTRATION:
+					newClient = ClientCreate();
 					ClientRunApp(newClient, _resFromMenu);
-          			break;
-          			
-			case LOG_IN:
-        			if( newClient == NULL)
-        			{
-           				 newClient = ClientCreate();
-           			}
-				ClientRunApp(newClient, _resFromMenu);
-				resFromMenu = SecondMenu();
-				RunSecondMenu(newClient, resFromMenu);
-           			 break;
-           			 
-			case EXIT:
-				if(newClient == NULL)
-				{
-					PrintToClient(LEAVE_CHAT_SUCCESS);
+					break;
+						
+				case LOG_IN:
+					if( newClient == NULL)
+					{
+						newClient = ClientCreate();
+					}
+					ClientRunApp(newClient, _resFromMenu);
+					resFromMenu = SecondMenu();
+					RunSecondMenu(newClient, resFromMenu);
+					break;
+						
+				case EXIT:
+					if(newClient == NULL)
+					{
+						PrintToClient(LEAVE_CHAT_SUCCESS);
+						flag = 1;
+						break;
+					}
+					ClientRunApp(newClient, _resFromMenu);
 					flag = 1;
 					break;
-				}
-       		 		 ClientRunApp(newClient, _resFromMenu);
-       		 		 flag = 1;
-       		 		 break;
-       		 		    
-			default:
-            			PrintInvalidChoice();
-            			break;
+							
+				default:
+					PrintInvalidChoice();
+					break;
 		}
 	}
 }	
@@ -141,9 +112,9 @@ int resFromMenu;
 
 static ClientResult ClientRunApp(Client* _client, char _choice)
 {
-char* buffer;
-char type = _choice;
-MessagesTypes msgType;
+	char* buffer;
+	char type = _choice;
+	MessagesTypes msgType;
 
 	buffer = (char*) malloc (BUFFER_SIZE * sizeof(char));
 	if (buffer == NULL)
@@ -197,194 +168,188 @@ void* pValue;
 		case REGISTRATION_REQUEST:
 			len = registrationToPack(_client, _buffer, REGISTRATION_REQUEST);
 			RunClientNet(_client, _buffer, len);               
-       			break;
+       		break;
        			
-         	case REGISTRATION_REQUEST_SUCCESS:
-         		PrintToClient(REGISTRATION_REQUEST_SUCCESS);
-         		resFromMenu = MainMenu();
-         		RunMainMenu(resFromMenu);
-         		break;
+        case REGISTRATION_REQUEST_SUCCESS:
+         	PrintToClient(REGISTRATION_REQUEST_SUCCESS);
+         	resFromMenu = MainMenu();
+         	RunMainMenu(resFromMenu);
+         	break;
          		
-         	case REGISTRATION_REQUEST_DUPLICATE_USERNAME:
-        		 PrintToClient(REGISTRATION_REQUEST_DUPLICATE_USERNAME);
-        		 resFromMenu = MainMenu();
-          		 RunMainMenu(resFromMenu);
-        		 break;
+        case REGISTRATION_REQUEST_DUPLICATE_USERNAME:
+        	PrintToClient(REGISTRATION_REQUEST_DUPLICATE_USERNAME);
+        	resFromMenu = MainMenu();
+          	RunMainMenu(resFromMenu);
+        	break;
         		 
-        	case REGISTRATION_REQUEST_FAIL:
-        	 	PrintToClient(REGISTRATION_REQUEST_FAIL);
-       			resFromMenu = MainMenu();
-               	   	RunMainMenu(resFromMenu);
-        		break;
+    	case REGISTRATION_REQUEST_FAIL:
+        	PrintToClient(REGISTRATION_REQUEST_FAIL);
+       		resFromMenu = MainMenu();
+            RunMainMenu(resFromMenu);
+        	break;
         	  
-         	case LOG_IN_REQUEST:
-         		 len = registrationToPack(_client, _buffer, LOG_IN_REQUEST);
-        		 RunClientNet(_client, _buffer, len);
-        		 break;
+        case LOG_IN_REQUEST:
+         	len = registrationToPack(_client, _buffer, LOG_IN_REQUEST);
+        	RunClientNet(_client, _buffer, len);
+        	break;
         		 
-        	case LOG_IN_REQUEST_SUCCESS:
-          		 PrintToClient(LOG_IN_REQUEST_SUCCESS);
-        		 break;
+    	case LOG_IN_REQUEST_SUCCESS:
+          	PrintToClient(LOG_IN_REQUEST_SUCCESS);
+        	break;
         		 
-        	case LOG_IN_REQUEST_FAIL:
-           		PrintToClient(LOG_IN_REQUEST_FAIL);
-         		resFromMenu = MainMenu();
-                   	RunMainMenu(resFromMenu);
-         		break;
+        case LOG_IN_REQUEST_FAIL:
+           	PrintToClient(LOG_IN_REQUEST_FAIL);
+         	resFromMenu = MainMenu();
+            RunMainMenu(resFromMenu);
+         	break;
         		 
-         	case LOG_IN_REQUEST_WRONG_DETAILS:
-         		 PrintToClient(LOG_IN_REQUEST_WRONG_DETAILS);
-        		 resFromMenu = MainMenu();
-                	 RunMainMenu(resFromMenu);
-         		 break;
+        case LOG_IN_REQUEST_WRONG_DETAILS:
+         	PrintToClient(LOG_IN_REQUEST_WRONG_DETAILS);
+        	resFromMenu = MainMenu();
+            RunMainMenu(resFromMenu);
+         	break;
          		       		
-              case LEAVE_CHAT_REQUEST:
+        case LEAVE_CHAT_REQUEST:
  			len = NameToPack(_client, _buffer, LEAVE_CHAT_REQUEST);
-	       		SendRecive(_client, _buffer, len);
-         		break;
+	       	SendRecive(_client, _buffer, len);
+         	break;
          		
-	       case LEAVE_CHAT_SUCCESS:
-           		PrintToClient(LEAVE_CHAT_SUCCESS);
-           		ClientDestroyApp(_client);
-         		break;
+	    case LEAVE_CHAT_SUCCESS:
+           	PrintToClient(LEAVE_CHAT_SUCCESS);
+           	ClientDestroyApp(_client);
+         	break;
 
-	       case OPEN_NEW_GROUP_REQUEST:
-	       		len = NewGroupToPack(_client, _buffer, OPEN_NEW_GROUP_REQUEST);
-	       		SendRecive(_client, _buffer, len);
-	     		break;
+	    case OPEN_NEW_GROUP_REQUEST:
+	       	len = NewGroupToPack(_client, _buffer, OPEN_NEW_GROUP_REQUEST);
+	       	SendRecive(_client, _buffer, len);
+	     	break;
 	   	  		
-	       case OPEN_NEW_GROUP_SUCCESS:
-	       		len = ReturnMessageSize(_buffer);
-	       		UnpackFirstAndSecond(&ipAndPort, _buffer, len);
-	       		PrintToClient(OPEN_NEW_GROUP_SUCCESS);
-	       		newgroupAndId = groupAndIdCreate();
-	       		groupId = GroupWindow(ipAndPort.m_first, ipAndPort.m_second);
-	       		userId = UserWindow(ipAndPort.m_first, _client ->m_name,  ipAndPort.m_second);
-	       		strcpy(newgroupAndId-> m_name, ipAndPort.m_second);
-	       		newgroupAndId->m_idGroup = groupId;
-	       		newgroupAndId->m_idUser = userId;
-	       		VectorAppend(_client->m_groupVector, newgroupAndId);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	    case OPEN_NEW_GROUP_SUCCESS:
+	       	len = ReturnMessageSize(_buffer);
+	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
+	       	PrintToClient(OPEN_NEW_GROUP_SUCCESS);
+	       	newgroupAndId = groupAndIdCreate();
+	       	groupId = GroupWindow(ipAndPort.m_first, ipAndPort.m_second);
+	       	userId = UserWindow(ipAndPort.m_first, _client ->m_name,  ipAndPort.m_second);
+	       	strcpy(newgroupAndId-> m_name, ipAndPort.m_second);
+	       	newgroupAndId->m_idGroup = groupId;
+	       	newgroupAndId->m_idUser = userId;
+	       	VectorAppend(_client->m_groupVector, newgroupAndId);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     		
-	      case OPEN_NEW_GROUP_FAIL:
-	      	       	PrintToClient(OPEN_NEW_GROUP_FAIL);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	    case OPEN_NEW_GROUP_FAIL:
+	      	PrintToClient(OPEN_NEW_GROUP_FAIL);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     		
-	       case DUPLICATE_GROUP_NAME:
-	       		PrintToClient(DUPLICATE_GROUP_NAME);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	    case DUPLICATE_GROUP_NAME:
+	       	PrintToClient(DUPLICATE_GROUP_NAME);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     		
-	       case PRINT_EXISTING_GROUPS_REQUEST:
-	       		len = PackStatusMassage(_buffer, PRINT_EXISTING_GROUPS_REQUEST);
-	       		SendRecive(_client, _buffer, len);
-	       		break;
+	    case PRINT_EXISTING_GROUPS_REQUEST:
+	       	len = PackStatusMassage(_buffer, PRINT_EXISTING_GROUPS_REQUEST);
+	       	SendRecive(_client, _buffer, len);
+	       	break;
 	     		
-	       case JOIN_EXISTING_GROUP_REQUEST:
+	    case JOIN_EXISTING_GROUP_REQUEST:
 	      		
-	       		len = NewGroupToPack(_client, _buffer, JOIN_EXISTING_GROUP_REQUEST);
-	       		SendRecive(_client, _buffer, len); 	        		
-	     		break;
+	       	len = NewGroupToPack(_client, _buffer, JOIN_EXISTING_GROUP_REQUEST);
+	       	SendRecive(_client, _buffer, len); 	        		
+	     	break;
 	     		
-	       case PRINT_EXISTING_GROUPS_SUCCESS:
-	       		len = ReturnMessageSize( _buffer);
-	       		UnpackStringMassage(groups,  _buffer, len);
-	       		printGroups(groups);
-	       		/*len = ReturnMessageSize(_buffer);
-	       		UnpackNameAndPassword(&ipAndPort, _buffer, len);*/
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	       		break;
+	    case PRINT_EXISTING_GROUPS_SUCCESS:
+	       	len = ReturnMessageSize( _buffer);
+	       	UnpackStringMassage(groups,  _buffer, len);
+	       	printGroups(groups);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	       	break;
 	       		
-	       	case NO_EXISTING_GROUPS:
-	       		len = ReturnMessageSize(_buffer);
-	       		UnpackStringMassage(str, _buffer, len);
-	       		printGroupsNames(str);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	   		  break;
+	    case NO_EXISTING_GROUPS:
+	       	len = ReturnMessageSize(_buffer);
+	       	UnpackStringMassage(str, _buffer, len);
+	       	printGroupsNames(str);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	   		break;
 	   		  
-	       case JOIN_EXISTING_GROUP_SUCCESS:
-	       	       	len = ReturnMessageSize(_buffer);
-	       		UnpackFirstAndSecond(&ipAndPort, _buffer, len);
-	       		PrintToClient(JOIN_EXISTING_GROUP_SUCCESS);
-	       		newgroupAndId = groupAndIdCreate();
-	       		groupId = GroupWindow(ipAndPort.m_first, ipAndPort.m_second);
-	       		userId = UserWindow(ipAndPort.m_first, _client ->m_name,  ipAndPort.m_second);
-	       		strcpy(newgroupAndId-> m_name, ipAndPort.m_second);
-	       		newgroupAndId->m_idGroup = groupId;
-	       		newgroupAndId->m_idUser = userId;
-	       		VectorAppend(_client->m_groupVector, newgroupAndId);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	       		/*PrintToClient(JOIN_EXISTING_GROUP_SUCCESS);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	       		UnpackStringMassage(ip, _buffer, ReturnMessageSize(_buffer));*/
-	     		break;
+	    case JOIN_EXISTING_GROUP_SUCCESS:
+	       	len = ReturnMessageSize(_buffer);
+	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
+	       	PrintToClient(JOIN_EXISTING_GROUP_SUCCESS);
+	       	newgroupAndId = groupAndIdCreate();
+	       	groupId = GroupWindow(ipAndPort.m_first, ipAndPort.m_second);
+	       	userId = UserWindow(ipAndPort.m_first, _client ->m_name,  ipAndPort.m_second);
+	       	strcpy(newgroupAndId-> m_name, ipAndPort.m_second);
+	       	newgroupAndId->m_idGroup = groupId;
+	       	newgroupAndId->m_idUser = userId;
+	       	VectorAppend(_client->m_groupVector, newgroupAndId);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     
-	       case JOIN_EXISTING_GROUP_FAIL:
-	       	       	PrintToClient(JOIN_EXISTING_GROUP_FAIL);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
+	    case JOIN_EXISTING_GROUP_FAIL:
+	       	PrintToClient(JOIN_EXISTING_GROUP_FAIL);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
 	       
-	       case GROUP_NOT_FOUND:
-	       	       PrintToClient(GROUP_NOT_FOUND);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	    case GROUP_NOT_FOUND:
+	       	PrintToClient(GROUP_NOT_FOUND);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     
-	       case LEAVE_GROUP_REQUEST:
-	     		len =  NewGroupToPack(_client, _buffer, LEAVE_GROUP_REQUEST);
-	       		SendRecive(_client, _buffer, len); 
-	     		break;
+	    case LEAVE_GROUP_REQUEST:
+	     	len =  NewGroupToPack(_client, _buffer, LEAVE_GROUP_REQUEST);
+	       	SendRecive(_client, _buffer, len); 
+	     	break;
 	     
-	       case LEAVE_GROUP_SUCCESS:
-	       		len = ReturnMessageSize(_buffer);
-	       		UnpackFirstAndSecond(&ipAndPort, _buffer, len);
-	       		PrintToClient(LEAVE_GROUP_SUCCESS);
-	       		index = VectorForEach(_client->m_groupVector, CloseId, ipAndPort.m_second);
-	       		endOfVector = VectorSize(_client->m_groupVector);
-	       		VectorGet(_client->m_groupVector, index, &item1);
-	       		VectorGet(_client->m_groupVector, endOfVector-1, &item2);
-	       		VectorSet(_client->m_groupVector, index, item2);
-	       		VectorSet(_client->m_groupVector, endOfVector-1, item1);
-	       		VectorRemove(_client->m_groupVector, &pValue);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	    case LEAVE_GROUP_SUCCESS:
+	       	len = ReturnMessageSize(_buffer);
+	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
+	       	PrintToClient(LEAVE_GROUP_SUCCESS);
+	       	index = VectorForEach(_client->m_groupVector, CloseId, ipAndPort.m_second);
+	       	endOfVector = VectorSize(_client->m_groupVector);
+	       	VectorGet(_client->m_groupVector, index, &item1);
+	       	VectorGet(_client->m_groupVector, endOfVector-1, &item2);
+	       	VectorSet(_client->m_groupVector, index, item2);
+	       	VectorSet(_client->m_groupVector, endOfVector-1, item1);
+	       	VectorRemove(_client->m_groupVector, &pValue);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     		
-	      case LEAVE_GROUP_FAIL:
-	      		len = ReturnMessageSize(_buffer);
-	       		UnpackFirstAndSecond(&ipAndPort, _buffer, len);
-	      	       	PrintToClient(LEAVE_GROUP_FAIL);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     	     	break;
+	    case LEAVE_GROUP_FAIL:
+	      	len = ReturnMessageSize(_buffer);
+	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
+	      	PrintToClient(LEAVE_GROUP_FAIL);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     	     	
-	       case GROUP_DELETED:
-	       	       	len = ReturnMessageSize(_buffer);
-	       		UnpackFirstAndSecond(&ipAndPort, _buffer, len);
+	    case GROUP_DELETED:
+	       	len = ReturnMessageSize(_buffer);
+	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
 	  		PrintToClient(GROUP_DELETED);
 	  		index = VectorForEach(_client->m_groupVector, CloseId, ipAndPort.m_second);
-	       		endOfVector = VectorSize(_client->m_groupVector);
-	       		VectorGet(_client->m_groupVector, index, &item1);
-	       		VectorGet(_client->m_groupVector, endOfVector-1, &item2);
-	       		VectorSet(_client->m_groupVector, index, item2);
-	       		VectorSet(_client->m_groupVector, endOfVector-1, item1);
-	       		VectorRemove(_client->m_groupVector, &pValue);
-	       		resFromMenu = SecondMenu();
-	       		RunSecondMenu(_client, resFromMenu);
-	     		break;
+	       	endOfVector = VectorSize(_client->m_groupVector);
+	       	VectorGet(_client->m_groupVector, index, &item1);
+	       	VectorGet(_client->m_groupVector, endOfVector-1, &item2);
+	       	VectorSet(_client->m_groupVector, index, item2);
+	       	VectorSet(_client->m_groupVector, endOfVector-1, item1);
+	       	VectorRemove(_client->m_groupVector, &pValue);
+	       	resFromMenu = SecondMenu();
+	       	RunSecondMenu(_client, resFromMenu);
+	     	break;
 	     
-               default:
-         		PrintInvalidChoice();
-         		break;
+        default:
+         	PrintInvalidChoice();
+         	break;
 	}
 }
 
@@ -403,7 +368,9 @@ int pidUser;
     fclose(fgroup);
     return pidUser;
 }
-/**************************************************************/
+
+/********************UserWindow************************/
+
 int UserWindow(char* _ip,char* _userName, char* _groupName)
 {
 int pidGroup;
@@ -420,10 +387,8 @@ int pidGroup;
     return pidGroup;
 }
 
-
-
-
 /********************CloseId************************/
+
 static int CloseId(void* _element, size_t _index, void* _context)
 {
 
@@ -446,6 +411,7 @@ static int CloseId(void* _element, size_t _index, void* _context)
 	 }
 		 return 1;
 }
+
 /********************registrationToPack************************/
 
 static int registrationToPack(Client* _client, char* _buffer, MessagesTypes _type)
@@ -461,7 +427,7 @@ char password[NAME_SIZE];
 	strcpy(nap -> m_first, name);
 	strcpy(nap -> m_second, password);
 	
-return PackFirstAndSecond(nap, _buffer, _type);
+	return PackFirstAndSecond(nap, _buffer, _type);
 }
 
 /********************NewGroupToPack************************/
@@ -561,7 +527,6 @@ static void ClientDestroyApp(Client* _client)
 	DestroyClient(_client);
 }
 
-
 /********************SendToProtocol***********************/
 
 static char SendToProtocol(char* _buffer)
@@ -608,8 +573,8 @@ static void RunSecondMenu(Client* _client, int _resFromMenu)
    	}	
 }
 
-
 /**************************groupAndIdCreate***************************/
+
 GroupAndId* groupAndIdCreate(void)
 {
 	GroupAndId* newgroupAndId;

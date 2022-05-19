@@ -1,49 +1,61 @@
 #ifndef __CLIENT_NET_H__
 #define __CLIENT_NET_H__
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <errno.h>
 #include <sys/select.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include <unistd.h>
+
+#include "client_app.h"
+#include "vector.h"
+
+/************************ClientResultEnum*************************/
 
 typedef enum ClientResult
 {
-CLIENT_SUCCESS,
-CLIENT_FAIL,
-CLIENT_NULL,
-CLIENT_ALLOCATION_FAIL
+    CLIENT_SUCCESS,
+    CLIENT_FAIL,
+    CLIENT_NULL,
+    CLIENT_ALLOCATION_FAIL
 } ClientResult;
+
+/************************ClientResultEnum*************************/
 
 typedef struct Client Client;
 typedef struct GroupAndId GroupAndId;
 
+/*Description:
+Creates new socket for communication with server.
 
-Client* ClientCreate(void);
+Input:
+_sin - struct which the socket will enter.
 
-GroupAndId* groupAndIdCreate(void);
+Output:
+soket - new socket for communication with server.*/
+int ClientInitialization(struct sockaddr_in *_sin);
 
- int ClientInitialization(struct sockaddr_in *_sin);
+/*Description:
+Connects to the server and sends/receives message from him.
 
+Input:
+_socket - socket for communication with server.
+_buffer - buffer with a message to send and the message that received will also enter it.
+_length - The length of the message.*/
 void RunClientNet(Client* _client, char* _buffer, int _length);
 
+/*Description:
+sends/receives message from server.
+
+Input:
+_socket - socket for communication with server.
+_buffer - buffer with a message to send and the message that received will also enter it.
+_length - The length of the message.*/
 void SendRecive(Client* _client, char* _buffer, int _length);
 
-void DestroyClient(Client* _client);
-
-void getClientName(Client* _client, char _str[]);
-
-void setClientName(Client* _client, char _str[]);
-
-void setPassword(Client* _client, char _str[]);
-
-void GetIP (GroupAndId* _grpID, char _ip[]);
-
-int GetGroupPID(Client* _client);
-
-int GetUserPID(Client* _client);
 
 #endif 

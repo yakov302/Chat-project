@@ -1,13 +1,5 @@
-#include "serverManager.h"
-#include "protocol.h"
-#include "server.h"
-#include "list.h"
-#include "gen.list.h"
-#include "groupsManager.h"
-#include "usersManager.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "server_manager.h"
+
 #define BUFFER_SIZE 5000
 #define QUE_SIZE 1000
 #define MAX_SOCKETS 1000
@@ -27,14 +19,11 @@ struct Application
 	int m_magicNumber;
 };
 
-/****************************************************************Create*****************************************************************/
-/*####################internal functions#######################*/
 CreateInputs* CreateInputsStruct(AcceptClient _newClient, ReceiveMessage _getMessage, CloseClient _removeClient, Fail _failErr, void* _application);
 int NewClient(int _clientId, void* _application);
 void GetMessage(Server* _server, int _clientId, void* _message, int _messageSize, void* _application);
 void RemoveClient(int _clientId, void* _application);
 void FailErr(Server* _server, ServerErr _failErr, char* _perror, void* _application);
-/*########################################################*/
 
 Application* CreateServerApplication ()
 {
@@ -74,8 +63,6 @@ Application* CreateServerApplication ()
 	return application; 
 }
 
-/**********************************************************destroy***************************************************************************/
-
 void DestroyServerApplication (Application* _application)
 {
 	if (_application == NULL || _application->m_magicNumber != MAGIC_NUMBER)
@@ -90,13 +77,11 @@ void DestroyServerApplication (Application* _application)
 	free (_application);
 }
 
-/**************************************runApplication*******************************************************************************************/
-
 void RunApplication (Application* application)
 {
 	RunServer(application->m_server);
 }
-/******************************************input for create server********************************************************************************/
+
 CreateInputs* CreateInputsStruct(AcceptClient _newClient, ReceiveMessage _getMessage, CloseClient _removeClient, Fail _failErr, void* _application)
 {
 	CreateInputs* inputs;
@@ -118,8 +103,6 @@ CreateInputs* CreateInputsStruct(AcceptClient _newClient, ReceiveMessage _getMes
 	inputs ->  m_maxMessageZize = BUFFER_SIZE;
 	return inputs;
 }
-
-/***************************************switch case function**********************************************************************************/
 
 int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, void* _application)
 {
@@ -345,14 +328,11 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 	
 }
 
-/*****************************************************************************************************************************************/
-
 int NewClient(int _clientId, void* _application)
 {
 	return ACCEPT_CLIENT;
 }
 
-/****************************************************************************************************************************************/
 void GetMessage(Server* _server, int _clientId, void* _message, int _messageSize, void* _application)
 {
 	int len;
@@ -366,13 +346,10 @@ void GetMessage(Server* _server, int _clientId, void* _message, int _messageSize
 	}
 }
 
-/****************************************************************************************************************************************/
-
 void RemoveClient(int _clientId, void* _application)
 {
+	
 }
-
-/****************************************************************************************************************************************/
 
 void FailErr(Server* _server, ServerErr _failErr, char* _perror, void* _application)
 {

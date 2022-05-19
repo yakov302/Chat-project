@@ -11,7 +11,7 @@ CXXFLAGS = $(WARNINGS)
 CPPFLAGS = -I$(INC_DIR)
 
 TARGET = runc
-OBJS = ./client_net.o  ./client_app.o ./protocol.o ./ui.o ./clientMain.o
+OBJS = ./client_net.o  ./client_app.o ./protocol.o ./ui.o ./client_main.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)  -L. -lgenDS
@@ -19,7 +19,7 @@ $(TARGET): $(OBJS)
 ./client_app.o: $(INC_DIR)/client_app.h 
 ./client_net.o: $(INC_DIR)/client_net.h	
 ./client_app.o: $(INC_DIR)/client_net.h  $(INC_DIR)/client_app.h $(INC_DIR)/protocol.h $(INC_DIR)/ui.h	
-./protocol.o: $(INC_DIR)/server.h $(INC_DIR)/protocol.h
+./protocol.o: $(INC_DIR)/server_net.h $(INC_DIR)/protocol.h
 ./ui.o: $(INC_DIR)/protocol.h	
 ./clientMain.o: $(INC_DIR)/protocol.h $(INC_DIR)/client_app.h $(INC_DIR)/ui.h
 

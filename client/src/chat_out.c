@@ -9,6 +9,7 @@
 
 #define MSG_LEN 600
 #define PORT 12345
+
 void SaveUIdToFile(pid_t _pid)
 {		
 	FILE *pID;
@@ -21,7 +22,7 @@ void SaveUIdToFile(pid_t _pid)
 	fprintf(pID,"%d\n", _pid);	
 	fclose(pID);
 }
-/*************************************************/
+
 int main(int argc, char *argv[])
 {
     pid_t pidOut;

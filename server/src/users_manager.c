@@ -1,11 +1,5 @@
-#include "usersManager.h"
-#include "userStruct.h"
-#include "hash.map.h"
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "list.h"
+#include "users_manager.h"
+
 #define MAGIC_NUMBER 144522
 #define SIZE 30
 #define FILE_NAME "usersDetails.txt"
@@ -44,7 +38,6 @@ int CompareUserNames (void* _firstKey, void* _secondKey)
 	return 0;
 }
 
-
 int LoadUsersFromFile (UserMng* _manager)
 {
 FILE* file;
@@ -71,8 +64,7 @@ FirstAndSecond* client;
 		
 		CreateUser (client, _manager, FROME_LOWD);
 	}
-		
-			
+				
 	while (!feof(file))
 	{
 		client = (FirstAndSecond*) malloc (sizeof (FirstAndSecond));	
@@ -81,9 +73,7 @@ FirstAndSecond* client;
 		strcpy(client -> m_second, password);
 		CreateUser (client, _manager, FROME_LOWD);		
 	}
-	
-	
-	
+		
 	fclose(file);
 	
 return SUCCESS;
@@ -126,7 +116,6 @@ void DestroyRegisteredUsersPull (UserMng* _userMng)
 	_userMng->m_magicNumber = 0;
 	free (_userMng);
 }
-
 
 UserMngResult InsertUserToFile(FirstAndSecond* _namePswr)
 {
@@ -197,8 +186,7 @@ UserMngResult CreateUser (FirstAndSecond* _namePsw, UserMng* _userMng, int _isLo
 
 
 static void printKey(void* _word)
-{
-	
+{	
 	printf("Key: %s\n", ((char*)_word));
 }
 
@@ -206,10 +194,10 @@ static void printKey(void* _word)
 
 static void printValue(void* _value)
 {
-printf("name: %s\n", ((( User*)_value) -> m_username));
-printf("pass: %s\n", ((( User*)_value) -> m_password));
-printf("active: %d\n", ((( User*)_value) -> m_active));
-printf("\n");		
+	printf("name: %s\n", ((( User*)_value) -> m_username));
+	printf("pass: %s\n", ((( User*)_value) -> m_password));
+	printf("active: %d\n", ((( User*)_value) -> m_active));
+	printf("\n");		
 }
 
 int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
@@ -275,7 +263,7 @@ UserMngResult UserJoinGroup (UserMng* _userMng, char _username[], char _groupNam
 		}
 		else
 		{
-	/**/		return CONNECT_TO_SAME_GROUP;/***/
+			return CONNECT_TO_SAME_GROUP;
 		}
 		
 	}
@@ -285,7 +273,6 @@ UserMngResult UserJoinGroup (UserMng* _userMng, char _username[], char _groupNam
 		return NO_FOUND_IN_HASH;/*I dont sure it is neccsary*/
 	}
 }
-	
 	
 UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupName)
 {
@@ -298,8 +285,8 @@ UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupNa
 	result = HashMapFind(_userMng-> m_dataStructure , _username , &pValue);
 	if (result == MAP_SUCCESS)
 	{
-	/**/	RemoveGroupFromUser ((User*)pValue, _groupName); /*there is easier way...*/
-		return SUCCESS;/**/
+		RemoveGroupFromUser ((User*)pValue, _groupName); /*there is easier way...*/
+		return SUCCESS;
 	}
 	else
 	{
@@ -331,20 +318,5 @@ UserMngResult UserLogOut (UserMng* _manager, char _name[])
 		return SUCCESS;
 	}
 }		
-/***/
-/*UserMngResult UserLogOut (char _name[])
-{
-	result = HashMapFind(_userMng-> m_dataStructure , _username , &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		UserNotActive ((User*)pValue);
-	}
-	else
-	{
-		return NO_FOUND_IN_HASH;
-	}
-}*/
-	
-	
-/***/	
+
 	

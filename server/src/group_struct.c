@@ -1,11 +1,5 @@
-#include "groupStruct.h"
-#include "protocol.h" 
-#include "gen.list.h"
-#include "list.h"
-#include "hash.map.h"
-#include "queue.h"
-#include <stdlib.h>
-#include <string.h>
+#include "group_struct.h"
+
 #define MAGIC_NUMBER 144522
 #define SIZE 30
 
@@ -75,7 +69,6 @@ void IncreseNumOfCleints (Group* _pValue)
 {
 	_pValue->m_numOfClients++;
 }
-
 
 int GetNumOfClients(Group* _pValue)
 {

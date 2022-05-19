@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "protocol.h"
+#include "ui.h"
+
 #define YELLOW "\x1B[33m"
 #define NORMAL "\x1B[0m"
 #define RED "\x1B[91m"

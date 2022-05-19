@@ -11,19 +11,19 @@ CXXFLAGS = $(WARNINGS)
 CPPFLAGS = -I$(INC_DIR)
 
 TARGET = runs
-OBJS = ./usersManager.o  ./serverManager.o ./protocol.o ./server.o ./userStruct.o ./serverMain.o ./groupsManager.o ./groupStruct.o
+OBJS = ./users_manager.o  ./server_manager.o ./protocol.o ./server_net.o ./user_struct.o ./server_main.o ./groups_manager.o ./group_struct.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)  -L. -lgenDS
 
-./usersManage.o: $(INC_DIR)/usersManager.h $(INC_DIR)/userStruct.h $(INC_DIR)/hash.map.h	
-./serverManager.o: $(INC_DIR)/serverManager.h $(INC_DIR)/protocol.h $(INC_DIR)/server.h $(INC_DIR)/usersManager.h $(INC_DIR)/groupsManager.h	
-./protocol.o: $(INC_DIR)/server.h $(INC_DIR)/protocol.h
-./server.o: $(INC_DIR)/list.h $(INC_DIR)/gen.list.h $(INC_DIR)/server.h
-./userStruct.o: $(INC_DIR)/userStruct.h $(INC_DIR)/protocol.h $(INC_DIR)/list.h
-./serverMain.o: $(INC_DIR)/serverManager.h	
-./groupsManager.o: $(INC_DIR)/groupsManager.h $(INC_DIR)/groupStruct.h $(INC_DIR)/queue.h $(INC_DIR)/hash.map.h $(INC_DIR)/list.h
-./groupStruct.o: $(INC_DIR)/groupStruct.h $(INC_DIR)/protocol.h $(INC_DIR)/gen.list.h $(INC_DIR)/list.h $(INC_DIR)/hash.map.h $(INC_DIR)/queue.h
+./usersManage.o: $(INC_DIR)/users_manager.h $(INC_DIR)/user_struct.h $(INC_DIR)/hash.map.h	
+./serverManager.o: $(INC_DIR)/server_manager.h $(INC_DIR)/protocol.h $(INC_DIR)/server_net.h $(INC_DIR)/users_manager.h $(INC_DIR)/groups_manager.h	
+./protocol.o: $(INC_DIR)/server_net.h $(INC_DIR)/protocol.h
+./server.o: $(INC_DIR)/list.h $(INC_DIR)/gen.list.h $(INC_DIR)/server_net.h
+./userStruct.o: $(INC_DIR)/user_struct.h $(INC_DIR)/protocol.h $(INC_DIR)/list.h
+./serverMain.o: $(INC_DIR)/server_manager.h	
+./groupsManager.o: $(INC_DIR)/groups_manager.h $(INC_DIR)/group_struct.h $(INC_DIR)/queue.h $(INC_DIR)/hash.map.h $(INC_DIR)/list.h
+./groupStruct.o: $(INC_DIR)/group_struct.h $(INC_DIR)/protocol.h $(INC_DIR)/gen.list.h $(INC_DIR)/list.h $(INC_DIR)/hash.map.h $(INC_DIR)/queue.h
 
 check: $(TARGET)
 	./$(TARGET) 

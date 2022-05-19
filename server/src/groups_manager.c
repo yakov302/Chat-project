@@ -1,12 +1,5 @@
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "groupsManager.h"
-#include "groupStruct.h"
-#include "hash.map.h"
-#include "queue.h"
-#include <math.h>
+#include "groups_manager.h"
+
 #define MAGIC_NUMBER 144522
 #define QUEUE_SIZE 100
 #define BUFFER_SIZE 800
@@ -118,7 +111,6 @@ char buf[IP_SIZE];
 	}
 }
 
-
 /**************************DestroyGroupsManager***************************/
 
 void DestroyGroupsManager (GrupsMng* _manager)
@@ -191,7 +183,6 @@ int len;
 	
 return DUPLICATE_GROUP_NAME_FAIL;
 }
-
 
 /**************************JoinExistingGroup***************************/
 
@@ -290,12 +281,9 @@ static void printValue(void* _value)
 
 void PullKey2(void* _data, char _str[])
 {
-
-strcat(_str, (char*)_data);
-strcat(_str, "\n");
+	strcat(_str, (char*)_data);
+	strcat(_str, "\n");
 }
-
-
 
 void giveGroups(GrupsMng* _groups, char _str[])
 {

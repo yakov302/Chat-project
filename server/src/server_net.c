@@ -1,16 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
- #include <unistd.h>
-#include <sys/select.h>
-#include <errno.h>
-#include "list.h"
-#include "gen.list.h"
-#include "server.h"
+#include "server_net.h"
+
 #define SERVER_PORT 5555
 #define SERVER_IP "127.0.0.1"
 #define BUFFER_SIZE 5500
@@ -28,18 +17,18 @@
 
 struct Server
 {
-AcceptClient m_acceptClient;
-ReceiveMessage m_receiveMessage;
-CloseClient m_closeClient;
-Fail m_fail;
-List* m_list;
-fd_set* m_socketsList;
-void* m_context;
-int m_listenSocket;
-int m_maxSokets;
-int m_pause;
-int m_magicNumber;
-int m_maxMessageZize;
+	AcceptClient m_acceptClient;
+	ReceiveMessage m_receiveMessage;
+	CloseClient m_closeClient;
+	Fail m_fail;
+	List* m_list;
+	fd_set* m_socketsList;
+	void* m_context;
+	int m_listenSocket;
+	int m_maxSokets;
+	int m_pause;
+	int m_magicNumber;
+	int m_maxMessageZize;
 };
 
 /**************************GlobalVariables***************************/
@@ -84,7 +73,6 @@ Server* server;
 	server -> m_pause = OFF;
 	server -> m_magicNumber = MAGIC_NUMBER;
 	server -> m_socketsList  = &socketsList;
-
 
 	if((server -> m_list = ListCreate()) == NULL)
 	{

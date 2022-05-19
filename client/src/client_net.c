@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "client_net.h"
-#include "client_app.h"
-#include "vector.h"
+
 #define SERVER_PORT 5555
 #define SERVER_IP "127.0.0.1"
 #define BUFFER_SIZE 500
@@ -11,33 +7,12 @@
 #define GROUPS_AMOUNT 20
 
 
-
-/*void GetIP (GroupAndId* _grpID, char _ip[]) 
-{
-	if (_grpID == NULL)
-	{
-		return;
-	}
-	strcpy (_ip, _grpID->m_groupIp);
-}*/
-/*******************GetUserPID***********************/
-/*int GetUserPID(Client* _client)
-{
-	 return _client-> m_groupVector -> m_idUser;
-}*/
-/*******************GetGroupPID***********************/
-/*int GetGroupPID(Client* _client)
-{
-	return _client->m_groupVector->m_idGroup;
-}*/
-
 /**************************FunctionSignatures***************************/
 
 static void SinSetting(struct sockaddr_in *_sin);
 int ClientInitialization(struct sockaddr_in *_sin);
 static int ConnectToServer(struct sockaddr_in *_sin, int _socketNum);
 static int SendAndReceiveData(int _socketNum, char* _buffer, int _length);
-
 
 int soket;
 
@@ -56,30 +31,29 @@ static void SinSetting(struct sockaddr_in *_sin)
 
  int ClientInitialization(struct sockaddr_in *_sin)
 {
-/*int socketNum;*/
-int optval = 1;
+	int optval = 1;
 
-	/*socketNum*/ soket = socket(AF_INET, SOCK_STREAM, 0);
-	if(soket /*socketNum*/ < 0)
+	soket = socket(AF_INET, SOCK_STREAM, 0);
+	if(soket < 0)
 	{
 		perror("Socket fail!\n");
 		return CLIENT_FAIL;
 	}
 		
-	if(setsockopt(soket/*socketNum*/, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+	if(setsockopt(soket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
 	{
 		perror("Setsockopt fail!\n");
 		return CLIENT_FAIL;
 	}
 		
-return /*socketNum*/ soket;
+	return soket;
 }
 
 /********************RunClientNet*************************/
 
 void RunClientNet(Client* _client, char* _buffer, int _length)
 {
-struct sockaddr_in sin;
+	struct sockaddr_in sin;
 
 	if(_client == NULL)
 	{
@@ -87,8 +61,8 @@ struct sockaddr_in sin;
 	}
 	
 	SinSetting(&sin);
-	ConnectToServer(&sin, soket /*_client -> m_socket*/);
-	SendAndReceiveData(soket /*_client -> m_socket*/, _buffer, _length);
+	ConnectToServer(&sin, soket);
+	SendAndReceiveData(soket, _buffer, _length);
 }
 
 /********************SendRecive*************************/
@@ -100,7 +74,7 @@ void SendRecive(Client* _client, char* _buffer, int _length)
 		return;
 	}
 
-	SendAndReceiveData(soket/*_client -> m_socket*/, _buffer, _length);
+	SendAndReceiveData(soket, _buffer, _length);
 }
 
 /*****************ConnectToServer********************/
@@ -115,7 +89,7 @@ static int ConnectToServer(struct sockaddr_in *_sin, int _socketNum)
 		return CLIENT_FAIL;	
 	}
 	
-return CLIENT_SUCCESS;
+	return CLIENT_SUCCESS;
 }
 
 /******************SendAndReceiveData*************************/
@@ -147,36 +121,15 @@ int sentByte;
 		
 		_buffer[receiveBytes] = '\0';
 		
-return CLIENT_SUCCESS;
+	return CLIENT_SUCCESS;
 }
 
 
 
-/*******************getClientName***********************/
-
-/*void getClientName(Client* _client, char _str[])
-{
-	strcpy(_str, _client ->  m_name);
-}*/
-/*******************setClientName***********************/
-
-/*void setClientName(Client* _client, char _str[])
-{
-	strcpy(_client ->  m_name, _str);
-}*/
-
-/*******************setPassword***********************/
-
-/*void setPassword(Client* _client, char _str[])
-{
-	strcpy(_client ->  m_passWord, _str);
-}*/
 
 
 
 
 
-	
-	
-	
+
 	

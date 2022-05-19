@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "server.h"
 #include "protocol.h"
+
 #define NOT_INITIALIZE -1
 #define COMPLETE_MESSAGE 1
 #define INCOMPLETE_MESSAGE 0
@@ -220,11 +217,12 @@ int strLen;
 	
 return INCOMPLETE_MESSAGE;	
 }
+
 /**************************InternalFunctions***************************/
 
 static void EncryptBuffer(char _encryptionKey[], void* _buffer, int _messageSize)
 {
-/*char* encryptBuffer = (char*) _buffer;
+char* encryptBuffer = (char*) _buffer;
 int keyLen = strlen(_encryptionKey);
 int j = 0;
 int i;
@@ -235,13 +233,13 @@ int i;
 		j = (j + 1)%keyLen;
 	}
 	
-_buffer = encryptBuffer;*/
+_buffer = encryptBuffer;
 }
 
 
 static void DecryptBuffer(char _encryptionKey[], void* _encryptBuffer, int _messageSize)
 {
-/*char* decryptBuffer = (char*) _encryptBuffer;
+char* decryptBuffer = (char*) _encryptBuffer;
 int keyLen = strlen(_encryptionKey);
 int j = 0;
 int i;
@@ -252,7 +250,7 @@ int i;
 		j = (j + 1)%keyLen;
 	}
 	
-_encryptBuffer = decryptBuffer;*/
+_encryptBuffer = decryptBuffer;
 }
 
 

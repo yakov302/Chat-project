@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
     }
     pidIn = getpid();
     SaveUIdToFile(pidIn);
-    /*use setsockopt() to request that the kernel join a multicast group*/
     memset(&mreq, 0, sizeof(mreq));
     mreq.imr_multiaddr.s_addr = inet_addr(ip);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
