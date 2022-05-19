@@ -1,15 +1,8 @@
 #ifndef __CLIENT_APP_H__
 #define __CLIENT_APP_H__
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <signal.h>
-#include <stdio.h>
 
 #include "client_net.h"
 #include "protocol.h"
@@ -63,6 +56,7 @@ int UserWindow(char* _ip,char* _userName, char* _groupName);
 params- there aren't params
 the function return pointer to this struct*/
 GroupAndId* groupAndIdCreate(void);
+
 
 #endif 
 

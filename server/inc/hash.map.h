@@ -1,8 +1,7 @@
 #ifndef __HASH_MAP_H__
 #define __HASH_MAP_H__
-#include <stddef.h>  /* size_t */
 
-/********************returnMessages***********************/
+#include <stddef.h>  
 
 typedef enum Map_Result {
 	MAP_SUCCESS = 0,
@@ -17,15 +16,8 @@ typedef enum Map_Result {
 	MAP_LIST_INSERT_ERROR			
 } MapResult;
 
-/********************rename structHashMap***********************/
-
 typedef struct HashMap HashMap;
-
-/********************rename structElement***********************/
-
 typedef struct Element Element;
-
-/********************function typedef***********************/
 
 typedef size_t (*HashFunction)(void* _key);
 typedef int (*EqualityFunction)(void* _firstKey, void* _secondKey);
@@ -136,9 +128,9 @@ void HashMapPrint(HashMap* _map, PrintKey _PrintKey, PrintValue _PrintValue);
 
 
 /****testFunction******/
+
 void* GetKey(HashMap* _map, int index, void* _Key);
-
-
 void PutKeysInStr(HashMap* _map, char _str[], PullKey _PullKey);
+
 
 #endif /*#ifndef__HASH_MAP_H__*/

@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "server_net.h"
-
 #include "protocol.h"
 
 #define NOT_INITIALIZE -1
@@ -18,11 +13,10 @@ static void DecryptBuffer(char _encryptionKey[], void* _encryptBuffer, int _mess
 
 int PackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, MessagesTypes _messagesTypes)
 {
-char* pack = (char*) _buffer;
-int m_secondLen;
-int m_firstLen;
-int i;
-
+	char* pack = (char*) _buffer;
+	int m_secondLen;
+	int m_firstLen;
+	
 	if(_struct == NULL || _buffer == NULL)
 	{
 		return NOT_INITIALIZE;	
@@ -33,33 +27,25 @@ int i;
 	
 	*pack = _messagesTypes;
 	*(pack + 1) = m_firstLen + m_secondLen + 2;
-	*(pack + 2) = m_firstLen;
-	
-	for(i = 3; i < m_firstLen + 3; i++)
-	{
-		*(pack + i) = *(_struct -> m_first + i - 3);
-	}
-	
+	*(pack + 2) = m_firstLen;	
+	strcpy((pack + 3), _struct -> m_first);
 	*(pack + 3 + m_firstLen) = m_secondLen;
-	for(i = 4 + m_firstLen; i < m_secondLen + m_firstLen + 4; i++)
-	{
-		*(pack + i) = *(_struct -> m_second + i - 4 - m_firstLen);
-	}
-	
+	strcpy((pack + 4 + m_firstLen), _struct -> m_second);
+
 	EncryptBuffer("YakovYosiRotem", pack, m_firstLen + m_secondLen + 4);
 
 	_buffer = pack;
 
-return m_firstLen + m_secondLen + 4;
+	return m_firstLen + m_secondLen + 4;
 }
 
 /**************************UnpackFirstAndSecond***************************/
 
 MessagesTypes UnpackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, int _messageSize)
 {
-int m_firstLen;
-int m_secondLen;
-char* pack = (char*) _buffer;
+	int m_firstLen;
+	int m_secondLen;
+	char* pack = (char*) _buffer;
 
 	if(_struct == NULL || _buffer == NULL)
 	{
@@ -76,16 +62,15 @@ char* pack = (char*) _buffer;
 	strncpy(_struct -> m_second, (pack + 4 + m_firstLen), m_secondLen);
 	_struct -> m_second[m_secondLen] = '\0';
 	
-return *pack;
+	return *pack;
 }
 
 /**************************PackStringMassage***************************/
 
 int PackStringMassage(char _str[] , void* _buffer, MessagesTypes _messagesTypes)
 {
-char* pack = (char*) _buffer;
-int strLen;
-int i;
+	char* pack = (char*) _buffer;
+	int strLen;
 
 	if(_str == NULL || _buffer == NULL)
 	{
@@ -96,26 +81,21 @@ int i;
 
 	*pack = _messagesTypes;
 	*(pack + 1) = strLen;
-	
-	for(i = 2; i < strLen + 2; i++)
-	{
-		*(pack + i) = *(_str + i - 2);
-	}
+	strcpy((pack + 2), _str);
 	
 	EncryptBuffer("YakovYosiRotem", pack, strLen + 2);
 
 	_buffer = pack;
 
-return strLen + 2;
+	return strLen + 2;
 }
 
 /**************************UnpackStringMassage***************************/
 
 MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize)
 {
-char* pack = (char*) _buffer;
-int strLen = *(pack + 1);
-int i;
+	char* pack = (char*) _buffer;
+	int strLen = *(pack + 1);
 
 	if(_str == NULL || _buffer == NULL)
 	{
@@ -129,7 +109,7 @@ int i;
 	strncpy(_str, (pack + 2), strLen); 
 	*(_str + strLen + 2) = '\0';
 		
-return *pack;
+	return *pack;
 }
 
 
@@ -137,7 +117,7 @@ return *pack;
 
 int PackStatusMassage(void* _buffer, MessagesTypes _messagesTypes)
 {
-char* pack = (char*) _buffer;
+	char* pack = (char*) _buffer;
 
 	if(_buffer == NULL)
 	{
@@ -151,14 +131,14 @@ char* pack = (char*) _buffer;
 
 	_buffer = pack;
 
-return 2;
+	return 2;
 }
 
 /**************************UnpackStatusMassage***************************/
 
 MessagesTypes UnpackStatusMassage(void* _buffer, int _messageSize)
 {
-char* pack = (char*) _buffer;
+	char* pack = (char*) _buffer;
 
 	if(_buffer == NULL)
 	{
@@ -169,46 +149,46 @@ char* pack = (char*) _buffer;
 	
 	pack = (char*) _buffer;
 		
-return *pack;
+	return *pack;
 }
 
 /**************************ReturnMessageSize***************************/
 
 int ReturnMessageSize(void* _buffer)
 {
-char* unpack;
-int size;
+	char* unpack;
+	int size;
 
 	DecryptBuffer("YakovYosiRotem", _buffer, 2);
 	unpack = (char*) _buffer;
 	size = *(unpack + 1) + 2;
 	EncryptBuffer("YakovYosiRotem", _buffer, 2);
 
-return size;
+	return size;
 }
 
 /**************************ReturnMessageType***************************/
 
 MessagesTypes ReturnMessageType(void* _buffer)
 {
-char* unpack;
-MessagesTypes type;
+	char* unpack;
+	MessagesTypes type;
 
 	DecryptBuffer("YakovYosiRotem", _buffer, 2);
 	unpack = (char*) _buffer;
 	type = *(unpack);
 	EncryptBuffer("YakovYosiRotem", _buffer, 2);
 
-return type;
+	return type;
 }
 
 /**************************IsThatTheWholeMessage***************************/
 
 int IsThatTheWholeMessage (char _encryptionKey[], void* _buffer, int _messageSize)
 {
-char* pack = (char*) _buffer;
-int totalLen;
-int strLen;
+	char* pack = (char*) _buffer;
+	int totalLen;
+	int strLen;
 
 	DecryptBuffer("YakovYosiRotem", _buffer, 3);
 	pack = (char*) _buffer;
@@ -220,17 +200,17 @@ int strLen;
 		return COMPLETE_MESSAGE;
 	}
 	
-return INCOMPLETE_MESSAGE;	
+	return INCOMPLETE_MESSAGE;	
 }
 
 /**************************InternalFunctions***************************/
 
 static void EncryptBuffer(char _encryptionKey[], void* _buffer, int _messageSize)
 {
-char* encryptBuffer = (char*) _buffer;
-int keyLen = strlen(_encryptionKey);
-int j = 0;
-int i;
+	char* encryptBuffer = (char*) _buffer;
+	int keyLen = strlen(_encryptionKey);
+	int j = 0;
+	int i;
 
 	for(i = 0; i < _messageSize; i++)
 	{
@@ -238,15 +218,16 @@ int i;
 		j = (j + 1)%keyLen;
 	}
 	
-_buffer = encryptBuffer;
+	_buffer = encryptBuffer;
 }
+
 
 static void DecryptBuffer(char _encryptionKey[], void* _encryptBuffer, int _messageSize)
 {
-char* decryptBuffer = (char*) _encryptBuffer;
-int keyLen = strlen(_encryptionKey);
-int j = 0;
-int i;
+	char* decryptBuffer = (char*) _encryptBuffer;
+	int keyLen = strlen(_encryptionKey);
+	int j = 0;
+	int i;
 
 	for(i = 0; i < _messageSize; i++)
 	{
@@ -254,21 +235,7 @@ int i;
 		j = (j + 1)%keyLen;
 	}
 	
-_encryptBuffer = decryptBuffer;
+	_encryptBuffer = decryptBuffer;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

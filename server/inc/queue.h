@@ -1,25 +1,19 @@
 #ifndef __QUEUE_H__
 #define __QUEUE_H__
+
 #include <stdio.h>
 
-/************************Error messages****************************/
-
 typedef enum{
-QUEUE_SUCCESS,
-QUEUE_UNINITIALIZED_ERROR,
-QUEUE_OVERFLOW_ERROR,
-QUEUE_UNDERFLOW_ERROR,
-QUEUE_DATA_NOTFOUND_ERROR,
-QUEUE_THERE_ARE_DATA,
-QUEUE_DATA_UNINITIALIZED_ERROR
+    QUEUE_SUCCESS,
+    QUEUE_UNINITIALIZED_ERROR,
+    QUEUE_OVERFLOW_ERROR,
+    QUEUE_UNDERFLOW_ERROR,
+    QUEUE_DATA_NOTFOUND_ERROR,
+    QUEUE_THERE_ARE_DATA,
+    QUEUE_DATA_UNINITIALIZED_ERROR
 }QueueResult;
 
-
-/********************rename to struct Queue************************/
-
 typedef struct Queue Queue;
-
-/********************rename to function************************/
 
 typedef void (*DestroyItem)(void* _element);
 typedef int (*ActionFunction)(const void* _element, void* _context);
@@ -91,5 +85,6 @@ Action - Pointer to function that defines the action required to perform on all 
 Output:
 i - The number of times the function ran. (On how many elements?)*/
 size_t QueueForEach(Queue *_queue, ActionFunction Action , void* _context);
+
 
 #endif /*#ifndef__QUEUE_H__*/

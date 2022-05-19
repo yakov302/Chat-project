@@ -81,4 +81,5 @@ Output: SUCCESS - if loged out successfully
 	NOT_INITIAL_FAIL - if one of parameters is NULL**/
 UserMngResult UserLogOut (UserMng* _manager, char _name[]);
 
+
 #endif

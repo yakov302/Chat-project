@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	FILE* f1, *f2;
     int pid1, pid2;
     char command[100];
-    sprintf(command, "gnome-terminal -q -- ./chatin.out %s %s",IP, "aaaa");               /* --geometry=20x20*/
+    sprintf(command, "gnome-terminal -q -- ./chatin.out %s %s",IP, "aaaa"); 
     system(command);
 	
 	f1 = fopen("ip.txt","r");

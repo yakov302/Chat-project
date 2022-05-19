@@ -70,4 +70,5 @@ Input:
 *_group - Pointer to the group struct.*/
 void IncreseNumOfCleints (Group* _pValue);
 
+
 #endif /*#ifndef__GROUP_STRUCT_H__*/

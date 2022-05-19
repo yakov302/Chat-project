@@ -3,6 +3,7 @@
 #define YELLOW "\x1B[33m"
 #define NORMAL "\x1B[0m"
 #define RED "\x1B[91m"
+#define GREEN "\x1B[32m"
 
 /********************global var*********/
 
@@ -22,7 +23,7 @@ int MainMenu(void)
 	printf( "Select your choice: ");
 	scanf("%d", &mainChoice);
 	
-return mainChoice;
+	return mainChoice;
 }
 
 /************************SecondMenu**********************/
@@ -40,7 +41,7 @@ int SecondMenu(void)
 	printf("Select your choice: ");
 	scanf("%d", &secondChoice);
 	
-return secondChoice;
+	return secondChoice;
 }
 
 /********************InsertName***********************/
@@ -57,11 +58,9 @@ char* InsertName(char _name[])
 void InsertGroupName(char _name[])
 {
 	printf("please enter group name: ");
-	scanf("%s", _name); 
-	 
-return;
+	scanf("%s", _name);  
+	return;
 }
-
 
 /*********************InsertPassWord**************************/
 
@@ -82,80 +81,121 @@ void PrintInvalidChoice(void)
 /*********************PrintToClient*************************/
 
 void PrintToClient(MessagesTypes _type)
-{
-	printf(RED);
-	printf("\n  ->  ");
-	
+{	
 	switch(_type)
 	{
-         	case REGISTRATION_REQUEST_SUCCESS:
-         		printf("Registration success!");
-         		break;
-         		
-         	case REGISTRATION_REQUEST_DUPLICATE_USERNAME:
-        		 printf("Registration fail. Duplicate user name!");
-        		 break;
-        		 
-        	case REGISTRATION_REQUEST_FAIL:
-        	 	printf("Registration fail. try again!");
-        		break;
-       		 
-        	case LOG_IN_REQUEST_SUCCESS:
-          		 printf("Log in success!");
-        		 break;
-        		 
-         	case LOG_IN_REQUEST_WRONG_DETAILS:
-         		 printf("Log in fail. Wrong details!");
-         		 break;
-         		 
-          	case LOG_IN_REQUEST_FAIL:
-           		printf("Log in fail. Try again!");
-         		break;
+		case REGISTRATION_REQUEST_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("Registration success!");
+			printf("  <-  \n");
+			break;
+			
+		case REGISTRATION_REQUEST_DUPLICATE_USERNAME:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Registration fail. Duplicate user name!");
+			printf("  <-  \n");
+			break;
+				
+		case REGISTRATION_REQUEST_FAIL:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Registration fail. try again!");
+			printf("  <-  \n");
+			break;
+			
+		case LOG_IN_REQUEST_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("Log in success!");
+			printf("  <-  \n");
+			break;
+				
+		case LOG_IN_REQUEST_WRONG_DETAILS:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Log in fail. Wrong details!");
+			printf("  <-  \n");
+			break;
+				
+		case LOG_IN_REQUEST_FAIL:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Log in fail. Try again!");
+			printf("  <-  \n");
+			break;
 
-         	case LEAVE_CHAT_SUCCESS:
-           		printf("Successfully disconnected!");
-         		break;
-         	
-         	case OPEN_NEW_GROUP_SUCCESS:
-           		printf("The group opened successfully!");
-         		break;	
-         	
-         	case OPEN_NEW_GROUP_FAIL:
-           		printf("Failed to open the group. try again!");
-         		break;	
-         		
-         	case DUPLICATE_GROUP_NAME:
-           		printf("Duplicate group name. choose new name!");
-         		break;
-         		
-         	case JOIN_EXISTING_GROUP_SUCCESS:
-           		printf("successfully connected to the group!");
-         		break;
-         		
-         	case JOIN_EXISTING_GROUP_FAIL:
-           		printf("Join fail. try again!");
-         		break;
+		case LEAVE_CHAT_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("Successfully disconnected!");
+			printf("  <-  \n");
+			break;
+		
+		case OPEN_NEW_GROUP_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("The group opened successfully!");
+			printf("  <-  \n");
+			break;	
+		
+		case OPEN_NEW_GROUP_FAIL:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Failed to open the group. try again!");
+			printf("  <-  \n");
+			break;	
+			
+		case DUPLICATE_GROUP_NAME:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Duplicate group name. choose new name!");
+			printf("  <-  \n");
+			break;
+			
+		case JOIN_EXISTING_GROUP_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("successfully connected to the group!");
+			printf("  <-  \n");
+			break;
+			
+		case JOIN_EXISTING_GROUP_FAIL:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Join fail. try again!");
+			printf("  <-  \n");
+			break;
 
-         	case GROUP_NOT_FOUND:
-           		printf("No such group. try again!");
-         		break;	
-         		
-         	case LEAVE_GROUP_SUCCESS:
-           		printf("You left the group successfully!");
-         		break;
-         		
-        	case LEAVE_GROUP_FAIL:
-           		printf("Group leaving failed. try again!");
-         		break;
+		case GROUP_NOT_FOUND:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("No such group. try again!");
+			printf("  <-  \n");
+			break;	
+			
+		case LEAVE_GROUP_SUCCESS:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("You left the group successfully!");
+			printf("  <-  \n");
+			break;
+			
+		case LEAVE_GROUP_FAIL:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("Group leaving failed. try again!");
+			printf("  <-  \n");
+			break;
 
-        	case GROUP_DELETED:
-           		printf("You last. The group deleted!");
-         		break;
-         		
-         		
+		case GROUP_DELETED:
+			printf(GREEN);
+			printf("\n  ->  ");
+			printf("You last. The group deleted!");
+			printf("  <-  \n");
+			break;					
 	}
-	
-		printf("  <-  \n");
 }
 
 /*********************printGroupsNames*************************/
@@ -168,13 +208,6 @@ void printGroupsNames(char _str[])
 void printGroups(char _str[])
 {
 	printf("\nExisting groups:\n");
-	printf("%s", _str);
-	
+	printf("%s", _str);	
 }
-
-
-
-
-
-
 

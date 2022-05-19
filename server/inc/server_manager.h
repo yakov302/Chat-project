@@ -31,4 +31,5 @@ Input: pointer to application created above.
 Output: void.**/
 void DestroyServerApplication (Application* _application);
 
+
 #endif

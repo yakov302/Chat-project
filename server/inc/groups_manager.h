@@ -12,12 +12,7 @@
 #include "hash.map.h"
 #include "queue.h"
 
-
-/************************RenameToStructGrupsMng*************************/
-
 typedef struct GrupsMng GrupsMng;
-
-/************************GrupsMngResultEnum*************************/
 
 typedef enum GrupsMngResult
 {
@@ -104,7 +99,6 @@ Input:
  _groups - Pointer to the group manager struct.
 _str[] - wiil accept all the groups in HashMap.*/
 void giveGroups(GrupsMng* _groups, char _str[]);
-
 
 
 #endif

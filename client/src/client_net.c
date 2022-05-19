@@ -1,7 +1,7 @@
 #include "client_net.h"
 
-#define SERVER_PORT 5555
 #define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 5555
 #define BUFFER_SIZE 500
 #define MAGIC_NUMBER 8123475
 #define GROUPS_AMOUNT 20
@@ -17,14 +17,14 @@ static int SendAndReceiveData(int _socketNum, char* _buffer, int _length);
 int soket;
 
 /*********************SinSetting****************************/
-
+//Set fixed IP and port to server
 static void SinSetting(struct sockaddr_in *_sin)
 {
-	memset (_sin, 0, sizeof(*_sin));
+	memset (_sin, 0, sizeof(*_sin)); //Reset the struct
 	
-	_sin -> sin_family = AF_INET;
-	_sin -> sin_addr.s_addr =  inet_addr(SERVER_IP);
-	_sin -> sin_port = htons(SERVER_PORT);
+	_sin -> sin_family = AF_INET; // For version 4 - AF_INET.  For version 6 - AF_INET6.
+	_sin -> sin_addr.s_addr =  inet_addr(SERVER_IP); // ip in network byte
+	_sin -> sin_port = htons(SERVER_PORT); //port in network byte
 }
 
 /******************ClientInitialization************************/
@@ -33,13 +33,15 @@ static void SinSetting(struct sockaddr_in *_sin)
 {
 	int optval = 1;
 
+	//Open channel between the application and the networking package of the OS
 	soket = socket(AF_INET, SOCK_STREAM, 0);
 	if(soket < 0)
 	{
 		perror("Socket fail!\n");
 		return CLIENT_FAIL;
 	}
-		
+
+	//Immediate release the port when connection close
 	if(setsockopt(soket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
 	{
 		perror("Setsockopt fail!\n");
@@ -100,36 +102,27 @@ char* recvBuffer;
 int receiveBytes;
 int sentByte;
 		
-		sentByte = send(_socketNum, _buffer, _length, 0);
-		if(sentByte < 0)
-		{
-			perror("Send fail!\n");	
-			return CLIENT_FAIL;	
-		}
-		
-		receiveBytes = recv(_socketNum, _buffer, BUFFER_SIZE,0);
-		if(receiveBytes == 0)
-		{
-			printf("Connection closed!\n");
-			return CLIENT_FAIL;
-		}
-		if(receiveBytes < 0)
-		{
-			perror("Receive fail!\n");
-			return CLIENT_FAIL;	
-		}
-		
-		_buffer[receiveBytes] = '\0';
-		
+	sentByte = send(_socketNum, _buffer, _length, 0);
+	if(sentByte < 0)
+	{
+		perror("Send fail!\n");	
+		return CLIENT_FAIL;	
+	}
+	
+	receiveBytes = recv(_socketNum, _buffer, BUFFER_SIZE, 0);
+	if(receiveBytes == 0)
+	{
+		printf("Connection closed!\n");
+		return CLIENT_FAIL;
+	}
+	if(receiveBytes < 0)
+	{
+		perror("Receive fail!\n");
+		return CLIENT_FAIL;	
+	}
+	
+	_buffer[receiveBytes] = '\0';
+
 	return CLIENT_SUCCESS;
 }
-
-
-
-
-
-
-
-
-
 	

@@ -1,23 +1,17 @@
 #ifndef __LIST_H__
 #define __LIST_H__
-#include <stddef.h>  /*size_t*/
 
-/************************Error messages****************************/
+#include <stddef.h>  
 
 typedef enum List_Result{
-LIST_SUCCESS,
-LIST_UNINITIALIZED_ERROR,			
-LIST_ALLOCATION_ERROR,				
-LIST_NULL_ELEMENT_ERROR,
-LIST_UNDERFLOW_ERROR
+    LIST_SUCCESS,
+    LIST_UNINITIALIZED_ERROR,			
+    LIST_ALLOCATION_ERROR,				
+    LIST_NULL_ELEMENT_ERROR,
+    LIST_UNDERFLOW_ERROR
 } ListResult;
 
-/********************rename to struct Node************************/
-
 typedef struct Node Node;
-
-/********************rename to struct List************************/
-
 typedef struct List List;
 
 
@@ -99,6 +93,7 @@ Output:
 0 - if _list == NULL.
 count - the number of nodes in the List.*/
 size_t ListSize(const List* _list);
+
 
 #endif /* __LIST_H__ */
 

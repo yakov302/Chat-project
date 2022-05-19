@@ -15,8 +15,6 @@
 #include "gen.list.h"
 #include "list.h"
 
-/*********************ServerErrors********************/
-
 typedef enum ServerErr{
     LIST_CREATE_FAIL,
     SOCKET_FAIL,
@@ -34,21 +32,15 @@ typedef enum ServerErr{
     SEND_FAIL
 }ServerErr;
 
-/***********************RenameToStructs***********************/
-
 typedef struct Server Server;
 typedef struct  CreateInputs CreateInputs;
-
-/*********************ApplicationFanction********************/
 
 typedef int (*AcceptClient)(int _clientId, void*_context);
 typedef void (*ReceiveMessage)(Server* _server, int _clientId, void* _message, int _messageSize, void*_context);
 typedef void (*CloseClient)(int _clientId, void*_context);
 typedef void (*Fail)(Server* _server, ServerErr _failErr, char* _perror, void*_context);
 
-/*********************StructCreateInputs********************/
 /*Input structure that needs to be transferred to the server in the "CreateServer" function*/
-
 struct CreateInputs
 {
     /*Application Function - Receiving new client.
@@ -75,7 +67,7 @@ struct CreateInputs
 
     /*Pointer that can point to anything that is important for you to pass to the server.*/ 			      
     void* m_context;
-    
+
     /*The maximum message size that the server can receive(in bytes)*/
     int m_maxMessageZize;
 };

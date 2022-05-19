@@ -19,7 +19,7 @@ $(TARGET): $(OBJS)
 ./client_app.o: $(INC_DIR)/client_app.h 
 ./client_net.o: $(INC_DIR)/client_net.h	
 ./client_app.o: $(INC_DIR)/client_net.h  $(INC_DIR)/client_app.h $(INC_DIR)/protocol.h $(INC_DIR)/ui.h	
-./protocol.o: $(INC_DIR)/server_net.h $(INC_DIR)/protocol.h
+./protocol.o: $(INC_DIR)/protocol.h
 ./ui.o: $(INC_DIR)/protocol.h	
 ./clientMain.o: $(INC_DIR)/protocol.h $(INC_DIR)/client_app.h $(INC_DIR)/ui.h
 

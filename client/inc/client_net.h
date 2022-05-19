@@ -2,19 +2,8 @@
 #define __CLIENT_NET_H__
 
 #include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/select.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <unistd.h>
-
-#include "client_app.h"
-#include "vector.h"
-
-/************************ClientResultEnum*************************/
 
 typedef enum ClientResult
 {
@@ -23,8 +12,6 @@ typedef enum ClientResult
     CLIENT_NULL,
     CLIENT_ALLOCATION_FAIL
 } ClientResult;
-
-/************************ClientResultEnum*************************/
 
 typedef struct Client Client;
 typedef struct GroupAndId GroupAndId;

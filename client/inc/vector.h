@@ -1,19 +1,15 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
+
 #include <stdio.h>
 
-
-/*Error messages*/
-
 typedef enum VectorResult {
-VECTOR_SUCCESS,
-VECTOR_UNITIALIZED_ERROR, 
-VECTOR_ALLOCTION_ERROR,
-VECTOR_INDEX_OUT_OF_BOUNDS_ERROR,
-VECTOR_OVERFLOW_ERROR
+    VECTOR_SUCCESS,
+    VECTOR_UNITIALIZED_ERROR, 
+    VECTOR_ALLOCTION_ERROR,
+    VECTOR_INDEX_OUT_OF_BOUNDS_ERROR,
+    VECTOR_OVERFLOW_ERROR
 }VectorResult;
-
-/*Rename to struct Vector*/
 
 typedef struct Vector Vector;
 
@@ -124,7 +120,6 @@ Input:
 Output:
 i - The index where the function vectorElementAction returned 0. or the index at the last place + 1 if the function ran on all the elements without stopping.*/
 size_t VectorForEach(const Vector* _vector, int(*_vectorElementAction)(void*, size_t , void*), void* _context);
-
 
 
 #endif /*#ifndef__VECTOR_H__*/
