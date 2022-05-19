@@ -5,6 +5,8 @@ typedef struct Application Application;
 
 Application* CreateServerApplication ();
 
+void RunApplication (Application* application);
+
 void DestroyServerApplication (Application* _application);
 
 #endif

@@ -50,6 +50,10 @@ int PackStringMassage(char _str[] , void* _buffer, MessagesTypes _messagesTypes)
 
 MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize);
 
+int PackStatusMassage(void* _buffer, MessagesTypes _messagesTypes);
+
+MessagesTypes UnpackStatusMassage(void* _buffer, int _messageSize);
+
 int ReturnMessageSize(void* _buffer);
 
 MessagesTypes ReturnMessageType(void* _buffer);

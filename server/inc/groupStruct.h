@@ -30,7 +30,7 @@ void DecreseNumOfCleints (Group* _pValue);
 
 void IncreseNumOfCleints (Group* _pValue);
 
-int GetGroupNumOfClients(Group* _pValue);
+int GetGroupNumOfClients (Group* _group);
 
 void SetGroupIp (Group* _group, char _groupIp[]);
 

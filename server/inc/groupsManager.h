@@ -30,6 +30,8 @@ GrupsMngResult JoinExistingGroup (char _groupName[] , GrupsMng* _manager, char _
 
 GrupsMngResult LeaveGroup (char _groupName[] , GrupsMng* _manager, char _buffer[]);
 
+void giveGroups(GrupsMng* _groups, char _str[]);
+
 GrupsMngResult PackExistingGroup (GrupsMng* _manager, char* _buffer, MessagesTypes _messagesTypes);
 
 #endif

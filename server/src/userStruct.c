@@ -102,7 +102,7 @@ int AddGroupForUser (User* _user, char* _groupName)
 	return USER_STRUCT_SUCCESS;
 }
 	
-RemoveGroupFromUser (User* _user, char* _groupName)
+int RemoveGroupFromUser (User* _user, char* _groupName)
 {
 	ListItr begin, end;
 	void* pValue;

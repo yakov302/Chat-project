@@ -15,6 +15,9 @@ void PrintInvalidChoice(void);
 
 void PrintToClient(MessagesTypes _type);
 
+void printGroups(char _str[]);
+
+void printGroupsNames(char _str[]);
 
 
 #endif 

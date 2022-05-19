@@ -35,4 +35,6 @@ List* UserGetOutFromAllGroups (UserMng* _manager, char _name[]);
 
 UserMngResult UserLogOut (UserMng* _manager, char _name[]);
 
+int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng);
+
 #endif

@@ -53,7 +53,7 @@ void GetGroupIp (Group* _group, char _groupIp[])
 int GetGroupNumOfClients (Group* _group)
 {
 	if (_group == NULL)
-	{return;}
+	{return 0;}
 	
 return  _group -> m_numOfClients;
 }

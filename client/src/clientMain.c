@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "protocol.h"
 #include "client_app.h"
+#include "ui.h"
 
 
 int resFromMenu = 0;

@@ -106,7 +106,7 @@ int resFromMenu;
       		{
 			case REGISTRATION:
           			newClient = ClientCreate();
-				ClientRunApp(newClient, _resFromMenu);
+					ClientRunApp(newClient, _resFromMenu);
           			break;
           			
 			case LOG_IN:
