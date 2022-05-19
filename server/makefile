@@ -32,3 +32,7 @@ groupStruct.o: groupStruct.c groupStruct.h protocol.h gen.list.h list.h hash.map
 	$(CC) $(CFLAGS) -c groupStruct.c	
 clean:
 	rm -f $(TARGET) $(OBJS)
+	
+# Before running the executable file write in the terminal the commands below :
+# 1. LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
+# 2. export LD_LIBRARY_PATH
