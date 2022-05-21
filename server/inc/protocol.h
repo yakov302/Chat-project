@@ -1,11 +1,8 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
-
-#include "server_net.h"
 
 #define MEMBER_SIZE 50
 #define IP_SIZE 20
@@ -42,10 +39,9 @@ typedef enum MessagesTypes{
 
 struct FirstAndSecond
 {
-char m_first[MEMBER_SIZE];
-char m_second[MEMBER_SIZE];
+    char m_first[MEMBER_SIZE];
+    char m_second[MEMBER_SIZE];
 };
-
 typedef struct FirstAndSecond FirstAndSecond;
 
 

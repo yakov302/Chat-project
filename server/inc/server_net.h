@@ -1,19 +1,13 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/select.h>
 #include <arpa/inet.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
 #include <errno.h>
 
 #include "gen.list.h"
-#include "list.h"
 
 typedef enum ServerErr{
     LIST_CREATE_FAIL,

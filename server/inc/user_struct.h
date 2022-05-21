@@ -3,11 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "protocol.h"
 #include "gen.list.h"
-#include "list.h"
+#include "protocol.h"
 
 #define ACTIVE 1
 #define NO_ACTIVE 0

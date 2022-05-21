@@ -1,15 +1,11 @@
 #ifndef __USERS_MANAGER_H__
 #define __USERS_MANAGER_H__
 
-#include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
 
 #include "user_struct.h"
-#include "protocol.h"
 #include "hash.map.h"
-#include "list.h"
 
 typedef struct UserMng UserMng;
 

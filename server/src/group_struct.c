@@ -1,20 +1,10 @@
 #include "group_struct.h"
 
 #define MAGIC_NUMBER 144522
-#define SIZE 30
-
-struct Group
-{
-	char m_groupName[SIZE];
-	char m_groupIp[SIZE];
-	int m_numOfClients;
-	int m_magicNumber;
-};
 
 Group* CreateNewGroup (char _groupName[])
 {	
-Group* newGroup = (Group*) malloc (sizeof(Group));
-
+	Group* newGroup = (Group*) malloc (sizeof(Group));
 	if (newGroup == NULL)
 	{return NULL;}
 
@@ -22,7 +12,7 @@ Group* newGroup = (Group*) malloc (sizeof(Group));
 	newGroup -> m_numOfClients = 0;
 	newGroup -> m_magicNumber = MAGIC_NUMBER;
 
-return newGroup;
+	return newGroup;
 }
 
 void DestroyGroup (Group* _group)
@@ -49,7 +39,7 @@ int GetGroupNumOfClients (Group* _group)
 	if (_group == NULL)
 	{return 0;}
 	
-return  _group -> m_numOfClients;
+	return  _group -> m_numOfClients;
 }
 
 void SetGroupIp (Group* _group, char _groupIp[])
@@ -57,7 +47,7 @@ void SetGroupIp (Group* _group, char _groupIp[])
 	if (_group == NULL)
 	{return;}
 	
-	strcpy(_group -> m_groupIp, _groupIp);
+	strcpy(_group->m_groupIp, _groupIp);
 }
 
 void DecreseNumOfCleints (Group* _pValue)
@@ -74,6 +64,4 @@ int GetNumOfClients(Group* _pValue)
 {
 	return _pValue->m_numOfClients;
 }
-
-
 

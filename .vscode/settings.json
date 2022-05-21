@@ -3,6 +3,9 @@
         "ui.h": "c",
         "type_traits": "c",
         "client_app.h": "c",
-        "client_net.h": "c"
+        "client_net.h": "c",
+        "gen.list.h": "c",
+        "user_struct.h": "c",
+        "queue.h": "c"
     }
 }

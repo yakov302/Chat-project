@@ -9,7 +9,6 @@
 #define MAX_GROUPS 100 
 #define PORT "555"
 
-/***********struct of application**************/
 struct Application
 {
 	Server* m_server;
@@ -30,35 +29,42 @@ Application* CreateServerApplication ()
 	Application* application;
 	application = (Application*) malloc (sizeof(application));
 	if (application == NULL)
-	{
-		return NULL;
-	}
+	{return NULL;}
+	
 	application->m_input = CreateInputsStruct(NULL, GetMessage, NULL, FailErr, application);
 	if (application->m_input == NULL)
 	{
+		free(application);
 		return NULL;
 	}
+
 	application->m_server = CreateServer(application->m_input);
 	if (application->m_server == NULL)
 	{
 		free (application->m_input);
+		free(application);
 		return NULL;
 	}
+
 	application->m_users = CreateRegisteredUsersPull (application->m_input-> m_maxSokets); 
 	if (application->m_users == NULL) 
 	{
 		DestroyServer(application->m_server);
 		free (application->m_input);
+		free(application);
 		return NULL;
 	}
+	
 	application->m_groups = CreateGroupsManager (MAX_GROUPS);
 	if (application->m_groups == NULL)
 	{
 		DestroyRegisteredUsersPull (application->m_users);
 		DestroyServer(application->m_server);
-		/*free (application->m_input);*/
+		free (application->m_input);
+		free(application);
 		return NULL;
 	}
+
 	application->m_magicNumber = MAGIC_NUMBER;
 	return application; 
 }
@@ -66,9 +72,8 @@ Application* CreateServerApplication ()
 void DestroyServerApplication (Application* _application)
 {
 	if (_application == NULL || _application->m_magicNumber != MAGIC_NUMBER)
-	{
-		return;
-	}
+	{return;}
+
 	DestroyServer(_application->m_server);
 	DestroyRegisteredUsersPull(_application->m_users);
 	DestroyGroupsManager (_application->m_groups);
@@ -86,13 +91,11 @@ CreateInputs* CreateInputsStruct(AcceptClient _newClient, ReceiveMessage _getMes
 {
 	CreateInputs* inputs;
 	if(_getMessage == NULL || _failErr == NULL)
-	{
-		return NULL;
-	}
+	{return NULL;}
+
 	if((inputs = (CreateInputs*) malloc(sizeof(CreateInputs))) == NULL)
-	{
-		return NULL;
-	}
+	{return NULL;}
+
 	inputs -> m_acceptClient = _newClient;
 	inputs -> m_receiveMessage = _getMessage;
 	inputs -> m_closeClient = _removeClient;
@@ -115,16 +118,12 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 	ListItr itr;
 	ListItr end ;
 	void* groupName;
-		
-		
+				
 	switch (_type)
 	{
 		case REGISTRATION_REQUEST: 
-		/*isMassegeComlete*/
-		UnpackFirstAndSecond (&user, _message, _messageSize); /*function of protocol*/
-		
-		/*if fail...*/
-		status = CreateUser (&user , ((Application*)_application)->m_users, NOT_FROME_LOWD);/*function of usersManager*/
+		UnpackFirstAndSecond (&user, _message, _messageSize); 
+		status = CreateUser (&user , ((Application*)_application)->m_users, NOT_FROME_LOWD);
 		if (status == DUPLICATE_USERNAME)
 		{
 			length = PackStatusMassage (_buffer,  REGISTRATION_REQUEST_DUPLICATE_USERNAME);
@@ -138,11 +137,9 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			length = PackStatusMassage ( _buffer, REGISTRATION_REQUEST_FAIL);
 		}
 		return length;
-		break;
+				
 		case LOG_IN_REQUEST:
-		/*isMassegeComlete*/
-		UnpackFirstAndSecond (&user, _message, _messageSize); /*function of protocol*/
-		
+		UnpackFirstAndSecond (&user, _message, _messageSize); 	
 		status = LogInUser (&user , ((Application*)_application)->m_users);
 		if (status == WRONG_DETAILS)
 		{
@@ -157,15 +154,9 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			length = PackStatusMassage (_buffer, LOG_IN_REQUEST_FAIL);
 		}
 		return length;
-		break;		
+
 		case OPEN_NEW_GROUP_REQUEST:
-		/*isMassegeComlete*/
 		UnpackFirstAndSecond (&user, _message, _messageSize);
-		/*status = IsUsernameCorrect (((Application*)_application)->m_users, user.m_second);
-		if (status == NO_FOUND_IN_HASH)
-		{
-			length = PackStatusMassage (_buffer, LOG_IN_REQUEST_WRONG_DETAILS);
-		}*/
 		strcpy (name, user.m_first);		
 		status = CreateGroup (user.m_first , ((Application*)_application)->m_groups, str);
 		if (status == GROUP_SUCCESS)
@@ -192,7 +183,7 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			length = PackStatusMassage (_buffer, OPEN_NEW_GROUP_FAIL);
 		}
 		return length;
-		break;
+		
 		case PRINT_EXISTING_GROUPS_REQUEST:
 
 			giveGroups(((Application*)_application)-> m_groups, strGroups);
@@ -200,61 +191,44 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			return length;
 			
 		case JOIN_EXISTING_GROUP_REQUEST:
-
-		/*isMassegeComlete*/
-		UnpackFirstAndSecond (&user, _message, _messageSize);
-		/*status = IsUsernameCorrect (((Application*)_application)->m_users, user.m_first);
-		if (status == NO_FOUND_IN_HASH)
-		{
-			length = PackStatusMassage (_buffer, LOG_IN_REQUEST_WRONG_DETAILS);
-		}*/
-		strcpy (name, user.m_first);
-		status = JoinExistingGroup (user.m_first , ((Application*)_application)->m_groups, str);	
-		if (status == GROUP_SUCCESS)
-		{
-			status2 = UserJoinGroup (((Application*)_application)->m_users, user.m_second ,user.m_first);
-		/****/	if (status2 == CONNECT_TO_SAME_GROUP)
+			UnpackFirstAndSecond (&user, _message, _messageSize);
+			strcpy (name, user.m_first);
+			status = JoinExistingGroup (user.m_first , ((Application*)_application)->m_groups, str);	
+			if (status == GROUP_SUCCESS)
 			{
-				length = PackStatusMassage (_buffer,/**/ DUPLICATE_GROUP_CONNECT/**/);
+				status2 = UserJoinGroup (((Application*)_application)->m_users, user.m_second ,user.m_first);
+				if (status2 == CONNECT_TO_SAME_GROUP)
+				{
+					length = PackStatusMassage (_buffer, DUPLICATE_GROUP_CONNECT);
+				}
+				else if (status2 == SUCCESS)
+				{
+					strcpy (user.m_first, str);
+					strcpy (user.m_second, name);	
+					length = PackFirstAndSecond ( &user,_buffer, JOIN_EXISTING_GROUP_SUCCESS);
+				}
+				else
+				{
+					length = PackStatusMassage (_buffer, JOIN_EXISTING_GROUP_FAIL);
+				}
 			}
-			else if (status2 == SUCCESS)
+			else if (status == GROUP_NOT_FOUND)
 			{
-				strcpy (user.m_first, str);
-				strcpy (user.m_second, name);	
-				length = PackFirstAndSecond ( &user,_buffer, JOIN_EXISTING_GROUP_SUCCESS);
+				length = PackStatusMassage (_buffer, GROUP_NOT_FOUND);
 			}
-			else
+			else 
 			{
-				length = PackStatusMassage (_buffer, JOIN_EXISTING_GROUP_FAIL);
-			}/****/	
-		}
-		else if (status == GROUP_NOT_FOUND)
-		{
-			length = PackStatusMassage (_buffer, GROUP_NOT_FOUND);
-		}
-		else 
-		{
-			length = PackStatusMassage (_buffer, JOIN_EXISTING_GROUP_FAIL);		
-		}									
-		return length;
-		break;
+				length = PackStatusMassage (_buffer, JOIN_EXISTING_GROUP_FAIL);		
+			}									
+			return length;
 		
 		case LEAVE_GROUP_REQUEST:
-
-		/*isMassegeComlete*/
 		UnpackFirstAndSecond (&user, _message, _messageSize);
-	
-		/*status = IsUsernameCorrect (((Application*)_application)->m_users, user.m_first);
-		if (status == NO_FOUND_IN_HASH)
-		{
-			length = PackStatusMassage (_buffer, LOG_IN_REQUEST_WRONG_DETAILS);
-		}*/
 		strcpy (name, user.m_first);
 		status = LeaveGroup (user.m_first , ((Application*)_application)->m_groups,str);
 		if (status == GROUP_SUCCESS)
 		{
-
-		/**/	status2 = UserLeaveGroup (((Application*)_application)->m_users,user.m_second, user.m_first );
+			status2 = UserLeaveGroup (((Application*)_application)->m_users,user.m_second, user.m_first );
 			if (status2 == SUCCESS)
 			{
 				strcpy (user.m_second, user.m_first);
@@ -262,27 +236,24 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			}
 			else if (status2 == NO_FOUND_IN_HASH)
 			{
-
 				length = PackStatusMassage (_buffer, GROUP_NOT_FOUND);
 			}
 			else
 			{
 				length = PackStatusMassage (_buffer, LEAVE_GROUP_FAIL);
-			}/**/					
+			}				
 		}
 		else if (status == GROUP_NOT_FOUND_IN_HASH)
 		{
-
 			length = PackStatusMassage (_buffer, GROUP_NOT_FOUND);
 		}
 		else if (status == GROUP_DELETE)
 		{
-		/**/	status2 = UserLeaveGroup (((Application*)_application)->m_users, user.m_second, user.m_first);
+			status2 = UserLeaveGroup (((Application*)_application)->m_users, user.m_second, user.m_first);
 			if (status2 == SUCCESS)
 			{
 				strcpy (user.m_second, user.m_first);
 				length = PackFirstAndSecond ( &user,_buffer, GROUP_DELETED);	
-				
 			}
 			else if (status2 == NO_FOUND_IN_HASH)
 			{
@@ -291,41 +262,37 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			else
 			{
 				length = PackStatusMassage (_buffer, LEAVE_GROUP_FAIL);
-			}		/***/
+			}	
 		}
 		else 
 		{
 			length = PackStatusMassage (_buffer, LEAVE_GROUP_FAIL);		
 		}
 		return length;
-		break;
+	
 		case LEAVE_CHAT_REQUEST:
-		/*isMassegeComlete*/
 		UnpackStringMassage(name,  _message, _messageSize);
-		listOfGroups /*add the variable - list*/ = UserGetOutFromAllGroups (((Application*)_application)->m_users, name);
-		
-		itr/*add the variable - listItr*/ = ListItrBegin(listOfGroups);
-		end /*add the variable- listItr*/ = ListItrEnd(listOfGroups);
+		listOfGroups = UserGetOutFromAllGroups (((Application*)_application)->m_users, name);
+
+		itr = ListItrBegin(listOfGroups);
+		end  = ListItrEnd(listOfGroups);
 		while (itr != end)
 		{
-			groupName /*add the variable - void* */ = ListItrGet(itr);
+			groupName = ListItrGet(itr);
 			status2 = LeaveGroup ((char*) groupName , ((Application*)_application)->m_groups,_buffer);
 			if (status2 != GROUP_SUCCESS)
 			{
-				length = PackStatusMassage (_buffer, LEAVE_GROUP_FAIL); /*maybe another type?*/
+				length = PackStatusMassage (_buffer, LEAVE_GROUP_FAIL); 
 			}
 			itr = ListItrNext(itr);
 		}
 		status = UserLogOut (((Application*)_application)->m_users, name);
-		if (status == 	SUCCESS) /*I cant see another senario - check it*/
+		if (status == SUCCESS) 
 		{
 			length = PackStatusMassage (_buffer, LEAVE_CHAT_SUCCESS);
 		}
 		return length;
-
-		
-		}
-	
+	}	
 }
 
 int NewClient(int _clientId, void* _application)
@@ -338,9 +305,9 @@ void GetMessage(Server* _server, int _clientId, void* _message, int _messageSize
 	int len;
 	char type;
 	char buffer [BUFFER_SIZE];
-	type = ReturnMessageType ( _message); /*function of protocol*/
+	type = ReturnMessageType(_message); 
 	len = WhatToDoNow (type, buffer, _message, _messageSize, _application);
-	if (len != -1) /*define*/
+	if (len != -1)
 	{		
 		SendMessageToClien(_server, _clientId, buffer, len);
 	}
@@ -372,7 +339,7 @@ void FailErr(Server* _server, ServerErr _failErr, char* _perror, void* _applicat
 		case 13: strcpy (error, "send fail"); break;
 	}
 
-	if(_failErr<=8)
+	if(_failErr <= 8)
 	{
 		PauseServer(_server);
 		DestroyServer(_server);	

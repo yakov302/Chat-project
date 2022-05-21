@@ -4,13 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "protocol.h" 
-#include "gen.list.h"
-#include "hash.map.h"
-#include "queue.h"
-#include "list.h"
+#define SIZE 30
 
-typedef struct Group Group;
+typedef struct Group
+{
+	char m_groupName[SIZE];
+	char m_groupIp[SIZE];
+	int m_numOfClients;
+	int m_magicNumber;
+}Group;
 
 /*Description:
 Creates group struct and updates its members.

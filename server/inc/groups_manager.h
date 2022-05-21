@@ -1,16 +1,14 @@
 #ifndef __GROUPS_MANAGER_H__
 #define __GROUPS_MANAGER_H__
 
-#include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <string.h>
 
 #include "group_struct.h"
-#include "protocol.h"
 #include "hash.map.h"
 #include "queue.h"
+
+#define IP_SIZE 20
 
 typedef struct GrupsMng GrupsMng;
 
