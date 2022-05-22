@@ -168,6 +168,13 @@ void PrintToClient(MessagesTypes _type)
 			printf("  <-  \n");
 			break;
 
+		case DUPLICATE_GROUP_CONNECT:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("You are already in the group");
+			printf("  <-  \n");
+			break;			
+
 		case GROUP_NOT_FOUND:
 			printf(RED);
 			printf("\n  ->  ");

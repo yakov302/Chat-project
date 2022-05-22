@@ -24,7 +24,7 @@ int PackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, MessagesTypes _me
 			
 	m_firstLen = strlen(_struct -> m_first);
 	m_secondLen = strlen(_struct -> m_second);
-	
+
 	*pack = _messagesTypes;
 	*(pack + 1) = m_firstLen + m_secondLen + 2;
 	*(pack + 2) = m_firstLen;	
@@ -51,9 +51,8 @@ MessagesTypes UnpackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, int _
 	{
 		return NOT_INITIALIZE;	
 	}
-	
+
 	DecryptBuffer("YakovYosiRotem", _buffer, _messageSize);
-			
 	m_firstLen = *(pack + 2);
 	m_secondLen = *(pack + 3 + m_firstLen);
 	

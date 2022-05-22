@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "group_struct.h"
+#include "group.h"
 #include "hash.map.h"
 #include "queue.h"
 

@@ -1,4 +1,4 @@
-#include "group_struct.h"
+#include "group.h"
 
 #define MAGIC_NUMBER 144522
 

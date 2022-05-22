@@ -4,10 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "user_struct.h"
+#include "user.h"
 #include "hash.map.h"
 
-typedef struct UserMng UserMng;
+
+typedef struct UserMng
+{
+	HashMap* m_dataStructure;
+	int m_magicNumber;
+}UserMng;
 
 typedef enum UserMngResult
 {
@@ -76,6 +81,8 @@ Output: SUCCESS - if loged out successfully
 	NO_FOUND_IN_HASH - if userName didn't found.
 	NOT_INITIAL_FAIL - if one of parameters is NULL**/
 UserMngResult UserLogOut (UserMng* _manager, char _name[]);
+
+User* GiveUserByName(UserMng* _manager, char _name[]);
 
 
 #endif

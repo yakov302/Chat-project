@@ -1,4 +1,4 @@
-#include "user_struct.h"
+#include "user.h"
 
 #define MAGIC_NUMBER 144522
 #define SIZE 30
@@ -22,12 +22,19 @@ User* CreateNewUser (FirstAndSecond* _namePsw)
 	return newUser;
 }
 
+void destroyGrupMame(void* _name)
+{
+	free(_name);
+}
+
 void DestroyUser (User* _user)
 {
 	if (_user == NULL || _user->m_magicNumber != MAGIC_NUMBER)
 	{return;}
 
+	printf("\n\n dustroy user \n\n");
 	_user->m_magicNumber = 0;
+	ListDestroy(&(_user->m_groups), destroyGrupMame);
 	free (_user);
 }
 
@@ -62,7 +69,7 @@ int AddGroupForUser (User* _user, char* _groupName)
 		}
 		else
 		{
-			return ALMOST_IN_THE_GROUP;
+			return ALREADY_IN_THE_GROUP;
 		}
 	}
 	groupName = malloc (sizeof (char) * SIZE);

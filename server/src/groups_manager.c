@@ -1,5 +1,4 @@
 #include "groups_manager.h"
-#include "group_struct.h"
 
 #define MAGIC_NUMBER 144522
 #define QUEUE_SIZE 100

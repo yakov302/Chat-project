@@ -34,7 +34,8 @@ typedef enum MessagesTypes{
     LEAVE_GROUP_REQUEST,
     LEAVE_GROUP_SUCCESS,
     LEAVE_GROUP_FAIL,
-    GROUP_DELETED
+    GROUP_DELETED,
+    EXIT_CHAT_REQUEST
 }MessagesTypes;
 
 struct FirstAndSecond

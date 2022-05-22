@@ -1,12 +1,21 @@
 #ifndef __SERVER_MANAGER_H__
 #define __SERVER_MANAGER_H__
 
+#include <pthread.h>
+
 #include "server_net.h"
 #include "protocol.h"
 #include "groups_manager.h"
 #include "users_manager.h"
 
-typedef struct Application Application;
+typedef struct Application
+{
+	Server* m_server;
+	CreateInputs* m_input;
+	UserMng* m_users;
+	GrupsMng* m_groups;
+	int m_magicNumber;
+}Application;
 
 /** This function create the server application with all the data structures and databases.
 	There is no input.

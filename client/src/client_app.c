@@ -14,8 +14,6 @@
 
 int flag = 0;
 
-/*********************FunctionSignatures**********************/
-
 static char SendToProtocol(char* _buffer);
 static int registrationToPack(Client* _client ,char* _buffer, MessagesTypes _type);
 static void WhatToDoClient(Client* _client, char _messageType, char* _buffer);
@@ -24,18 +22,19 @@ static void ClientDestroyApp(Client* _client);
 static ClientResult ClientRunAppSecondMenu(Client* _client, int _choice);
 static void RunSecondMenu(Client* _client, int _resFromMenu);
 static int NewGroupToPack(Client* _client, char* _buffer, MessagesTypes _type);
+static int NewGroupToPackAuto(Client* _client, char* _buffer, MessagesTypes _type, char* _name);
 static int NameToPack(Client* _client, char* _buffer, MessagesTypes _type);
 static int CloseId(void* _element, size_t _index, void* _context);
-int GroupWindow(char* _ip, char* _groupName);
-GroupAndId* groupAndIdCreate(void);
-int UserWindow(char* _ip,char* _userName, char* _groupName);
-MessagesTypes GiveMessagesType(char _choice);
-MessagesTypes GiveMessagesTypeSecondMenu(char _choice);
-
+static int GroupWindow(char* _ip, char* _groupName);
+static GroupAndId* groupAndIdCreate(void);
+static void groupAndIdDestroy(void* _newgroupAndId);
+static int UserWindow(char* _ip,char* _userName, char* _groupName);
+static MessagesTypes GiveMessagesType(char _choice);
+static MessagesTypes GiveMessagesTypeSecondMenu(char _choice);
 
 /**************************ClientCreate***************************/
 
-Client* ClientCreate(void)
+static Client* ClientCreate(void)
 {
 	Client* newClient;
 	struct sockaddr_in sin;
@@ -55,7 +54,7 @@ Client* ClientCreate(void)
 
 /*******************DestroyClient***********************/
 
-void DestroyClient(Client* _client)
+static void DestroyClient(Client* _client)
 {
 	if(_client == NULL || _client->m_magicNumber != MAGIC_NUMBER)
 	{
@@ -80,6 +79,8 @@ void RunMainMenu(int _resFromMenu)
 			case REGISTRATION:
 				newClient = ClientCreate();
 				ClientRunApp(newClient, resFromMenu);
+				resFromMenu = MainMenu();
+         		RunMainMenu(resFromMenu);
 				break;
 					
 			case LOG_IN:
@@ -88,18 +89,11 @@ void RunMainMenu(int _resFromMenu)
 					newClient = ClientCreate();
 				}
 				ClientRunApp(newClient, resFromMenu);
-				resFromMenu = SecondMenu();
-				RunSecondMenu(newClient, resFromMenu);
+				flag = 1;
 				break;
 					
 			case EXIT:
-				if(newClient == NULL)
-				{
-					PrintToClient(LEAVE_CHAT_SUCCESS);
-					flag = 1;
-					break;
-				}
-				ClientRunApp(newClient, resFromMenu);
+				PrintToClient(LEAVE_CHAT_SUCCESS);
 				flag = 1;
 				break;
 						
@@ -136,7 +130,7 @@ static ClientResult ClientRunApp(Client* _client, char _choice)
 	free(buffer);
 }
 
-MessagesTypes GiveMessagesType(char _choice)
+static MessagesTypes GiveMessagesType(char _choice)
 {
 	if (_choice == REGISTRATION)
 	{
@@ -167,7 +161,9 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	GroupAndId* newgroupAndId;
 	void* item1;
 	void* item2;
-	void*pValue; 
+	void*pValue;
+	size_t size; 
+	MessagesTypes msgType;
 
 	switch(_messageType)
 	{
@@ -178,20 +174,14 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
        			
         case REGISTRATION_REQUEST_SUCCESS:
          	PrintToClient(REGISTRATION_REQUEST_SUCCESS);
-         	resFromMenu = MainMenu();
-         	RunMainMenu(resFromMenu);
          	break;
          		
         case REGISTRATION_REQUEST_DUPLICATE_USERNAME:
         	PrintToClient(REGISTRATION_REQUEST_DUPLICATE_USERNAME);
-        	resFromMenu = MainMenu();
-          	RunMainMenu(resFromMenu);
         	break;
         		 
     	case REGISTRATION_REQUEST_FAIL:
         	PrintToClient(REGISTRATION_REQUEST_FAIL);
-       		resFromMenu = MainMenu();
-            RunMainMenu(resFromMenu);
         	break;
         	  
         case LOG_IN_REQUEST:
@@ -201,6 +191,8 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
         		 
     	case LOG_IN_REQUEST_SUCCESS:
           	PrintToClient(LOG_IN_REQUEST_SUCCESS);
+			resFromMenu = SecondMenu();
+			RunSecondMenu(_client, resFromMenu);
         	break;
         		 
         case LOG_IN_REQUEST_FAIL:
@@ -241,14 +233,10 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	       	newgroupAndId->m_idGroup = groupId;
 	       	newgroupAndId->m_idUser = userId;
 	       	VectorAppend(_client->m_groupVector, newgroupAndId);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     		
 	    case OPEN_NEW_GROUP_FAIL:
 	      	PrintToClient(OPEN_NEW_GROUP_FAIL);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     		
 	    case DUPLICATE_GROUP_NAME:
@@ -271,16 +259,12 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	       	len = ReturnMessageSize( _buffer);
 	       	UnpackStringMassage(groups,  _buffer, len);
 	       	printGroups(groups);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	       	break;
 	       		
 	    case NO_EXISTING_GROUPS:
 	       	len = ReturnMessageSize(_buffer);
 	       	UnpackStringMassage(str, _buffer, len);
 	       	printGroupsNames(str);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	   		break;
 	   		  
 	    case JOIN_EXISTING_GROUP_SUCCESS:
@@ -294,20 +278,18 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	       	newgroupAndId->m_idGroup = groupId;
 	       	newgroupAndId->m_idUser = userId;
 	       	VectorAppend(_client->m_groupVector, newgroupAndId);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     
 	    case JOIN_EXISTING_GROUP_FAIL:
 	       	PrintToClient(JOIN_EXISTING_GROUP_FAIL);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 			break;
-	       
+
+		case DUPLICATE_GROUP_CONNECT:
+	       	PrintToClient(DUPLICATE_GROUP_CONNECT);;
+			break;
+
 	    case GROUP_NOT_FOUND:
 	       	PrintToClient(GROUP_NOT_FOUND);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     
 	    case LEAVE_GROUP_REQUEST:
@@ -326,16 +308,12 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	       	VectorSet(_client->m_groupVector, index, item2);
 	       	VectorSet(_client->m_groupVector, endOfVector-1, item1);
 	       	VectorRemove(_client->m_groupVector, &pValue);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     		
 	    case LEAVE_GROUP_FAIL:
 	      	len = ReturnMessageSize(_buffer);
 	       	UnpackFirstAndSecond(&ipAndPort, _buffer, len);
 	      	PrintToClient(LEAVE_GROUP_FAIL);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
 	     	     	
 	    case GROUP_DELETED:
@@ -349,9 +327,22 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 	       	VectorSet(_client->m_groupVector, index, item2);
 	       	VectorSet(_client->m_groupVector, endOfVector-1, item1);
 	       	VectorRemove(_client->m_groupVector, &pValue);
-	       	resFromMenu = SecondMenu();
-	       	RunSecondMenu(_client, resFromMenu);
 	     	break;
+		
+		case EXIT_CHAT_REQUEST:
+		 	size = VectorSize (_client->m_groupVector);
+			for(int i = 0; i < size; ++i)
+			{
+				VectorGet(_client->m_groupVector, 0, (void*)&newgroupAndId);
+				strcpy(name, newgroupAndId->m_name);
+	     		len =  NewGroupToPackAuto(_client, _buffer, LEAVE_GROUP_REQUEST, name);
+	       		SendRecive(_client, _buffer, len);
+				msgType = ReturnMessageType(_buffer);
+				WhatToDoClient(_client, msgType, _buffer); 
+			}
+			len = NameToPack(_client, _buffer, EXIT_CHAT_REQUEST);
+	       	SendRecive(_client, _buffer, len);
+         	break;
 	     
         default:
          	PrintInvalidChoice();
@@ -361,13 +352,13 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 
 /********************GroupWindow************************/
 
-int GroupWindow(char* _ip, char* _groupName)
+static int GroupWindow(char* _ip, char* _groupName)
 {
 	int pidUser;
 	FILE* fgroup;
    
     char command[100];
-    sprintf(command, "gnome-terminal -q --geometry=55x13 --title=group -- ./groupchat.out %s %s",_ip, _groupName);            
+    sprintf(command, "gnome-terminal -q --geometry=55x13 --title=%s -- ./groupchat.out %s %s",_groupName, _ip, _groupName);            
     system(command);
     usleep(10000);
 	fgroup = fopen("ip.txt","r");
@@ -379,13 +370,13 @@ int GroupWindow(char* _ip, char* _groupName)
 
 /********************UserWindow************************/
 
-int UserWindow(char* _ip,char* _userName, char* _groupName)
+static int UserWindow(char* _ip,char* _userName, char* _groupName)
 {
 	int pidGroup;
 	FILE *fuser;
 	
 	char command[100];
-    sprintf(command, "gnome-terminal -q --geometry=55x3 --title=user -- ./userchat.out %s %s %s",_ip, _userName, _groupName);
+    sprintf(command, "gnome-terminal -q --geometry=55x3 --title=%s -- ./userchat.out %s %s %s",_groupName, _ip, _userName, _groupName);
     system(command);
     usleep(10000);
 	fuser = fopen("ip2.txt","r");
@@ -448,9 +439,21 @@ static int NewGroupToPack(Client* _client, char* _buffer, MessagesTypes _type)
 	char groupName[NAME_SIZE];
 	int res;
 
-	/*getClientName(_client, clientName);*/
 	InsertGroupName(groupName);
 	strcpy( newGroup -> m_first, groupName);
+	strcpy(newGroup -> m_second, _client -> m_name);
+	
+	res = PackFirstAndSecond(newGroup, _buffer, _type);
+	free(newGroup);
+	return res;
+}
+
+static int NewGroupToPackAuto(Client* _client, char* _buffer, MessagesTypes _type, char* _name)
+{
+	FirstAndSecond* newGroup = (FirstAndSecond*) malloc (sizeof( FirstAndSecond));
+	int res;
+
+	strcpy( newGroup -> m_first, _name);
 	strcpy(newGroup -> m_second, _client -> m_name);
 	
 	res = PackFirstAndSecond(newGroup, _buffer, _type);
@@ -463,7 +466,7 @@ static int NewGroupToPack(Client* _client, char* _buffer, MessagesTypes _type)
 static int NameToPack(Client* _client, char* _buffer, MessagesTypes _type)
 {
 	char clientName[NAME_SIZE];
-	PackStringMassage(_client -> m_name ,_buffer, _type);	
+	strcpy(clientName, _client->m_name);
 	return PackStringMassage(clientName ,_buffer, _type);
 }
 
@@ -492,7 +495,7 @@ static ClientResult ClientRunAppSecondMenu(Client* _client, int _choice)
 	free(buffer);
 }
 
-MessagesTypes GiveMessagesTypeSecondMenu(char _choice)
+static MessagesTypes GiveMessagesTypeSecondMenu(char _choice)
 {
 	if (_choice == CREATE_GROUP)
 	{
@@ -516,14 +519,14 @@ MessagesTypes GiveMessagesTypeSecondMenu(char _choice)
 	
 	if (_choice == EXIT_CHAT)
 	{
-		return LEAVE_CHAT_REQUEST;
+		return EXIT_CHAT_REQUEST;
 	}
-	return LEAVE_CHAT_REQUEST;
+	return EXIT_CHAT_REQUEST;
 }
 
 /*********************groupAndIdDestroy*********************/
 
-void groupAndIdDestroy(void* _newgroupAndId)
+static void groupAndIdDestroy(void* _newgroupAndId)
 {
 	if(_newgroupAndId == NULL)
 	{
@@ -570,18 +573,26 @@ static void RunSecondMenu(Client* _client, int _resFromMenu)
 		{
 			case CREATE_GROUP:
            		ClientRunAppSecondMenu(_client, CREATE_GROUP);
+				resFromMenu = SecondMenu();
+	       		RunSecondMenu(_client, resFromMenu);
            		break;
 
            	case PRINT_GROUP:
            		ClientRunAppSecondMenu(_client, PRINT_GROUP);
+				resFromMenu = SecondMenu();
+	       		RunSecondMenu(_client, resFromMenu);
            		break;
 
 			case JOIN_GROUP:
 				ClientRunAppSecondMenu(_client, JOIN_GROUP);
+				resFromMenu = SecondMenu();
+	       		RunSecondMenu(_client, resFromMenu);
            		break;
 
           	case LEAVE_GROUP:
            		ClientRunAppSecondMenu(_client, LEAVE_GROUP);
+				resFromMenu = SecondMenu();
+	       		RunSecondMenu(_client, resFromMenu);
             	break;
             			
             case EXIT_CHAT:
@@ -592,6 +603,7 @@ static void RunSecondMenu(Client* _client, int _resFromMenu)
         	default:
            		PrintInvalidChoice();
 				resFromMenu = SecondMenu();
+				RunSecondMenu(_client, resFromMenu);
            		break;         			
 		}
    	}	
@@ -599,7 +611,7 @@ static void RunSecondMenu(Client* _client, int _resFromMenu)
 
 /**************************groupAndIdCreate***************************/
 
-GroupAndId* groupAndIdCreate(void)
+static GroupAndId* groupAndIdCreate(void)
 {
 	GroupAndId* newgroupAndId;
 	newgroupAndId = (GroupAndId*) calloc (1, sizeof(GroupAndId));

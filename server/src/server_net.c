@@ -166,7 +166,7 @@ void RunServer(Server* _server)
 		}
 
 		TakeCareClients(_server, &activeSockets, &activity);
-	}	
+	}
 }
 
 static int AcceptNewClient(Server* _server, struct sockaddr_in *_clientSin)

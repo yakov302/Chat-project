@@ -9,12 +9,6 @@
 static void printKey(void* _word);
 static void printValue(void* _value);
 
-struct UserMng
-{
-	HashMap* m_dataStructure;
-	int m_magicNumber;
-};
-
 size_t ConvertNameForHash (void* _key)
 {
 	int i;
@@ -250,7 +244,9 @@ UserMngResult UserJoinGroup (UserMng* _userMng, char _username[], char _groupNam
 		}		
 	}
 	else
-	{return NO_FOUND_IN_HASH;}
+	{
+		return NO_FOUND_IN_HASH;
+	}
 }
 	
 UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupName)
@@ -283,6 +279,19 @@ List* UserGetOutFromAllGroups (UserMng* _manager, char _name[])
 	{
 		return WhichGroups ((User*)pValue);
 	}
+}
+
+User* GiveUserByName(UserMng* _manager, char _name[])
+{
+	MapResult result;
+	void* pValue;
+
+	result = HashMapFind(_manager-> m_dataStructure , _name, &pValue);
+	if (result == MAP_SUCCESS)
+	{
+		return(User*)pValue;
+	}
+	return NULL;
 }
 
 UserMngResult UserLogOut (UserMng* _manager, char _name[])
