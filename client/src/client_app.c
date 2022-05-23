@@ -206,7 +206,13 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
         	resFromMenu = MainMenu();
             RunMainMenu(resFromMenu);
          	break;
-         		       		
+		
+		case ALREADY_LOG_IN:
+			PrintToClient(ALREADY_LOG_IN);
+        	resFromMenu = MainMenu();
+            RunMainMenu(resFromMenu);
+         	break;
+      		       		
         case LEAVE_CHAT_REQUEST:
  			len = NameToPack(_client, _buffer, LEAVE_CHAT_REQUEST);
 	       	SendRecive(_client, _buffer, len);
@@ -335,6 +341,7 @@ static void WhatToDoClient(Client* _client, char _messageType, char* _buffer)
 			{
 				VectorGet(_client->m_groupVector, 0, (void*)&newgroupAndId);
 				strcpy(name, newgroupAndId->m_name);
+				printf("\n\n name client : %s \n\n", name);
 	     		len =  NewGroupToPackAuto(_client, _buffer, LEAVE_GROUP_REQUEST, name);
 	       		SendRecive(_client, _buffer, len);
 				msgType = ReturnMessageType(_buffer);

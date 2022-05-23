@@ -120,7 +120,7 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 	ListItr itr;
 	ListItr end ;
 	void* groupName;
-	
+
 	switch (_type)
 	{
 		case REGISTRATION_REQUEST: 
@@ -150,6 +150,10 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			else if (status == SUCCESS)
 			{
 				length = PackStatusMassage (_buffer, LOG_IN_REQUEST_SUCCESS);
+			}
+			else if(status == ALREADY_LOG_IN)
+			{
+				length = PackStatusMassage (_buffer, ALREADY_LOG_IN);
 			}
 			else
 			{
@@ -228,7 +232,7 @@ int WhatToDoNow (char _type, char* _buffer, void* _message, int _messageSize, vo
 			return LeaveGroupReqest(_application, _buffer, _message, _messageSize);
 	
 		case EXIT_CHAT_REQUEST:
- 			UnpackFirstAndSecond (&user, _message, _messageSize);
+			UnpackStringMassage(str, _message, _messageSize);
  			strcpy (name, user.m_first);
 			UserLogOut (((Application*)_application)->m_users, name);
 			DestroyUser(GiveUserByName(((Application*)_application)->m_users, name));

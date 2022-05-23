@@ -71,5 +71,8 @@ int UserNotActive (User* _user);
 /**This function get User struct created above and return pointer to list which contains all user's pfroups.**/ 
 List* WhichGroups (User* _user);
 
+int GetUserStatus (User* _user);
+
+
 
 #endif

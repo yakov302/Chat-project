@@ -193,8 +193,15 @@ int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
 		GetUserPassword ((User*)pValue, password);
 		if (strcmp (_namePsw->m_second ,password) == 0)
 		{
-			SetUserStatus ((User*) pValue, ACTIVE);
-			return SUCCESS;
+			if(GetUserStatus ((User*)pValue) == NO_ACTIVE)
+			{
+				SetUserStatus ((User*) pValue, ACTIVE);
+				return SUCCESS;
+			}
+			else
+			{
+				return ALREADY_LOG_IN;
+			}
 		}
 		else
 		{

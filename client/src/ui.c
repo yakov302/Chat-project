@@ -125,6 +125,13 @@ void PrintToClient(MessagesTypes _type)
 			printf("Log in fail. Try again!");
 			printf("  <-  \n");
 			break;
+		
+		case ALREADY_LOG_IN:
+			printf(RED);
+			printf("\n  ->  ");
+			printf("You are already logged in!");
+			printf("  <-  \n");
+			break;			
 
 		case LEAVE_CHAT_SUCCESS:
 			printf(GREEN);
@@ -171,7 +178,7 @@ void PrintToClient(MessagesTypes _type)
 		case DUPLICATE_GROUP_CONNECT:
 			printf(RED);
 			printf("\n  ->  ");
-			printf("You are already in the group");
+			printf("You are already in the group!");
 			printf("  <-  \n");
 			break;			
 

@@ -22,7 +22,7 @@ User* CreateNewUser (FirstAndSecond* _namePsw)
 	return newUser;
 }
 
-void destroyGrupMame(void* _name)
+void destroyGrupName(void* _name)
 {
 	free(_name);
 }
@@ -32,9 +32,8 @@ void DestroyUser (User* _user)
 	if (_user == NULL || _user->m_magicNumber != MAGIC_NUMBER)
 	{return;}
 
-	printf("\n\n dustroy user \n\n");
 	_user->m_magicNumber = 0;
-	ListDestroy(&(_user->m_groups), destroyGrupMame);
+	ListDestroy(&(_user->m_groups), destroyGrupName);
 	free (_user);
 }
 
@@ -49,6 +48,11 @@ void GetUserPassword (User* _user, char _password[])
 int SetUserStatus (User* _user, int _status)
 {
 	_user->m_active = _status;
+}
+
+int GetUserStatus (User* _user)
+{
+	return _user->m_active;
 }
 
 int AddGroupForUser (User* _user, char* _groupName)
@@ -122,7 +126,7 @@ int UserNotActive (User* _user)
 		ListItrRemove(itr);
 		itr = ListItrNext(itr);
 	}
-
+	
 	_user->m_active = NO_ACTIVE;
 	return USER_STRUCT_SUCCESS;
 }	

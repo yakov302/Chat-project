@@ -94,9 +94,6 @@ int PackStringMassage(char _str[] , void* _buffer, MessagesTypes _messagesTypes)
 
 MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize)
 {
-	char* pack = (char*) _buffer;
-	int strLen = *(pack + 1);
-
 	if(_str == NULL || _buffer == NULL)
 	{
 		return NOT_INITIALIZE;	
@@ -104,7 +101,8 @@ MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize)
 	
 	DecryptBuffer("YakovYosiRotem", _buffer, _messageSize);
 	
-	pack = (char*) _buffer;
+	char* pack = (char*) _buffer;
+	int strLen = *(pack + 1);
 			
 	strncpy(_str, (pack + 2), strLen); 
 	*(_str + strLen + 2) = '\0';
