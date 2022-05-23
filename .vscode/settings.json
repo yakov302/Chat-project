@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "typeinfo": "c",
-        "system_error": "c",
-        "functional": "c",
-        "sstream": "c",
-        "string_view": "c"
-    }
-}
