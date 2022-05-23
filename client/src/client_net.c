@@ -1,13 +1,10 @@
 #include "client_net.h"
 
 #define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 5555
-#define BUFFER_SIZE 500
 #define MAGIC_NUMBER 8123475
+#define SERVER_PORT 5555
 #define GROUPS_AMOUNT 20
-
-
-/**************************FunctionSignatures***************************/
+#define BUFFER_SIZE 500
 
 static void SinSetting(struct sockaddr_in *_sin);
 int ClientInitialization(struct sockaddr_in *_sin);
@@ -16,7 +13,6 @@ static int SendAndReceiveData(int _socketNum, char* _buffer, int _length);
 
 int soket;
 
-/*********************SinSetting****************************/
 //Set fixed IP and port to server
 static void SinSetting(struct sockaddr_in *_sin)
 {
@@ -26,8 +22,6 @@ static void SinSetting(struct sockaddr_in *_sin)
 	_sin -> sin_addr.s_addr =  inet_addr(SERVER_IP); // ip in network byte
 	_sin -> sin_port = htons(SERVER_PORT); //port in network byte
 }
-
-/******************ClientInitialization************************/
 
  int ClientInitialization(struct sockaddr_in *_sin)
 {
@@ -51,8 +45,6 @@ static void SinSetting(struct sockaddr_in *_sin)
 	return soket;
 }
 
-/********************RunClientNet*************************/
-
 void RunClientNet(Client* _client, char* _buffer, int _length)
 {
 	struct sockaddr_in sin;
@@ -67,8 +59,6 @@ void RunClientNet(Client* _client, char* _buffer, int _length)
 	SendAndReceiveData(soket, _buffer, _length);
 }
 
-/********************SendRecive*************************/
-
 void SendRecive(Client* _client, char* _buffer, int _length)
 {
 	if(_client == NULL)
@@ -78,8 +68,6 @@ void SendRecive(Client* _client, char* _buffer, int _length)
 
 	SendAndReceiveData(soket, _buffer, _length);
 }
-
-/*****************ConnectToServer********************/
 
 static int ConnectToServer(struct sockaddr_in *_sin, int _socketNum)
 {
@@ -94,13 +82,12 @@ static int ConnectToServer(struct sockaddr_in *_sin, int _socketNum)
 	return CLIENT_SUCCESS;
 }
 
-/******************SendAndReceiveData*************************/
-
 static int SendAndReceiveData(int _socketNum, char* _buffer, int _length)
 {
-char* recvBuffer;
-int receiveBytes;
-int sentByte;
+	char* recvBuffer;
+	int receiveBytes;
+	int sentByte;
+	int MessageSize = 0;
 		
 	sentByte = send(_socketNum, _buffer, _length, 0);
 	if(sentByte < 0)
@@ -120,7 +107,12 @@ int sentByte;
 		perror("Receive fail!\n");
 		return CLIENT_FAIL;	
 	}
-	
+
+	MessageSize = ReturnMessageSize(_buffer);
+	while(receiveBytes < MessageSize)
+	{
+		receiveBytes += recv(_socketNum, (_buffer + receiveBytes), BUFFER_SIZE, 0);
+	}	
 	_buffer[receiveBytes] = '\0';
 
 	return CLIENT_SUCCESS;

@@ -1,15 +1,12 @@
 #include "user.h"
 
-#define MAGIC_NUMBER 144522
-#define SIZE 30
-
 User* CreateNewUser (FirstAndSecond* _namePsw)
 {
 	User* newUser = (User*) malloc (sizeof(User));
 	if (newUser == NULL)
 	{return NULL;}
 
-	newUser->m_groups =  ListCreate();
+	newUser->m_groups = ListCreate();
 	if (newUser->m_groups == NULL)
 	{
 		free(newUser);
@@ -22,7 +19,7 @@ User* CreateNewUser (FirstAndSecond* _namePsw)
 	return newUser;
 }
 
-void destroyGrupName(void* _name)
+static void destroyGrupName(void* _name)
 {
 	free(_name);
 }
@@ -45,14 +42,14 @@ void GetUserPassword (User* _user, char _password[])
 	strcpy (_password, _user -> m_password);
 }
 
-int SetUserStatus (User* _user, int _status)
-{
-	_user->m_active = _status;
-}
-
 int GetUserStatus (User* _user)
 {
 	return _user->m_active;
+}
+
+void SetUserStatus (User* _user, int _status)
+{
+	_user->m_active = _status;
 }
 
 int AddGroupForUser (User* _user, char* _groupName)
@@ -76,7 +73,7 @@ int AddGroupForUser (User* _user, char* _groupName)
 			return ALREADY_IN_THE_GROUP;
 		}
 	}
-	groupName = malloc (sizeof (char) * SIZE);
+	groupName = malloc (sizeof(char)*SIZE);
 	if (groupName == NULL)
 	{return USER_STRUCT_MALLOC_FAIL;}
 
@@ -108,11 +105,6 @@ int RemoveGroupFromUser (User* _user, char* _groupName)
 	}
 	return USER_STRUCT_NOT_FOUND_IN_HASH;
 }
-	
-List* WhichGroups (User* _user)
-{
-	return _user->m_groups;
-}
 
 int UserNotActive (User* _user)
 {
@@ -126,9 +118,7 @@ int UserNotActive (User* _user)
 		ListItrRemove(itr);
 		itr = ListItrNext(itr);
 	}
-	
+
 	_user->m_active = NO_ACTIVE;
 	return USER_STRUCT_SUCCESS;
 }	
-
-	

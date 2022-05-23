@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAGIC_NUMBER 144522
 #define SIZE 30
 
 typedef struct Group
@@ -73,4 +74,4 @@ Input:
 void IncreseNumOfCleints (Group* _pValue);
 
 
-#endif /*#ifndef__GROUP_STRUCT_H__*/
+#endif //__GROUP_STRUCT_H__

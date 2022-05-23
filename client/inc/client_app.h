@@ -9,7 +9,20 @@
 #include "vector.h"
 #include "ui.h"
 
+#define MAGIC_NUMBER 65465198
+#define BUFFER_SIZE 800
+#define REGISTRATION 1
+#define CREATE_GROUP 1
+#define PRINT_GROUP 2
+#define LEAVE_GROUP 4
+#define JOIN_GROUP 3
 #define NAME_SIZE 40
+#define EXIT_CHAT 5
+#define _GNU_SOURCE
+#define LOG_IN 2
+#define EXIT 3
+#define OFF 0
+#define ON 1
 
 typedef struct GroupAndId 
 {
@@ -29,11 +42,11 @@ typedef struct Client
 
 /*this funcion receive the user choice in the main menu of the program.
 params - the user choice.
-the function return void*/
+the function return Client*/
 void RunMainMenu(int _resFromMenu);
 
 
-#endif 
+#endif //__CLIENT_APP_H__
 
 
 

@@ -7,6 +7,13 @@
 #include "user.h"
 #include "hash.map.h"
 
+#define FILE_NAME "usersDetails.txt"
+#define MAGIC_NUMBER 144522
+#define NOT_FROME_LOWD 0
+#define FROME_LOWD 1
+#define NOT_EQUAL 0
+#define SIZE 30
+#define EQUAL 1
 
 typedef struct UserMng
 {
@@ -30,12 +37,12 @@ typedef enum UserMngResult
 Input: capacity of data structure.
 OutPut: pointer to UserMng struct.
 Errors: If allocation fail return NULL**/
-UserMng* CreateRegisteredUsersPull (int _capacity);
+UserMng* CreateUserManager(int _capacity);
 
 /**This function destroy the struct and the data structure tht hold all users.
 Input: pointer to UserMng struct.
 Output: void. **/
-void DestroyRegisteredUsersPull (UserMng* _map);
+void DestroyUserManager(UserMng* _map);
 
 /**This function create a struct for every user that registrated to application, and return status.
 Input: FirstAndSecond* struct - contains two members, in this case username & password.
@@ -45,7 +52,7 @@ Output & errors : MALLOC_FAIL - if allocation failed.
 		DUPLICATE_USERNAME - if user registrated with name allready used.
 		SUCCESS - if create successfully. 
 		NOT_INITIAL_FAIL - if one of parameters is NULL **/
-UserMngResult CreateUser (FirstAndSecond* _namePsw, UserMng* _userMng, int _isLowd);
+UserMngResult CreateUser(FirstAndSecond* _namePsw, UserMng* _userMng, int _isLowd);
 
 /**This function log in registrated user, and return status.
 Input: FirstAndSecond* struct - contains two members, in this case username & password.
@@ -53,7 +60,7 @@ Input: FirstAndSecond* struct - contains two members, in this case username & pa
 Output: WRONG_DETAILS - if name or password doesn't correct.
 	NOT_INITIAL_FAIL - if one of parameters is NULL.
 	SUCCESS - user loged in successfully.**/
-int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng);
+int LogInUser(FirstAndSecond* _namePsw, UserMng* _userMng);
 
 /**This function Join User to group, and add name of group to details of user, and return status.
 Input: UserMng* struct created above, username that asked to join the group, and name of the group.
@@ -61,28 +68,26 @@ Output: CONNECT_TO_SAME_GROUP - if username allready connected to group.
 	NOT_INITIAL_FAIL - if one of parameters is NULL
 	NO_FOUND_IN_HASH - if userName didn't found.
 	SUCCESS - group added successfully.**/
-UserMngResult UserJoinGroup (UserMng* _userMng, char* _username, char* _groupName);
+UserMngResult UserJoinGroup(UserMng* _userMng, char* _username, char* _groupName);
 
 /**This function remove a group from user details, and return status.
 Input: UserMng* struct created above, username that asked to join the group, and name of the group.
 Output: NOT_INITIAL_FAIL - if one of parameters is NULL
 	NO_FOUND_IN_HASH - if userName didn't found.
 	SUCCESS - group removed successfully.**/
-UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupName);
-
-/*This function return a list contains all groups that user connected to.
-Input: UserMng* struct created above, and username.
-Output: pointer to list.**/
-List* UserGetOutFromAllGroups (UserMng* _manager, char _name[]);
+UserMngResult UserLeaveGroup(UserMng* _userMng, char* _username, char* _groupName);
 
 /**This function remove all user's groups, and change his status to no active. return status.
 Input: UserMng* struct created above, and username.
 Output: SUCCESS - if loged out successfully
 	NO_FOUND_IN_HASH - if userName didn't found.
 	NOT_INITIAL_FAIL - if one of parameters is NULL**/
-UserMngResult UserLogOut (UserMng* _manager, char _name[]);
+UserMngResult UserLogOut(UserMng* _manager, char _name[]);
 
+/**This function return user struct by yuser name.
+Input: UserMng* struct created above, and username.
+Output: pointer to user struct.**/
 User* GiveUserByName(UserMng* _manager, char _name[]);
 
 
-#endif
+#endif //__USERS_MANAGER_H__

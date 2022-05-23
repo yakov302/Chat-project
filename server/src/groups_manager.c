@@ -1,24 +1,11 @@
 #include "groups_manager.h"
 
-#define MAGIC_NUMBER 144522
-#define QUEUE_SIZE 100
-#define BUFFER_SIZE 800
-
 static void FillTheIpDatabase(Queue* _queue);
-void DestroyGroupGen (void* _group);
-void DestroyIp (void* _ip);
-void DestroyGroupName (void* _groupName);
+static void DestroyGroupGen (void* _group);
+static void DestroyIp (void* _ip);
+static void DestroyGroupName (void* _groupName);
 static void printKey(void* _word);
 static void printValue(void* _value);
-
-struct GrupsMng
-{
-	HashMap* m_groupDatabase;
-	Queue* m_ipDatabase;
-	int m_magicNumber;
-};
-
-/**************************ConvertGroupNameForHash***************************/
 
 size_t ConvertGroupNameForHash (void* _key)
 {
@@ -36,19 +23,15 @@ size_t ConvertGroupNameForHash (void* _key)
 	return multi;
 }
 
-/**************************CompareGroupsNames***************************/
-
 int CompareGroupsNames (void* _firstKey, void* _secondKey)	
 {
 	if (strcmp ((char*)_firstKey, (char*)_secondKey) == 0)
 	{
-		return 1;
+		return EQUAL;
 	}
 	
-	return 0;
+	return NOT_EQUAL;
 }
-
-/**************************CreateGroupsManager***************************/
 
 GrupsMng* CreateGroupsManager (int _capacity)
 {
@@ -78,13 +61,10 @@ GrupsMng* CreateGroupsManager (int _capacity)
 	manager -> m_ipDatabase = queue;	
 
 	FillTheIpDatabase(manager -> m_ipDatabase);
-	
 	return manager;
 }
 
-/**************************FillTheIpDatabase***************************/
-
-int printQueue (const void* _element, void* _context)
+static int printQueue (const void* _element, void* _context) // for debug
 {
 	printf ("%s\n", (char*)_element);
 	return 1;
@@ -108,8 +88,6 @@ static void FillTheIpDatabase(Queue* _queue)
 	}
 }
 
-/**************************DestroyGroupsManager***************************/
-
 void DestroyGroupsManager (GrupsMng* _manager)
 {
 	HashMap* map;
@@ -117,27 +95,24 @@ void DestroyGroupsManager (GrupsMng* _manager)
 
 	if ( _manager == NULL ||  _manager -> m_magicNumber != MAGIC_NUMBER)
 	{return;}
+	
+	_manager -> m_magicNumber = 0;
 
 	map = (HashMap*)_manager -> m_groupDatabase;
 	queue = (Queue*) _manager -> m_ipDatabase;
-	
-	_manager -> m_magicNumber = 0;
-	
 	HashMapDestroy(&map, DestroyGroupName, DestroyGroupGen);
 	QueueDestroy(&queue, DestroyIp);	
 	free (_manager);
 }
 
-/**************************CreateGroup***************************/
-
 GrupsMngResult CreateGroup (char _groupName[] , GrupsMng* _manager, char _buffer[])
 {
 	GrupsMngResult result;
-	void* pValue;
 	Group* group;
-	int status;
-	char* ip;
+	void* pValue;
 	char* groupName;
+	char* ip;
+	int status;
 	int len;
 
 	if (_manager == NULL)
@@ -154,29 +129,31 @@ GrupsMngResult CreateGroup (char _groupName[] , GrupsMng* _manager, char _buffer
 		strcpy (groupName, _groupName);
 		group = CreateNewGroup (_groupName);
 		if (group == NULL)
-		{return GROUP_NOT_INITIALIZED;}
+		{
+			free (groupName);
+			return GROUP_NOT_INITIALIZED;
+		}
 
 		status = HashMapInsert( _manager->m_groupDatabase, groupName, group);
-		//HashMapPrint(_manager -> m_groupDatabase, printKey ,printValue ); for dibug
+		//HashMapPrint(_manager -> m_groupDatabase, printKey ,printValue ); for debug
 		if (status != MAP_SUCCESS)
 		{
 			DestroyGroup (group);
+			free (groupName);
 			return HASH_MAP_INSERT_FAIL;
 		}
 		
 		QueueRemove(_manager -> m_ipDatabase , (void*)&ip);
 		SetGroupIp (group, ip);
 		strcpy (_buffer, ip);
-		IncreseNumOfCleints (group );
+		IncreseNumOfCleints (group);
 		return GROUP_SUCCESS;
 	}
 	
 	return DUPLICATE_GROUP_NAME_FAIL;
 }
 
-/**************************JoinExistingGroup***************************/
-
-GrupsMngResult JoinExistingGroup (char _groupName[] , GrupsMng* _manager, char _buffer[])
+GrupsMngResult JoinExistingGroup (char _groupName[], GrupsMng* _manager, char _buffer[])
 {
 	MapResult result;
 	void* pValue;
@@ -184,64 +161,53 @@ GrupsMngResult JoinExistingGroup (char _groupName[] , GrupsMng* _manager, char _
 	if (_manager == NULL)
 	{return MANAGER_NOT_INITIALIZED;}
 	
-	result = HashMapFind(_manager -> m_groupDatabase , _groupName , &pValue);
+	result = HashMapFind(_manager->m_groupDatabase , _groupName , &pValue);
 	if (result == MAP_KEY_NOT_FOUND_ERROR)
 	{return GROUP_NOT_FOUND_IN_HASH;}
-	GetGroupIp ((Group*) pValue, _buffer);
+	GetGroupIp ((Group*)pValue, _buffer);
 	IncreseNumOfCleints ((Group*)pValue );
 	
 	return GROUP_SUCCESS;
 }
 
-/**************************LeaveGroup***************************/
-
-GrupsMngResult LeaveGroup (char _groupName[] , GrupsMng* _manager, char _buffer[])
+GrupsMngResult LeaveGroup (char _groupName[], GrupsMng* _manager, char _buffer[])
 {
 	void* pValue;
 	void* pKey;
 	MapResult result;
-	//MapResult yu;
 
 	if (_manager == NULL)
 	{return MANAGER_NOT_INITIALIZED;}
 	
-	result = HashMapFind(_manager -> m_groupDatabase , _groupName , &pValue);
+	result = HashMapFind(_manager -> m_groupDatabase , _groupName, &pValue);
 	if (result == MAP_KEY_NOT_FOUND_ERROR)
 	{return GROUP_NOT_FOUND_IN_HASH;}
 	
 	DecreseNumOfCleints ((Group*)pValue);
-	if(GetGroupNumOfClients((Group*)pValue ) == 0)
+	if(GetGroupNumOfClients((Group*)pValue) == 0)
 	{
-		result = HashMapRemove(_manager -> m_groupDatabase, _groupName, &pKey, &pValue);
-		free(pValue);
+		result = HashMapRemove(_manager->m_groupDatabase, _groupName, &pKey, &pValue);
+		DestroyGroup((Group*)pValue);
 		return GROUP_DELETE;
 	}
 
 	return GROUP_SUCCESS;
 }
 
-/**************************DestroyGroupGen***************************/
-
-void DestroyGroupGen (void* _group) 
+static void DestroyGroupGen (void* _group) 
 {
 	DestroyGroup ((Group*) _group);
 }
 
-/**************************DestroyIp***************************/
-
-void DestroyIp (void* _ip) 
+static void DestroyIp (void* _ip) 
 {
 	free(_ip);
 }
 
-/**************************DestroyGroupName***************************/
-
-void DestroyGroupName (void* _groupName) 
+static void DestroyGroupName (void* _groupName) 
 {
 	free(_groupName);
 }
-
-/**************************printKey***************************/
 
 static void printKey(void* _word)
 {
@@ -249,26 +215,21 @@ static void printKey(void* _word)
 	printf("Key: %s\n", ((char*)_word));
 }
 
-/**************************printValue***************************/
-
 static void printValue(void* _value)
 {
 	
 }
 
-/**************************PullKey2***************************/
-
-void PullKey2(void* _data, char _str[])
+static void PullKey2(void* _data, char _str[])
 {
 	strcat(_str, (char*)_data);
 	strcat(_str, "\n");
 }
 
-/**************************giveGroups***************************/
-
 void giveGroups(GrupsMng* _groups, char _str[])
 {
 	PutKeysInStr(_groups -> m_groupDatabase, _str , PullKey2);
+	_str[strlen(_str)] = '\0';
 }
 
 

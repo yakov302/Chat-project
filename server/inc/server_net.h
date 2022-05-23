@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "protocol.h"
 #include "gen.list.h"
 
 typedef enum ServerErr{
@@ -115,4 +116,4 @@ Input:
 void PauseServer(Server* _server);
 
 
-#endif /*#ifndef__SERVER_H__*/
+#endif //__SERVER_H__

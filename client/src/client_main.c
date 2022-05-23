@@ -9,7 +9,7 @@
 int resFromMenu = 0;
 
 int main()
-{	
+{
 	resFromMenu = MainMenu();
-	RunMainMenu(resFromMenu);       	
+	RunMainMenu(resFromMenu); 	
 }

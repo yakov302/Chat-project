@@ -5,12 +5,22 @@
 #include <string.h>
 
 #include "group.h"
-#include "hash.map.h"
 #include "queue.h"
+#include "hash.map.h"
 
+#define EQUAL 1
 #define IP_SIZE 20
+#define NOT_EQUAL 0
+#define QUEUE_SIZE 100
+#define BUFFER_SIZE 800
+#define MAGIC_NUMBER 144522
 
-typedef struct GrupsMng GrupsMng;
+typedef struct GrupsMng
+{
+	HashMap* m_groupDatabase;
+	Queue* m_ipDatabase;
+	int m_magicNumber;
+}GrupsMng;
 
 typedef enum GrupsMngResult
 {
@@ -99,4 +109,4 @@ _str[] - wiil accept all the groups in HashMap.*/
 void giveGroups(GrupsMng* _groups, char _str[]);
 
 
-#endif
+#endif //__GROUPS_MANAGER_H__

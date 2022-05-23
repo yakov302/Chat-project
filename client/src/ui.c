@@ -5,17 +5,13 @@
 #define RED "\x1B[91m"
 #define GREEN "\x1B[32m"
 
-/********************global var*********/
-
 int mainChoice = 0;
 int secondChoice = 0;
-
-/*********************MainMenu************************/
 
 int MainMenu(void)
 {
 	printf(YELLOW);
-	printf("\n--------------Y.Y.R chat--------------\n\n");
+	printf("\n--------------Easy chat--------------\n\n");
 	printf(NORMAL);
 	printf("1 - Registration\n");
 	printf("2 - Log in\n");
@@ -26,12 +22,10 @@ int MainMenu(void)
 	return mainChoice;
 }
 
-/************************SecondMenu**********************/
-
 int SecondMenu(void)
 {
 	printf(YELLOW);
-	printf("\n--------------Y.Y.R chat--------------\n\n");
+	printf("\n--------------Easy chat--------------\n\n");
 	printf(NORMAL);
 	printf("1 - Create new group\n");
 	printf("2 - Print existing groups\n");
@@ -44,16 +38,12 @@ int SecondMenu(void)
 	return secondChoice;
 }
 
-/********************InsertName***********************/
-
 char* InsertName(char _name[])
 {
 	printf("please enter your user name: ");
 	scanf("%s", _name);  
 	return _name;
 }
-
-/********************InsertGroupName***********************/
 
 void InsertGroupName(char _name[])
 {
@@ -62,8 +52,6 @@ void InsertGroupName(char _name[])
 	return;
 }
 
-/*********************InsertPassWord**************************/
-
 char* InsertPassWord(char _passWord[])
 {
 	printf("please enter your passWord: ");
@@ -71,14 +59,13 @@ char* InsertPassWord(char _passWord[])
 	return _passWord;
 }
 
-/*********************PrintInvalidChoice*************************/
-
 void PrintInvalidChoice(void)
 {
-	printf("Invalid choice!\n");
+	printf(RED);
+	printf("\n  ->  ");
+	printf("Invalid choice!");
+	printf("  <-  \n");
 } 
-
-/*********************PrintToClient*************************/
 
 void PrintToClient(MessagesTypes _type)
 {	
@@ -211,8 +198,6 @@ void PrintToClient(MessagesTypes _type)
 			break;					
 	}
 }
-
-/*********************printGroupsNames*************************/
 
 void printGroupsNames(char _str[])
 {

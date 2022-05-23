@@ -4,12 +4,8 @@
 #define COMPLETE_MESSAGE 1
 #define INCOMPLETE_MESSAGE 0
 
-/**************************FunctionSignatures***************************/
-
 static void EncryptBuffer(char _encryptionKey[], void* _buffer, int _messageSize);
 static void DecryptBuffer(char _encryptionKey[], void* _encryptBuffer, int _messageSize);
-
-/**************************PackFirstAndSecond***************************/
 
 int PackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, MessagesTypes _messagesTypes)
 {
@@ -39,8 +35,6 @@ int PackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, MessagesTypes _me
 	return m_firstLen + m_secondLen + 4;
 }
 
-/**************************UnpackFirstAndSecond***************************/
-
 MessagesTypes UnpackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, int _messageSize)
 {
 	int m_firstLen;
@@ -65,8 +59,6 @@ MessagesTypes UnpackFirstAndSecond(FirstAndSecond* _struct, void* _buffer, int _
 	return *pack;
 }
 
-/**************************PackStringMassage***************************/
-
 int PackStringMassage(char _str[] , void* _buffer, MessagesTypes _messagesTypes)
 {
 	char* pack = (char*) _buffer;
@@ -90,8 +82,6 @@ int PackStringMassage(char _str[] , void* _buffer, MessagesTypes _messagesTypes)
 	return strLen + 2;
 }
 
-/**************************UnpackStringMassage***************************/
-
 MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize)
 {
 	if(_str == NULL || _buffer == NULL)
@@ -109,9 +99,6 @@ MessagesTypes UnpackStringMassage(char _str[], void* _buffer, int _messageSize)
 		
 	return *pack;
 }
-
-
-/**************************PackStatusMassage***************************/
 
 int PackStatusMassage(void* _buffer, MessagesTypes _messagesTypes)
 {
@@ -132,8 +119,6 @@ int PackStatusMassage(void* _buffer, MessagesTypes _messagesTypes)
 	return 2;
 }
 
-/**************************UnpackStatusMassage***************************/
-
 MessagesTypes UnpackStatusMassage(void* _buffer, int _messageSize)
 {
 	char* pack = (char*) _buffer;
@@ -150,8 +135,6 @@ MessagesTypes UnpackStatusMassage(void* _buffer, int _messageSize)
 	return *pack;
 }
 
-/**************************ReturnMessageSize***************************/
-
 int ReturnMessageSize(void* _buffer)
 {
 	char* unpack;
@@ -165,8 +148,6 @@ int ReturnMessageSize(void* _buffer)
 	return size;
 }
 
-/**************************ReturnMessageType***************************/
-
 MessagesTypes ReturnMessageType(void* _buffer)
 {
 	char* unpack;
@@ -179,8 +160,6 @@ MessagesTypes ReturnMessageType(void* _buffer)
 
 	return type;
 }
-
-/**************************IsThatTheWholeMessage***************************/
 
 int IsThatTheWholeMessage (char _encryptionKey[], void* _buffer, int _messageSize)
 {
@@ -201,8 +180,6 @@ int IsThatTheWholeMessage (char _encryptionKey[], void* _buffer, int _messageSiz
 	return INCOMPLETE_MESSAGE;	
 }
 
-/**************************InternalFunctions***************************/
-
 static void EncryptBuffer(char _encryptionKey[], void* _buffer, int _messageSize)
 {
 	char* encryptBuffer = (char*) _buffer;
@@ -218,7 +195,6 @@ static void EncryptBuffer(char _encryptionKey[], void* _buffer, int _messageSize
 	
 	_buffer = encryptBuffer;
 }
-
 
 static void DecryptBuffer(char _encryptionKey[], void* _encryptBuffer, int _messageSize)
 {

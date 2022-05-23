@@ -1,7 +1,5 @@
 #include "group.h"
 
-#define MAGIC_NUMBER 144522
-
 Group* CreateNewGroup (char _groupName[])
 {	
 	Group* newGroup = (Group*) malloc (sizeof(Group));
@@ -18,9 +16,7 @@ Group* CreateNewGroup (char _groupName[])
 void DestroyGroup (Group* _group)
 {
 	if (_group == NULL || _group -> m_magicNumber != MAGIC_NUMBER)
-	{
-		return;
-	}
+	{return;}
 	
 	_group -> m_magicNumber = 0;
 	free (_group);
@@ -52,16 +48,15 @@ void SetGroupIp (Group* _group, char _groupIp[])
 
 void DecreseNumOfCleints (Group* _pValue)
 {
-	_pValue->m_numOfClients--;
+	--_pValue->m_numOfClients;
 }
 
 void IncreseNumOfCleints (Group* _pValue)
 {
-	_pValue->m_numOfClients++;
+	++_pValue->m_numOfClients;
 }
 
 int GetNumOfClients(Group* _pValue)
 {
 	return _pValue->m_numOfClients;
 }
-

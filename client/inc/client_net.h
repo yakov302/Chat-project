@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "protocol.h"
+
 typedef enum ClientResult
 {
     CLIENT_SUCCESS,
@@ -45,4 +47,4 @@ _length - The length of the message.*/
 void SendRecive(Client* _client, char* _buffer, int _length);
 
 
-#endif 
+#endif //__CLIENT_NET_H__ 

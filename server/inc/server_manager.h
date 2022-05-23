@@ -3,10 +3,18 @@
 
 #include <pthread.h>
 
-#include "server_net.h"
-#include "protocol.h"
 #include "groups_manager.h"
 #include "users_manager.h"
+#include "server_net.h"
+#include "protocol.h"
+
+#define MAGIC_NUMBER 144522
+#define MAX_SOCKETS 1000
+#define NOT_FROME_LOWD 0
+#define ACCEPT_CLIENT 1
+#define MAX_GROUPS 100 
+#define QUE_SIZE 1000
+#define PORT "555"
 
 typedef struct Application
 {
@@ -35,4 +43,4 @@ Output: void.**/
 void DestroyServerApplication (Application* _application);
 
 
-#endif
+#endif //__SERVER_MANAGER_H__

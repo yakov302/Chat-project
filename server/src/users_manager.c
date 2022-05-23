@@ -1,13 +1,8 @@
 #include "users_manager.h"
 
-#define MAGIC_NUMBER 144522
-#define SIZE 30
-#define FILE_NAME "usersDetails.txt"
-#define FROME_LOWD 1
-#define NOT_FROME_LOWD 0
-
 static void printKey(void* _word);
 static void printValue(void* _value);
+static void CreateUserFromFile(FILE* _file, UserMng* _manager);
 
 size_t ConvertNameForHash (void* _key)
 {
@@ -27,17 +22,14 @@ int CompareUserNames (void* _firstKey, void* _secondKey)
 {
 	if (strcmp ((char*)_firstKey, (char*)_secondKey) == 0)
 	{
-		return 1;
+		return EQUAL;
 	}
-	return 0;
+	return NOT_EQUAL;
 }
 
-int LoadUsersFromFile (UserMng* _manager)
+static int LoadUsersFromFile (UserMng* _manager)
 {
 	FILE* file;
-	char name[SIZE];
-	char password[SIZE];
-	FirstAndSecond* client;
 
 	if(_manager == NULL)
 	{return NOT_INITIAL_FAIL;}
@@ -47,31 +39,36 @@ int LoadUsersFromFile (UserMng* _manager)
 	
 	if(!feof(file))
 	{
-		client = (FirstAndSecond*) malloc (sizeof (FirstAndSecond));	
-		fscanf(file,"%s\n %s\n", name, password);
-		strcpy(client -> m_first, name);
-		strcpy(client -> m_second, password);		
-		CreateUser (client, _manager, FROME_LOWD);
+		CreateUserFromFile(file, _manager);
 	}
 				
 	while (!feof(file))
 	{
-		client = (FirstAndSecond*) malloc (sizeof (FirstAndSecond));	
-		fscanf(file,"%s\n %s\n", name, password);
-		strcpy(client -> m_first, name);
-		strcpy(client -> m_second, password);
-		CreateUser (client, _manager, FROME_LOWD);		
+		CreateUserFromFile(file, _manager);		
 	}
 		
 	fclose(file);	
 	return SUCCESS;
 }
 
+static void CreateUserFromFile(FILE* _file, UserMng* _manager)
+{
+	char name[SIZE];
+	char password[SIZE];
+	FirstAndSecond* client;
 
-UserMng* CreateRegisteredUsersPull (int _capacity)
+	client = (FirstAndSecond*) malloc (sizeof (FirstAndSecond));	
+	fscanf(_file,"%s\n %s\n", name, password);
+	strcpy(client -> m_first, name);
+	strcpy(client -> m_second, password);		
+	CreateUser (client, _manager, FROME_LOWD);
+}
+
+UserMng* CreateUserManager(int _capacity)
 {
 	UserMng* manager;
 	HashMap* map;
+
 	manager = (UserMng*) malloc (sizeof (UserMng));
 	if (manager == NULL)
 	{return NULL;}
@@ -88,20 +85,26 @@ UserMng* CreateRegisteredUsersPull (int _capacity)
 	return manager;
 }
 
-void DestroyOneUser (void* _user) 
+static void DestroyOneUser(void* _user) 
 {
 	DestroyUser ((User*) _user);
 }
 
-void DestroyRegisteredUsersPull (UserMng* _userMng)
+static void DestroyUserName(void* _name) 
+{
+	free(_name);
+}
+
+void DestroyUserManager(UserMng* _userMng)
 {
 	HashMap* map;
 	if (_userMng == NULL || _userMng->m_magicNumber != MAGIC_NUMBER)
 	{return;}
 
-	map = (HashMap*)_userMng->m_dataStructure;
-	HashMapDestroy(&map , NULL , DestroyOneUser); 
 	_userMng->m_magicNumber = 0;
+
+	map = (HashMap*)_userMng->m_dataStructure;
+	HashMapDestroy(&map , DestroyUserName , DestroyOneUser); 
 	free (_userMng);
 }
 
@@ -119,7 +122,6 @@ UserMngResult InsertUserToFile(FirstAndSecond* _namePswr)
 	fclose(file);	
 	return SUCCESS;
 }
-
 
 UserMngResult CreateUser (FirstAndSecond* _namePsw, UserMng* _userMng, int _isLowd)
 {
@@ -163,19 +165,6 @@ UserMngResult CreateUser (FirstAndSecond* _namePsw, UserMng* _userMng, int _isLo
 	return DUPLICATE_USERNAME;
 }
 
-static void printKey(void* _word)
-{	
-	printf("Key: %s\n", ((char*)_word));
-}
-
-static void printValue(void* _value)
-{
-	printf("name: %s\n", ((( User*)_value) -> m_username));
-	printf("pass: %s\n", ((( User*)_value) -> m_password));
-	printf("active: %d\n", ((( User*)_value) -> m_active));
-	printf("\n");		
-}
-
 int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
 {
 	MapResult result;
@@ -193,15 +182,18 @@ int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
 		GetUserPassword ((User*)pValue, password);
 		if (strcmp (_namePsw->m_second ,password) == 0)
 		{
-			if(GetUserStatus ((User*)pValue) == NO_ACTIVE)
-			{
+			// if(GetUserStatus ((User*)pValue) == NO_ACTIVE)
+			// {
 				SetUserStatus ((User*) pValue, ACTIVE);
 				return SUCCESS;
-			}
-			else
-			{
-				return ALREADY_LOG_IN;
-			}
+			//}
+			// else
+			// {
+			// 	return ALREADY_LOG_IN;
+			// }
+
+			/*bug - Does not work after log-in, log-out, log-in again with the same user name and trying to log-out for the second time (in the UserLogOut function it does not find the user in the HashMap for the second)
+			*** NEED TO CHECK ***/
 		}
 		else
 		{
@@ -211,21 +203,6 @@ int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
 	else
 	{
 		return WRONG_DETAILS;
-	}
-}
-
-UserMngResult IsUsernameCorrect (UserMng* _userMng, char* _name)
-{
-	void* pValue;
-
-	MapResult result = HashMapFind(_userMng-> m_dataStructure ,_name , &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		return SUCCESS;
-	}
-	else
-	{
-		return NO_FOUND_IN_HASH;
 	}
 }
 
@@ -276,18 +253,6 @@ UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupNa
 	}
 }
 
-List* UserGetOutFromAllGroups (UserMng* _manager, char _name[])
-{
-	MapResult result;
-	void* pValue;
-
-	result = HashMapFind(_manager-> m_dataStructure , _name, &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		return WhichGroups ((User*)pValue);
-	}
-}
-
 User* GiveUserByName(UserMng* _manager, char _name[])
 {
 	MapResult result;
@@ -304,7 +269,6 @@ User* GiveUserByName(UserMng* _manager, char _name[])
 UserMngResult UserLogOut (UserMng* _manager, char _name[])
 {
 	MapResult result;
-	int status;
 	void* pValue;
 
 	result = HashMapFind(_manager-> m_dataStructure , _name, &pValue);
@@ -313,6 +277,22 @@ UserMngResult UserLogOut (UserMng* _manager, char _name[])
 		UserNotActive ((User*) pValue);
 		return SUCCESS;
 	}
-}		
+	return NO_FOUND_IN_HASH;
+}
 
-	
+/**** FOR DEBUG ****/
+
+//HashMapPrint(_manager -> m_dataStructure, printKey ,printValue ); 
+
+// static void printKey(void* _word)
+// {	
+// 	printf("Key: %s\n", ((char*)_word));
+// }
+
+// static void printValue(void* _value)
+// {
+// 	printf("name: %s\n", ((( User*)_value) -> m_username));
+// 	printf("pass: %s\n", ((( User*)_value) -> m_password));
+// 	printf("active: %d\n", ((( User*)_value) -> m_active));
+// 	printf("\n");		
+// }

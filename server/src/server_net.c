@@ -1,17 +1,17 @@
 #include "server_net.h"
 
-#define SERVER_PORT 5555
 #define SERVER_IP "127.0.0.1"
+#define MAGIC_NUMBER 8123475
+#define SERVER_PORT 5555
 #define BUFFER_SIZE 5500
-#define FAIL 0
-#define SUCCESS 1
-#define TRUE 1
-#define MAX_FD 1024
-#define OFF 0
-#define ON 1
 #define ACCEPT_CLIENT 1
 #define REJECT_CLIENT 0
-#define MAGIC_NUMBER 8123475
+#define MAX_FD 1024
+#define SUCCESS 1
+#define FAIL 0
+#define TRUE 1
+#define OFF 0
+#define ON 1
 
 struct Server
 {
@@ -136,8 +136,6 @@ static int ServerInitialization(Server* _server, struct sockaddr_in *_sin, fd_se
 
 	return listenSocket;
 }
-
-/**************************RunServer***************************/
 
 void RunServer(Server* _server)
 {
@@ -270,6 +268,8 @@ static int SendAndReceiveData(Server* _server, int _clientSocket, List* _list)
 {
 	char buffer[BUFFER_SIZE];
 	int receiveBytes;
+	int MessageSize;
+	receiveBytes = 0;
 
 	receiveBytes = recv(_clientSocket, buffer, sizeof(buffer), 0);
 	if(receiveBytes == 0)
@@ -283,12 +283,16 @@ static int SendAndReceiveData(Server* _server, int _clientSocket, List* _list)
 		return FAIL;
 	}
 
+	MessageSize = ReturnMessageSize(buffer);
+	while(receiveBytes < MessageSize)
+	{
+		receiveBytes += recv(_clientSocket, (buffer + receiveBytes), sizeof(buffer), 0);
+	}
+
 	buffer[receiveBytes] = '\0';
 	_server -> m_receiveMessage (_server, _clientSocket, buffer, receiveBytes, _server -> m_context);	
 	return SUCCESS;
 }
-
-/**************************SendMessageToClien***************************/
 
 int SendMessageToClien(Server* _server, int _clientId,  void* _message,  int _messageSize)
 {
@@ -307,8 +311,6 @@ int SendMessageToClien(Server* _server, int _clientId,  void* _message,  int _me
 	return SUCCESS;	
 }
 
-/**************************DestroyServer***************************/
-
 void DestroyServer(Server* _server)
 {
 	if(_server == NULL || _server ->  m_magicNumber != MAGIC_NUMBER)
@@ -322,7 +324,6 @@ void DestroyServer(Server* _server)
 	ListDestroy(&_server -> m_list, NULL);
 	free(_server);
 }
-
 
 static void CloseAllClient(List* _list)
 {
@@ -341,8 +342,6 @@ static void CloseAllClient(List* _list)
 		node = ListItrNext(node);	
 	} 
 }
-
-/**************************PauseServer***************************/
 
 void PauseServer(Server* _server)
 {
