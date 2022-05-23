@@ -192,7 +192,7 @@ int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
 			// 	return ALREADY_LOG_IN;
 			// }
 
-			/*bug - Does not work after log-in, log-out, log-in again with the same user name and trying to log-out for the second time (in the UserLogOut function it does not find the user in the HashMap for the second)
+			/*bug - Does not work after log-in, log-out, log-in again with the same user name and trying to log-out for the second time (in the UserLogOut function it does not find the user in the HashMap for the second time)
 			*** NEED TO CHECK ***/
 		}
 		else
