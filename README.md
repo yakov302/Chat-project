@@ -1,4 +1,4 @@
-# Chat-project
+# Chat project
 Chat system that supports multiple users and rooms.  
 TCP-based client-server, UDP-based chat messages and Multi threads.
 
