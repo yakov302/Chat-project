@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 1024
 #define IP_SIZE 20
 #define TRUE 1
 #define FALSE 0
@@ -31,6 +31,13 @@ static void set_sin(struct sockaddr_in* sin, char* ip, int port)
     sin->sin_port = htons(port);
 }
 
+static void set_multicast( struct ip_mreq* mreq, char* ip)
+{
+    memset(mreq, 0, sizeof(*mreq));
+    mreq->imr_multiaddr.s_addr = inet_addr(ip);
+    mreq->imr_interface.s_addr = htonl(INADDR_ANY);
+}
+
 static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip, int port)
 {
     *socket_number = socket(AF_INET, SOCK_DGRAM, 0);
@@ -40,11 +47,12 @@ static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip
         return FALSE;
     }
 
-    int optval = 1;
-    if (setsockopt(*socket_number, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+    struct ip_mreq mreq;
+    set_multicast(&mreq, ip);
+    if (setsockopt(*socket_number, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
     {
-       perror("setsockopt fail!");
-       return FALSE;
+        perror("setsockopt fail");
+        return FALSE;
     }
 
     set_sin(sin, ip, port);
@@ -55,6 +63,18 @@ static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip
     }
 
     return TRUE;
+}
+
+static void decrypt(const char* key, char* buffer, int message_size)
+{
+	int key_size = strlen(key);
+	int j = 0;
+
+	for(int i = 0; i < message_size; i++)
+	{
+		*(buffer + i) -= key[j];
+		j = (j + 1)%key_size;
+	}	
 }
 
 int main(int argc, char* argv[])
@@ -73,14 +93,15 @@ int main(int argc, char* argv[])
 
     while (TRUE) 
     {
-        int receive_bytes  = recvfrom(socket_number, buffer, 5, 0, (struct sockaddr*)&sin, &sin_len);
+        int receive_bytes  = recvfrom(socket_number, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&sin, &sin_len);
         if (receive_bytes < 0) 
         {
             perror("recvfrom fail");
             return FALSE;
         }
-        printf("resiv\n");
+
         buffer[receive_bytes] = '\0';
+        decrypt("zaidenberg", buffer, strlen(buffer));
         puts(buffer);
     }
 

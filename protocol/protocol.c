@@ -81,7 +81,7 @@ int pack(char* buffer, Args* arganmats, Message_type message)
     pack_floats(buffer, arganmats, &num_of_bytes);
 
     *(int*)buffer = num_of_bytes;
-    encrypt("key", buffer, num_of_bytes);
+    encrypt("zaidenberg", buffer, num_of_bytes);
     return num_of_bytes;
 }
 
@@ -120,7 +120,7 @@ Message_type unpack(char* buffer, Args* arganmats)
     if(buffer == NULL) {return BUFFER_NOT_INITIALIZE;}
     if(arganmats == NULL) {return ARGS_NOT_INITIALIZE;}
 
-    decrypt("key", buffer, message_size(buffer));
+    decrypt("zaidenberg", buffer, message_size(buffer));
 
     int num_of_bytes = sizeof(int);  
     Message_type message = (Message_type)(*(buffer + num_of_bytes));
@@ -152,9 +152,9 @@ int message_size(char* buffer)
     if(buffer == NULL)
         return BUFFER_NOT_INITIALIZE;
         
-    decrypt("key", buffer, sizeof(int));
+    decrypt("zaidenberg", buffer, sizeof(int));
     int size = *(int*)(buffer);
-    encrypt("key", buffer, sizeof(int));
+    encrypt("zaidenberg", buffer, sizeof(int));
     return size;
 }
 
@@ -163,9 +163,9 @@ Message_type message_type(char* buffer)
     if(buffer == NULL)
         return BUFFER_NOT_INITIALIZE;
 
-    decrypt("key",buffer, sizeof(int) + 1);
+    decrypt("zaidenberg",buffer, sizeof(int) + 1);
     Message_type type = (Message_type)*(buffer + sizeof(int));
-    encrypt("key", buffer, sizeof(int) + 1);
+    encrypt("zaidenberg", buffer, sizeof(int) + 1);
     return type;
 }
 

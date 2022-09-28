@@ -1,14 +1,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
-#define BUFFER_SIZE 256
-#define MESSAGE_SIZE 320
+#define BUFFER_SIZE 1024
+#define MESSAGE_SIZE 1088
 #define TRUE 1
 #define FALSE 0
 
@@ -47,6 +44,21 @@ static int udp_client_init(int* socket_number, struct sockaddr_in* sin, char* ip
     return TRUE;
 }
 
+static void encrypt(const char* key, char* buffer, int message_size)
+{
+	int key_size = strlen(key);
+    int j = 0;
+
+	for(int i = 0; i < message_size; i++)
+	{
+        if(*(buffer + i) == '\0')
+            break;
+
+		*(buffer + i) += key[j];
+		j = (j + 1)%key_size;
+	}	
+}
+
 int main(int argc, char *argv[])
 {
     if(argc < 4) 
@@ -61,21 +73,22 @@ int main(int argc, char *argv[])
     char message[MESSAGE_SIZE];
 
     save_process_id_to_file();
-    printf("Hello %s, type your message. \n", argv[3]);
+    printf("Hi %s, type your messages:\n\n", argv[3]);
 
     while (TRUE) 
     {
         fgets(buffer, BUFFER_SIZE, stdin);
-        sprintf(message, "\033[1;32m%s\033[0m : %s", argv[3], buffer);
+        sprintf(message, "\033[1;32m%s\033[0m: %s", argv[3], buffer);
+        encrypt("zaidenberg", message, MESSAGE_SIZE);
 
-        int bytes_dend = sendto(socket_number, message, MESSAGE_SIZE, 0, (struct sockaddr*)&sin, sizeof(sin));
+        int bytes_dend = sendto(socket_number, message, strlen(message), 0, (struct sockaddr*)&sin, sizeof(sin));
         if (bytes_dend < 0) 
         {
-            sleep(5);
             perror("sendto fail!");
-            return 1;
+            return FALSE;
         }
-        printf("sent\n");
+
+        printf("\n");
     }
 
     return TRUE;
