@@ -126,21 +126,116 @@ Vector_return vector_pop_back_no_return(Vector* vector)
     return VECTOR_SUCCESS;
 }
 
-Vector_return vector_pop(Vector* vector, size_t _index)
+static void shrink_array(Vector* vector, size_t index)
 {
-    
+	const size_t size = vector->m_nun_of_items;
+	
+	for(size_t i = index + 1; i < size; ++i)
+		vector->m_array[i-1] = vector->m_array[i];
 }
 
-Vector_return vector_get(const Vector* vector, size_t index, void** return_item);
+Vector_return vector_pop(Vector* vector, size_t index, void** return_item)
+{
+	if(vector == NULL || return_item == NULL) {return VECTOR_UNITIALIZED_ARGS;}
+	if (index < 0 || index >= vector->m_nun_of_items) {return VECTOR_INVALID_INDEX;}
 
-Vector_return vector_set(Vector* vector, size_t index, void* item); 
+	if(need_to_decrease_capacity(vector))
+	{
+		Vector_return result = vector_decrease_capacity(vector);
+        if(result != VECTOR_SUCCESS)
+			return result;
+	}
 
-size_t vector_capacity (const Vector* vector);
+	*return_item =  vector->m_array[index];
+	shrink_array(vector, index);
+	vector->m_nun_of_items--;
+    return VECTOR_SUCCESS;
+}
 
-size_t vector_size (const Vector* vector);
+Vector_return vector_pop_no_return(Vector* vector, size_t index)
+{
+	if(vector == NULL) {return VECTOR_UNITIALIZED_ARGS;}
+	if (index < 0 || index >= vector->m_nun_of_items) {return VECTOR_INVALID_INDEX;}
 
-int vector_empty(const Vector* vector);
+	if(need_to_decrease_capacity(vector))
+	{
+		Vector_return result = vector_decrease_capacity(vector);
+        if(result != VECTOR_SUCCESS)
+			return result;
+	}
 
-void vector_clear(const Vector* vector);
+	shrink_array(vector, index);
+	vector->m_nun_of_items--;
+    return VECTOR_SUCCESS;
+}
 
-size_t vector_for_each(const Vector* vector, Action action_function, void* context);
+Vector_return vector_get(const Vector* vector, size_t index, void** return_item)
+{
+	if(vector == NULL || return_item == NULL) {return VECTOR_UNITIALIZED_ARGS;}
+	if (index < 0 || index >= vector->m_nun_of_items) {return VECTOR_INVALID_INDEX;}
+
+	*return_item =  vector->m_array[index];
+    return VECTOR_SUCCESS;
+}
+
+Vector_return vector_set(Vector* vector, size_t index, void* item)
+{
+	if(vector == NULL || item == NULL) {return VECTOR_UNITIALIZED_ARGS;}
+	if (index < 0 || index >= vector->m_nun_of_items) {return VECTOR_INVALID_INDEX;}
+
+	vector->m_array[index] = item;
+    return VECTOR_SUCCESS;
+}
+
+size_t vector_capacity (const Vector* vector)
+{
+	if(vector == NULL)
+		return VECTOR_UNITIALIZED_ARGS;
+
+	return vector->m_size;
+}
+
+size_t vector_size (const Vector* vector)
+{
+	if(vector == NULL)
+		return VECTOR_UNITIALIZED_ARGS;
+
+	return vector->m_nun_of_items;
+}
+
+int vector_empty(const Vector* vector)
+{
+	if(vector == NULL)
+		return VECTOR_UNITIALIZED_ARGS;
+
+	if(vector->m_nun_of_items == 0)
+		return TRUE;
+	
+	return FALSE;
+}
+
+void vector_clear(Vector* vector)
+{
+	if(vector == NULL)
+		return;
+	
+	vector->m_nun_of_items = 0;
+
+	while(need_to_decrease_capacity(vector))
+		vector_decrease_capacity(vector);
+}
+
+size_t vector_for_each(const Vector* vector, Action action_function, void* context)
+{
+	if(vector == NULL || action_function == NULL) {return VECTOR_UNITIALIZED_ARGS;}
+
+	size_t i;
+	const size_t size = vector->m_nun_of_items;
+	for(size_t i = 0; i < size; ++i)
+	{
+		if(action_function(vector->m_array[i], context) == FALSE)
+			break;
+	}
+
+	return i;
+}

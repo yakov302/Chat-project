@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define REDUCTION_CRITERION 2
 #define TRUE 1
@@ -30,7 +31,7 @@ typedef enum Vector_return
 }Vector_return;
 
 typedef void(*ElementDestroy)(void* item);
-typedef int(*Action)(void*, size_t , void*);
+typedef int(*Action)(void*, void*);
 
 Vector* vector_create (size_t capacity, size_t resizing_size);
 
@@ -42,7 +43,9 @@ Vector_return vector_pop_back(Vector* vector, void** return_item);
 
 Vector_return vector_pop_back_no_return(Vector* vector);
 
-Vector_return vector_pop(Vector* vector, size_t _index);
+Vector_return vector_pop(Vector* vector, size_t index, void** return_item); // o(n) to shrink
+
+Vector_return vector_pop_no_return(Vector* vector, size_t index); // o(n) to shrink
 
 Vector_return vector_get(const Vector* vector, size_t index, void** return_item);
 
@@ -54,7 +57,7 @@ size_t vector_size (const Vector* vector);
 
 int vector_empty(const Vector* vector);
 
-void vector_clear(const Vector* vector);
+void vector_clear(Vector* vector);
 
 size_t vector_for_each(const Vector* vector, Action action_function, void* context);
 
