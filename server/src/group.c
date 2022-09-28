@@ -1,62 +1,56 @@
 #include "group.h"
 
-Group* CreateNewGroup (char _groupName[])
-{	
-	Group* newGroup = (Group*) malloc (sizeof(Group));
-	if (newGroup == NULL)
-	{return NULL;}
+Group* create_group(const char* group_name, char* group_ip)
+{
+    Group* group = (Group*)malloc(sizeof(Group));
+	if(group == NULL)
+	    return NULL;
 
-	strcpy (newGroup -> m_groupName, _groupName);
-	newGroup -> m_numOfClients = 0;
-	newGroup -> m_magicNumber = MAGIC_NUMBER;
-
-	return newGroup;
+	strcpy (group->m_name, group_name);
+    strcpy (group->m_ip, group_ip);
+	group->m_num_of_clients = 0;
+	group->m_magic_number = MAGIC_NUMBER;
+	return group;
 }
 
-void DestroyGroup (Group* _group)
+void destroy_group(Group* group)
 {
-	if (_group == NULL || _group -> m_magicNumber != MAGIC_NUMBER)
-	{return;}
+    if (group == NULL || group->m_magic_number != MAGIC_NUMBER)
+	    return;
 	
-	_group -> m_magicNumber = 0;
-	free (_group);
+	group->m_magic_number = 0;
+	free (group);
+    group = NULL;
 }
 
-void GetGroupIp (Group* _group, char _groupIp[])
+void group_ip(Group* group, char* group_ip)
 {
-	if (_group == NULL)
-	{return;}
+    if(group == NULL || group_ip == NULL)
+	    return;
 	
-	strcpy (_groupIp, _group -> m_groupIp);
+	strcpy(group_ip, group->m_ip);
 }
 
-int GetGroupNumOfClients (Group* _group)
+int number_of_clients(Group* group)
 {
-	if (_group == NULL)
-	{return 0;}
+    if(group == NULL)
+	    return 0;
 	
-	return  _group -> m_numOfClients;
+    return group->m_num_of_clients;
 }
 
-void SetGroupIp (Group* _group, char _groupIp[])
+void decrese_num_of_cleints (Group* group)
 {
-	if (_group == NULL)
-	{return;}
+    if(group == NULL)
+	    return;
 	
-	strcpy(_group->m_groupIp, _groupIp);
+    group->m_num_of_clients--; 
 }
 
-void DecreseNumOfCleints (Group* _pValue)
+void increse_num_of_cleints (Group* group)
 {
-	--_pValue->m_numOfClients;
-}
-
-void IncreseNumOfCleints (Group* _pValue)
-{
-	++_pValue->m_numOfClients;
-}
-
-int GetNumOfClients(Group* _pValue)
-{
-	return _pValue->m_numOfClients;
+    if(group == NULL)
+	    return;
+	
+    group->m_num_of_clients++; 
 }

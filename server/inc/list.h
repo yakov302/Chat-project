@@ -1,99 +1,67 @@
-#ifndef __LIST_H__
-#define __LIST_H__
+#ifndef LIST_H
+#define LIST_H
 
 #include <stddef.h>  
+#include <stdio.h>
+#include <stdlib.h>
 
-typedef enum List_Result{
+#define YES 1
+#define NO 0
+
+typedef struct Node
+{
+    void* m_data;
+    struct Node *m_next;
+    struct Node *m_prev;
+
+}Node;
+
+typedef struct List
+{
+    Node m_head;
+    Node m_tail;
+    size_t m_size;
+
+}List;
+
+typedef enum List_return
+{
     LIST_SUCCESS,
     LIST_UNINITIALIZED_ERROR,			
     LIST_ALLOCATION_ERROR,				
     LIST_NULL_ELEMENT_ERROR,
-    LIST_UNDERFLOW_ERROR
-} ListResult;
+    LIST_UNDERFLOW_ERROR,
+    LIST_NOT_INITIALIZED
 
-typedef struct Node Node;
-typedef struct List List;
+} List_return;
 
+typedef int (*Compar)(const void*, const void*);
+typedef void (*ElementDestroy)(void*);
+typedef void(*PrintItem)(const void*);
 
-/*Description:
-Create generic List in which each member data is void* and can point to any type.
+static void push_node(Node* node, Node* next);
+static void pop_node(Node* node);
 
-Output:
-NULL - If the memory allocations fails.
-list - Pointer to the List structure.*/
-List* ListCreate(void);
+List* list_create(void);
 
-/*Description:
-Destroys the list completely. optionally destroys the nodes data using user provided function. 
+void list_destroy(List** _list, ElementDestroy free_item);
 
-Input:
-**_list - Pointer to pointer to the List structure. get &(*list).
-_elementDestroy -  pointer to function that destroys all the nodes data. NULL if no such destroy is required*/
-void ListDestroy(List** _list, void (*_elementDestroy)(void* _item));
+void list_erase(const List* list, ElementDestroy free_item);
 
-/*Description:
-insert new node to the head of the list. get data as void* or pointer of another type.
+List_return list_push_head(List* _list, void* item);
 
-Input:
-*_list - Pointer to the List structure.
-*_item - new data (void*) that will enter in new node to the head of the list.
+List_return list_push_tail(List* _list, void* item);
 
-Output:
-LIST_UNINITIALIZED_ERROR -  if _list == NULL || _item == NULL.
-LIST_ALLOCATION_ERROR - If the memory allocations fails.
-LIST_SUCCESS - if the new node enter the head of the list Successfully.*/
-ListResult ListPushHead(List* _list, void* _item);
+List_return list_pop_head(List* _list, void** deleted_item);
 
-/*Description:
-insert new node to the end of the list. get data as void* or pointer of another type.
+List_return list_pop_tail(List* _list, void** deleted_item);
 
-Input:
-*_list - Pointer to the List structure.
-*_item - new data (void*) that will enter in new node to the end of the list.
+size_t list_size(const List* _list);
 
-Output:
-LIST_UNINITIALIZED_ERROR -  if _list == NULL || _item == NULL.
-LIST_ALLOCATION_ERROR - If the memory allocations fails.
-LIST_SUCCESS - if the new node enter the end of the list Successfully.*/
-ListResult ListPushTail(List* _list, void* _item);
+void list_print(List* _list, PrintItem print);
 
-/*Description:
-Deletes the first node in the List. Stores the data of the deleted node in "_item" [&(void*)].
-
-Input:
-*_list - Pointer to the List structure.
-**_item - pointer to pointer variable that will receive the deleted data. get &(*void).
-
-Output:
-LIST_UNINITIALIZED_ERROR -  if _list == NULL || _item == NULL.
-LIST_UNDERFLOW_ERROR - If there are no nods in the list
-LIST_SUCCESS - if the first node deleted successfully.*/
-ListResult ListPopHead(List* _list, void** _item);
-
-/*Description:
-Deletes the last node in the List. Stores the data of the deleted node in "_item" [&(void*)].
-
-Input:
-*_list - Pointer to the List structure.
-**_item - pointer to pointer variable that will receive the deleted data. get &(*void).
-
-Output:
-LIST_UNINITIALIZED_ERROR -  if _list == NULL || _item == NULL.
-LIST_UNDERFLOW_ERROR - If there are no nods in the list
-LIST_SUCCESS - if the last node deleted successfully.*/
-ListResult ListPopTail(List* _list, void** _pItem);
-
-/*Description:
-Returns the number of elements in the List. o(n).
-
-Input:
-*_list - Pointer to the List structure. 
-
-Output:
-0 - if _list == NULL.
-count - the number of nodes in the List.*/
-size_t ListSize(const List* _list);
+int list_is_exists(const List* list, Compar is_equal, const void* item);
 
 
-#endif /* __LIST_H__ */
+#endif// LIST_H
 

@@ -1,37 +1,31 @@
 
-SRC_DIR = ../src
+SRC_DIR = .
 INC_DIR = ../inc
+PROTOCOL_DIR = ../../protocol
 
 CXX = gcc
 CC = $(CXX)
+WARNINGS = -ansi -pedantic -Wall -Werror
+DEBUG = -g3
+LIBRARIES = -pthread
+CXXFLAGS = $(WARNINGS) $(DEBUG)
 
-WARNINGS = -ansi -pedantic -g 
-CXXFLAGS = $(WARNINGS) 
+CFLAGS = -I$(INC_DIR) -I$(PROTOCOL_DIR)
 
-CPPFLAGS = -I$(INC_DIR)
+TARGET = router 
+OBJS = $(SRC_DIR)/main.o $(PROTOCOL_DIR)/protocol.o $(SRC_DIR)/args.o $(SRC_DIR)/socket.o $(SRC_DIR)/action_out.o 
+OBJS += $(SRC_DIR)/tcp.o $(SRC_DIR)/mutex.o $(SRC_DIR)/thread.o $(SRC_DIR)/router.o $(SRC_DIR)/action_in.o
 
-TARGET = runc
-OBJS = ./client_net.o  ./client_app.o ./protocol.o ./ui.o ./client_main.o
-
-$(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS)  -L. -lgenDS
-
-./client_app.o: $(INC_DIR)/client_app.h 
-./client_net.o: $(INC_DIR)/client_net.h	
-./client_app.o: $(INC_DIR)/client_net.h  $(INC_DIR)/client_app.h $(INC_DIR)/protocol.h $(INC_DIR)/ui.h	
-./protocol.o: $(INC_DIR)/protocol.h
-./ui.o: $(INC_DIR)/protocol.h	
-./clientMain.o: $(INC_DIR)/protocol.h $(INC_DIR)/client_app.h $(INC_DIR)/ui.h
-
+$(TARGET):$(OBJS)
+	$(CC) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBRARIES)
 
 check: $(TARGET)
-	./$(TARGET) 
+	./$(TARGET)  
+
+debug: $(TARGET)
+	gdb ./$(TARGET)
 
 clean:
 	@$(RM) $(TARGET) $(OBJS)
 
 .PHONY: check clean
-
-# Before running the executable file write in the terminal the commands below :
-# 1. LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
-# 2. export LD_LIBRARY_PATH

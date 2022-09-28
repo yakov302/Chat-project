@@ -1,77 +1,33 @@
-#ifndef __GROUP_STRUCT_H__
-#define __GROUP_STRUCT_H__
+#ifndef GROUP_H
+#define GROUP_H
 
 #include <stdlib.h>
 #include <string.h>
 
 #define MAGIC_NUMBER 144522
-#define SIZE 30
+#define STRING_SIZE 68
 
 typedef struct Group
 {
-	char m_groupName[SIZE];
-	char m_groupIp[SIZE];
-	int m_numOfClients;
-	int m_magicNumber;
+	char m_name[STRING_SIZE];
+	char m_ip[STRING_SIZE];
+	int m_num_of_clients;
+	int m_magic_number;
+
 }Group;
 
-/*Description:
-Creates group struct and updates its members.
+Group* create_group(const char* group_name, char* group_ip);
 
-Input:
-_groupName[] - Group name
+void destroy_group(Group* group);
 
-Output:
-NULL - If memory allocation failed.
-newGroup - Pointer to the group struct. */
-Group* CreateNewGroup (char _groupName[]);
+void group_ip(Group* group, char* group_ip);
 
-/*Description:
-Destroy the group.
+int number_of_clients(Group* group);
 
-Input:
-*_group - Pointer to the group struct.*/
-void DestroyGroup (Group* _group);
+void decrese_num_of_cleints (Group* group);
 
-/*Description:
-Put inside the variable _groupIp[] the IP of the group.
-
-Input:
-*_group - Pointer to the group struct.
-_groupIp[] - the variable that will get the IP of the group.*/
-void GetGroupIp (Group* _group, char _groupIp[]);
-
-/*Description:
-Returns the number of clients in the group.
-
-Input:
-*_group - Pointer to the group struct.
-
-Output:
-_group -> m_numOfClients - the number of clients in the group*/
-int GetGroupNumOfClients (Group* _group);
-
-/*Description:
-Assigns group IP.
-
-Input:
-*_group - Pointer to the group struct.
-_groupIp[] - The IP that will link to the group.*/
-void SetGroupIp (Group* _group, char _groupIp[]);
-
-/*Description:
-Decreases by 1 the number of clients in the group.
-
-Input:
-*_group - Pointer to the group struct.*/
-void DecreseNumOfCleints (Group* _pValue);
-
-/*Description:
-Increases by 1 the number of clients in the group.
-
-Input:
-*_group - Pointer to the group struct.*/
-void IncreseNumOfCleints (Group* _pValue);
+void increse_num_of_cleints (Group* group);
 
 
-#endif //__GROUP_STRUCT_H__
+#endif //GROUP_H
+

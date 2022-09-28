@@ -1,46 +1,26 @@
-#ifndef __SERVER_MANAGER_H__
-#define __SERVER_MANAGER_H__
+#ifndef SERVER_MANAGER_H
+#define SERVER_MANAGER_H
 
-#include <pthread.h>
-
-#include "groups_manager.h"
+#include "router.h"
+#include "action_in.h"
+#include "action_out.h"
 #include "users_manager.h"
-#include "server_net.h"
-#include "protocol.h"
+#include "groups_manager.h"
+#include "subscribs_manager.h"
 
-#define MAGIC_NUMBER 144522
-#define MAX_SOCKETS 1000
-#define NOT_FROME_LOWD 0
-#define ACCEPT_CLIENT 1
-#define MAX_GROUPS 100 
-#define QUE_SIZE 1000
-#define PORT "555"
-
-typedef struct Application
+typedef struct ServerManager
 {
-	Server* m_server;
-	CreateInputs* m_input;
-	UserMng* m_users;
-	GrupsMng* m_groups;
-	int m_magicNumber;
-}Application;
+    Router* m_router;
+    ActionIn* m_action_in;
+    UsersManager* m_users_manager;
+    GroupsManager* m_groups_manager;
+    SubscribsManager* m_subscribs_manager;
 
-/** This function create the server application with all the data structures and databases.
-	There is no input.
-	Output: pointer to struct Application.
-	return NULL if one of the allocations fails**/
-Application* CreateServerApplication ();
+}ServerManager;
 
-/** This function run the server-net and prepare the application to get and recive data.
-Input: pointer to application created above.
-Output: void.
-Errors: No potential errors. **/
-void RunApplication (Application* application);
+ServerManager* server_manager_create(int max_num_of_groups, int max_num_of_users, int max_num_of_subscribs);
 
-/**This function didn't used in the application. It's destroy the application and free all allocations.
-Input: pointer to application created above.
-Output: void.**/
-void DestroyServerApplication (Application* _application);
+void server_manager_destroy(ServerManager* server_manager);
 
 
-#endif //__SERVER_MANAGER_H__
+#endif // SERVER_MANAGER_H

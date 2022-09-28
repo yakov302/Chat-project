@@ -1,38 +1,33 @@
 
-SRC_DIR = ../src
+SRC_DIR = .
 INC_DIR = ../inc
+PROTOCOL_DIR = ../../protocol
 
 CXX = gcc
 CC = $(CXX)
+WARNINGS = -ansi -pedantic -Wall -Werror
+DEBUG = -g3
+LIBRARIES = -pthread
+CXXFLAGS = $(WARNINGS) $(DEBUG)
 
-WARNINGS = -ansi -pedantic -g 
-CXXFLAGS = $(WARNINGS) 
+CFLAGS = -I$(INC_DIR) -I$(PROTOCOL_DIR)
 
-CPPFLAGS = -I$(INC_DIR)
+TARGET = router 
+OBJS = $(SRC_DIR)/main.o $(PROTOCOL_DIR)/protocol.o $(SRC_DIR)/args.o $(SRC_DIR)/socket.o $(SRC_DIR)/list.o $(SRC_DIR)/list_iterator.o
+OBJS += $(SRC_DIR)/tcp.o $(SRC_DIR)/mutex.o $(SRC_DIR)/thread.o $(SRC_DIR)/router.o $(SRC_DIR)/action_in.o $(SRC_DIR)/user.o 
+OBJS += $(SRC_DIR)/hash_map.o $(SRC_DIR)/users_manager.o $(SRC_DIR)/sha256.o $(SRC_DIR)/subscribs_manager.o $(SRC_DIR)/group.o
+OBJS += $(SRC_DIR)/groups_manager.o $(SRC_DIR)/queue.o $(SRC_DIR)/action_out.o $(SRC_DIR)/server_manager.o
 
-TARGET = runs
-OBJS = ./users_manager.o  ./server_manager.o ./protocol.o ./server_net.o ./user.o ./server_main.o ./groups_manager.o ./group.o
-
-$(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS)  -L. -lgenDS -lpthread 
-
-./usersManage.o: $(INC_DIR)/users_manager.h $(INC_DIR)/user.h $(INC_DIR)/hash.map.h	
-./serverManager.o: $(INC_DIR)/server_manager.h $(INC_DIR)/protocol.h $(INC_DIR)/server_net.h $(INC_DIR)/users_manager.h $(INC_DIR)/groups_manager.h	
-./protocol.o: $(INC_DIR)/server_net.h $(INC_DIR)/protocol.h
-./server.o: $(INC_DIR)/list.h $(INC_DIR)/gen.list.h $(INC_DIR)/server_net.h
-./user.o: $(INC_DIR)/user.h $(INC_DIR)/protocol.h $(INC_DIR)/list.h
-./serverMain.o: $(INC_DIR)/server_manager.h	
-./groupsManager.o: $(INC_DIR)/groups_manager.h $(INC_DIR)/group.h $(INC_DIR)/queue.h $(INC_DIR)/hash.map.h $(INC_DIR)/list.h
-./group.o: $(INC_DIR)/group.h $(INC_DIR)/protocol.h $(INC_DIR)/gen.list.h $(INC_DIR)/list.h $(INC_DIR)/hash.map.h $(INC_DIR)/queue.h
+$(TARGET):$(OBJS)
+	$(CC) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBRARIES)
 
 check: $(TARGET)
-	./$(TARGET) 
+	./$(TARGET)  
+
+debug: $(TARGET)
+	gdb ./$(TARGET)
 
 clean:
 	@$(RM) $(TARGET) $(OBJS)
 
 .PHONY: check clean
-
-# Before running the executable file write in the terminal the commands below :
-# 1. LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
-# 2. export LD_LIBRARY_PATH

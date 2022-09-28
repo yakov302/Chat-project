@@ -1,153 +1,62 @@
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+#ifndef VECTOR_H
+#define VECTOR_H
 
 #include <stdio.h>
 
-typedef enum VectorResult {
+#define REDUCTION_CRITERION 2
+#define TRUE 1
+#define FALSE 0
+
+typedef struct Vector
+{
+    void** m_array;
+    size_t m_original_size;
+    size_t m_size;
+    size_t m_nun_of_items;
+    size_t m_resizing_size ;
+
+}Vector;
+
+typedef enum Vector_return 
+{
     VECTOR_SUCCESS,
-    VECTOR_UNITIALIZED_ERROR, 
-    VECTOR_ALLOCTION_ERROR,
-    VECTOR_INDEX_OUT_OF_BOUNDS_ERROR,
-    VECTOR_OVERFLOW_ERROR
-}VectorResult;
+    VECTOR_UNITIALIZED_ARGS, 
+    VECTOR_MALLOC_FAIL,
+    VECTOR_REALLOC_FAIL,
+    VECTOR_INVALID_INDEX,
+    VECTOR_FULL,
+    VECTOR_EMPTY
 
-typedef struct Vector Vector;
+}Vector_return;
 
+typedef void(*ElementDestroy)(void* item);
+typedef int(*Action)(void*, size_t , void*);
 
-/*Description:
-Create generic vector in which each member is void*  and can point to any type.
+Vector* vector_create (size_t capacity, size_t resizing_size);
 
-Input:
-_initialSize - Vector size (in void* units).
-_extensionBlockSize - realloc size in case the place in the vector runs out(in void* units).
- 
-Output:
-NULL - if _initialSize == 0 && _extensionBlockSize == 0 or If one of the memory allocations fails.
-vector - Pointer to the vector structure.*/
-Vector *VectorCreate (size_t _initialSize, size_t _extensionBlockSize);
+void vector_destroy (Vector** vector, ElementDestroy element_destroy);
 
-/*Description:
-Destroys all the vector elements, the vector and the  vector structure.
-Input:
-**_vector - Pointer to pointer to the vector structure. get &(*vector).
-*_elementDestroy - pointer to function that destroys all the Vector elements.*/
-void VectorDestroy (Vector** _vector, void(*_elementDestroy)(void* _item));
+Vector_return vector_push_back(Vector* vector, void* item);
 
-/*Description:
-insert new element to the last place in the vector. get void* or pointer of another type.
+Vector_return vector_pop_back(Vector* vector, void** return_item);
 
-Input:
-*_vector - Pointer to the vector structure.
-*_item - new pointer that will enter the last place in Vector.
+Vector_return vector_pop_back_no_return(Vector* vector);
 
-Output:
-VECTOR_UNITIALIZED_ERROR - if _vector == NULL || _item == NULL or if the realloc fail.
-VECTOR_OVERFLOW_ERROR - If there is no place in the vector && _extensionBlockSize == 0.
-VECTOR_SUCCESS - If the new pointer enters the vector successfully.*/
-VectorResult VectorAppend (Vector* _vector,void* _item);
+Vector_return vector_pop(Vector* vector, size_t _index);
 
-/*Description:
-Deletes the last element (void*) in the Vector. get &(void*).
+Vector_return vector_get(const Vector* vector, size_t index, void** return_item);
 
-Input:
-*_vector - Pointer to the vector structure.
-**_item - pointer to pointer variable that will receive the deleted pointer.get &(*void).
+Vector_return vector_set(Vector* vector, size_t index, void* item); 
 
-Output:
-VECTOR_UNITIALIZED_ERROR -  if _vector == NULL || _item == NULL.
-VECTOR_OVERFLOW_ERROR - If the number of elements in the vector is 0.
-VECTOR_SUCCESS - If the last element was deleted successfully.*/
-VectorResult VectorRemove(Vector* _vector, void** _item);
+size_t vector_capacity (const Vector* vector);
 
-/*Description:
-Gives the element in the index place and Stores it in a variable void*. get &void*. (Does not delete the element from the vector)
+size_t vector_size (const Vector* vector);
 
-Input:
-*_vector - Pointer to the vector structure.
-_index - index place.
-**_item - void* variable that will get the pointer from the index place.
+int vector_empty(const Vector* vector);
 
-Output:
-VECTOR_UNITIALIZED_ERROR - if _vector == NULL || _item == NULL.
-VECTOR_INDEX_OUT_OF_BOUNDS_ERROR - If the index is greater than the number of elements in the vector.
-VECTOR_SUCCESS - If the pointer in index place successfully stored in the _item variable.*/
-VectorResult VectorGet(const Vector* _vector, size_t _index, void** _item);
+void vector_clear(const Vector* vector);
 
-/*Description:
-insert pointer to the index place. get void* or pointer of another type with casting.
-
-Input:
-*_vector -  Pointer to the vector structure.
-_index - index place.
-*_item - The pointer will enter the index place.
-
-Output:
-VECTOR_UNITIALIZED_ERROR - if _vector == NULL || _item == NULL.
-VECTOR_INDEX_OUT_OF_BOUNDS_ERROR - If the index is greater than the number of elements in the vector.
-VECTOR_SUCCESS - If the pointer successfully enters the index place*/
-VectorResult VectorSet(Vector* _vector, size_t _index, void* _item);
-
-/*Description:
-Returns the number of elements in the vector.
-
-Input:
-*_vector - Pointer to the vector structure.
-
-Output:
-0 - if _vector == NULL.
-_vector -> m_nItems - the number of elements in the vector.*/
-size_t  VectorSize (const Vector* _vector);
-
-/*Description:
-Returns the size of the vector memory allocation (in void* units)
-
-Input:
-*_vector - Pointer to the vector structure.
-
-Output:
-0 - if _vector == NULL.
-_vector -> m_nItems - the size of the vector memory allocation (in void* units)*/
-size_t  VectorCapacity (const Vector* _vector);
-
-/*Description:
-generic function used for all actions that need to be done on all the Vector elements.
-
-Input:
-*_vector - Pointer to the vector structure.
-*_vectorElementAction - Pointer to function that defines the action required to perform on all the Vector elements. Returns 0 to stop when no need to continue running on the other Vector elements.
-*_context - External information (if required) to perform the action. (Eg value you want to check if exsist in the vector)
-
-Output:
-i - The index where the function vectorElementAction returned 0. or the index at the last place + 1 if the function ran on all the elements without stopping.*/
-size_t VectorForEach(const Vector* _vector, int(*_vectorElementAction)(void*, size_t , void*), void* _context);
+size_t vector_for_each(const Vector* vector, Action action_function, void* context);
 
 
-#endif /*#ifndef__VECTOR_H__*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif // VECTOR_H

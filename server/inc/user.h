@@ -1,76 +1,39 @@
-#ifndef __USER_STRUCT_H__
-#define __USER_STRUCT_H__
+#ifndef USER_H
+#define USER_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-#include "gen.list.h"
-#include "protocol.h"
+#include "list_iterator.h"
 
-#define SIZE 30
-#define ACTIVE 1
-#define NO_ACTIVE 0
 #define MAGIC_NUMBER 144522
+#define STRING_SIZE 68
 
-
-typedef enum userStrResult
+typedef enum User_return
 {
-	USER_STRUCT_SUCCESS,
-	USER_STRUCT_MALLOC_FAIL,
-	USER_STRUCT_NOT_INITIALIZED,
-	USER_STRUCT_NOT_FOUND_IN_HASH,
-	ALREADY_IN_THE_GROUP
-}userStrResult;
+	USER_SUCCESS,
+	USER_MALLOC_FAIL,
+    USER_ARGS_NOT_INITIALIZED,
+	USER_NOT_INITIALIZED,
+	USER_GROUP_NOT_EXISTS,
+	USER_ALREADY_IN_THE_GROUP
 
-struct User
+}User_return;
+
+typedef struct User
 {
-	char m_username[SIZE];
-	char m_password[SIZE];
-	List* m_groups;
-	int m_active;
-	int m_magicNumber;
-};
-typedef struct User User;
+	char m_name[STRING_SIZE];
+    List* m_groups;
+	int m_magic_number;
 
-/**This function create User type struct, which contains name, password, list of groups and status active or no.
-Input: FirstAndSecond* struct- contains two members - name and password.
-Output: pointer to User struct. if allocation failed return NULL**/
-User* CreateNewUser (FirstAndSecond* _namePsw);
+}User;
 
-/**This function destroy User struct and free all allocations.
-Input: declare void* because of the typedef in list.h, used for User struct created above.
-Output: void.**/
-void DestroyUser (User* _user);
+User* create_user(const char* name);
 
-/**The function get User struct created above, and parameter to get into it user's password**/
-void GetUserPassword (User* _user, char _password[]);
+void destroy_user(User* user);
 
-/**This function get User struct created above and return its status active/not-active.**/ 
-int GetUserStatus (User* _user);
+int remove_group_from_user(User* user, char* group_name);
 
-/**The function set user status to active / no active. 
-Input: User struct created above, and status to set.**/
-void SetUserStatus (User* _user, int _status);
-
-/**Function remove group from list of user's groups. 
-Input: User struct created above, and group name to remove.
-Output: USER_STRUCT_SUCCESS - if group removed successfully.
-		USER_STRUCT_NOT_FOUND_IN_HASH - if group didn't found
-		USER_STRUCT_NOT_INITIALIZED - if one of parameters is NULL**/
-int RemoveGroupFromUser (User* _user, char* _groupName);
-
-/**Function add group to list of user's groups. 
-Input: User struct created above, and group name to add.
-Output: USER_STRUCT_SUCCESS - if group removed successfully.
-		ALMOST_IN_THE_GROUP - if user allmost connected to group.
-		USER_STRUCT_MALLOC_FAIL - if allocation failed.
-		USER_STRUCT_NOT_INITIALIZED- if one of parameters is NULL**/
-int AddGroupForUser (User* _user, char* _groupName);
-
-/**This function remove all groups and change user's status to no active.
-Input: User struct created above, and group name to add.
-Output: USER_STRUCT_NOT_INITIALIZED - if user is NULL, and USER_STRUCT_SUCCESS if success.**/
-int UserNotActive (User* _user);
+int add_group_for_user(User* user, char* group_name);
 
 
-#endif //__USER_STRUCT_H__
+#endif // USER_H

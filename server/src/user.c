@@ -1,124 +1,83 @@
 #include "user.h"
 
-User* CreateNewUser (FirstAndSecond* _namePsw)
+User* create_user(const char* name)
 {
-	User* newUser = (User*) malloc (sizeof(User));
-	if (newUser == NULL)
-	{return NULL;}
+	if(name == NULL)
+		return NULL;
 
-	newUser->m_groups = ListCreate();
-	if (newUser->m_groups == NULL)
+	User* user = (User*)malloc(sizeof(User));
+	if (user == NULL)
+	    return NULL;
+
+	user->m_groups = list_create();
+	if (user->m_groups == NULL)
 	{
-		free(newUser);
+		free(user);
 		return NULL;
 	}
 
-	strcpy (newUser->m_username,_namePsw->m_first);
-	strcpy (newUser->m_password, _namePsw->m_second);
-	newUser->m_active = NO_ACTIVE;
-	return newUser;
+	strcpy (user->m_name, name);
+    user->m_magic_number = MAGIC_NUMBER;
+	return user;
 }
 
-static void destroyGrupName(void* _name)
+static void destroy_grup_name(void* name)
 {
-	free(_name);
+	free(name);
 }
 
-void DestroyUser (User* _user)
+void destroy_user(User* user)
 {
-	if (_user == NULL || _user->m_magicNumber != MAGIC_NUMBER)
-	{return;}
+	if (user == NULL || user->m_magic_number != MAGIC_NUMBER)
+	    return;
 
-	_user->m_magicNumber = 0;
-	ListDestroy(&(_user->m_groups), destroyGrupName);
-	free (_user);
+	user->m_magic_number = 0;
+	list_destroy(&user->m_groups, destroy_grup_name);
+	free (user);
+    user == NULL;
 }
 
-void GetUserPassword (User* _user, char _password[])
+static int is_group_name_equal(const void* a, const void* b)
 {
-	if (_user == NULL)
-	{return;}
-
-	strcpy (_password, _user -> m_password);
+    if(strcmp((char*)a, (char*)b) == 0)
+        return YES;
+    return NO;
 }
 
-int GetUserStatus (User* _user)
+int add_group_for_user(User* user, char* group_name)
 {
-	return _user->m_active;
-}
+    if (user == NULL || group_name == NULL)
+	    return USER_ARGS_NOT_INITIALIZED;
 
-void SetUserStatus (User* _user, int _status)
-{
-	_user->m_active = _status;
-}
+    if(list_is_exists(user->m_groups, is_group_name_equal, group_name))
+        return USER_ALREADY_IN_THE_GROUP;
 
-int AddGroupForUser (User* _user, char* _groupName)
-{
-	char* groupName;
-	ListItr begin, end;
-	void* pValue;
+	char* name = malloc(sizeof(char)*STRING_SIZE);
+	if (name == NULL)
+	    return USER_ARGS_NOT_INITIALIZED;
 
- 	begin = ListItrBegin(_user->m_groups);
-	end = ListItrEnd(_user->m_groups);
-
-	while (begin != end)
-	{
-		pValue = ListItrGet(begin);
-		if (strcmp ((char*) pValue, _groupName) != 0)
-		{
-			begin = ListItrNext(begin);
-		}
-		else
-		{
-			return ALREADY_IN_THE_GROUP;
-		}
-	}
-	groupName = malloc (sizeof(char)*SIZE);
-	if (groupName == NULL)
-	{return USER_STRUCT_MALLOC_FAIL;}
-
-	strcpy (groupName, _groupName);
-	ListPushTail(_user->m_groups, groupName);
-	return USER_STRUCT_SUCCESS;
+	strcpy (name, group_name);
+	list_push_tail(user->m_groups, (void*)name);
+	return USER_SUCCESS;
 }
 	
-int RemoveGroupFromUser (User* _user, char* _groupName)
+int remove_group_from_user(User* user, char* group_name)
 {
-	ListItr begin, end;
-	void* pValue;
+    if (user == NULL || group_name == NULL)
+	    return USER_ARGS_NOT_INITIALIZED;
 
- 	begin = ListItrBegin(_user->m_groups);
-	end = ListItrEnd(_user->m_groups);
-
-	while (begin != end)
-	{
-		pValue = ListItrGet(begin);
-		if (strcmp ((char*) pValue, _groupName) != 0)
-		{
-			begin = ListItrNext(begin);
-		}
-		else
-		{
-			ListItrRemove(begin);
-			return USER_STRUCT_SUCCESS;
-		}
-	}
-	return USER_STRUCT_NOT_FOUND_IN_HASH;
+    ListItr it = find_first(user->m_groups, is_group_name_equal, group_name);
+    if(it != NULL)
+    {
+        remove_it(user->m_groups, it);
+		return USER_SUCCESS;
+    }
+    
+	return USER_GROUP_NOT_EXISTS;
 }
 
-int UserNotActive (User* _user)
+static void free_group_name(void* group_name)
 {
-	ListItr itr, end;
+	free((char*)group_name);
+}
 
-	itr = ListItrBegin(_user ->m_groups);
-	end  = ListItrEnd(_user ->m_groups);
-
-	while (itr != end)
-	{	
-		ListItrRemove(itr);
-		itr = ListItrNext(itr);
-	}
-
-	_user->m_active = NO_ACTIVE;
-	return USER_STRUCT_SUCCESS;
-}	

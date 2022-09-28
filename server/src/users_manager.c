@@ -1,298 +1,139 @@
 #include "users_manager.h"
 
-static void printKey(void* _word);
-static void printValue(void* _value);
-static void CreateUserFromFile(FILE* _file, UserMng* _manager);
-
-size_t ConvertNameForHash (void* _key)
+static size_t hash_for_user_name(void* name)
 {
-	int i;
-	size_t multi = 1;
-	char letter;
-	int len = strlen ((char*)_key);
-	for (i = 0; i < len; i++)
-	{
-		letter = ((char*)_key)[i];
-		multi *= letter;
-	}
-	return multi;
+	size_t mul = 1;
+	const int len = strlen ((char*)name);
+
+	for (int i = 0; i < len; ++i)
+		mul *= ((char*)name)[i]+((i+1));
+
+	return mul;
 }
 
-int CompareUserNames (void* _firstKey, void* _secondKey)	
+static int compare_user_names (const void* hash_element, const void* user_name)	
 {
-	if (strcmp ((char*)_firstKey, (char*)_secondKey) == 0)
+	if (strcmp ((char*)((User*)((Element*)hash_element)->m_value)->m_name, (char*)user_name) == 0)
 	{
 		return EQUAL;
 	}
 	return NOT_EQUAL;
 }
 
-static int LoadUsersFromFile (UserMng* _manager)
+static void destroy_user_element(void* element) 
 {
-	FILE* file;
-
-	if(_manager == NULL)
-	{return NOT_INITIAL_FAIL;}
-
-	if((file = fopen(FILE_NAME, "r")) == NULL)
-	{return OPEN_FILE_FAIL;}
-	
-	if(!feof(file))
-	{
-		CreateUserFromFile(file, _manager);
-	}
-				
-	while (!feof(file))
-	{
-		CreateUserFromFile(file, _manager);		
-	}
-		
-	fclose(file);	
-	return SUCCESS;
+    if(element != NULL)
+    {
+	    destroy_user(((Element*)element)->m_value);
+        free(((Element*)element)->m_key);
+        free(element);
+    }
 }
 
-static void CreateUserFromFile(FILE* _file, UserMng* _manager)
+UsersManager* create_users_manager(int capacity)
 {
-	char name[SIZE];
-	char password[SIZE];
-	FirstAndSecond* client;
+    if(capacity < 1)
+        return NULL;
 
-	client = (FirstAndSecond*) malloc (sizeof (FirstAndSecond));	
-	fscanf(_file,"%s\n %s\n", name, password);
-	strcpy(client -> m_first, name);
-	strcpy(client -> m_second, password);		
-	CreateUser (client, _manager, FROME_LOWD);
-}
+	UsersManager* users_manager = (UsersManager*)malloc(sizeof(UsersManager));
+	if (users_manager == NULL)
+	    return NULL;
 
-UserMng* CreateUserManager(int _capacity)
-{
-	UserMng* manager;
-	HashMap* map;
-
-	manager = (UserMng*) malloc (sizeof (UserMng));
-	if (manager == NULL)
-	{return NULL;}
-
-	map = HashMapCreate(_capacity, ConvertNameForHash, CompareUserNames);
-	if (map == NULL)
+	users_manager->m_users = hash_map_create(capacity, hash_for_user_name, compare_user_names, destroy_user_element);
+	if (users_manager->m_users == NULL)
 	{
-		free(manager);
+		free(users_manager);
 		return NULL; 
 	}
 
-	manager->m_dataStructure = map;
-	LoadUsersFromFile (manager);
-	return manager;
+    users_manager->m_magic_number = MAGIC_NUMBER;
+	return users_manager;
 }
 
-static void DestroyOneUser(void* _user) 
+void destroy_users_manager(UsersManager* user_manager)
 {
-	DestroyUser ((User*) _user);
+	if (user_manager == NULL || user_manager->m_magic_number != MAGIC_NUMBER)
+	    return;
+
+	user_manager->m_magic_number = 0;
+	hash_map_destroy(&user_manager->m_users); 
+	free (user_manager);
+    user_manager = NULL;
 }
 
-static void DestroyUserName(void* _name) 
+static char* create_key(const char* name)
 {
-	free(_name);
+    char* user_name = (char*)malloc(sizeof(name));
+    if (user_name == NULL)
+        return NULL;
+
+    strcpy(user_name, name);
+    return user_name;
 }
 
-void DestroyUserManager(UserMng* _userMng)
+UsersManager_return user_log_in(UsersManager* users_manager, const char* name)
 {
-	HashMap* map;
-	if (_userMng == NULL || _userMng->m_magicNumber != MAGIC_NUMBER)
-	{return;}
+	if (users_manager == NULL || name == NULL)
+		return USER_MANAGER_ARGS_NOT_INITIALIZED;
 
-	_userMng->m_magicNumber = 0;
+	if (hash_map_is_exists(users_manager->m_users, name)) {return USER_MANAGER_USER_ALREADY_LOGGED_IN;}
 
-	map = (HashMap*)_userMng->m_dataStructure;
-	HashMapDestroy(&map , DestroyUserName , DestroyOneUser); 
-	free (_userMng);
+    char* user_name = create_key(name);
+    if (user_name == NULL) {return USER_MANAGER_MALLOC_FAIL;}
+
+    User* user = create_user(name);
+    if (user == NULL)
+    {   
+        free(user_name);
+        return USER_MANAGER_MALLOC_FAIL;
+    }
+
+    Map_return status = hash_map_insert(users_manager->m_users, user_name, user);
+    if (status != MAP_SUCCESS)
+    {
+        free (user_name);
+        destroy_user (user);
+        return USER_MANAGER_LOG_IN_FAIL;
+    }
+            
+    return USER_MANAGER_SUCCESS;
 }
 
-UserMngResult InsertUserToFile(FirstAndSecond* _namePswr)
+UsersManager_return user_join_group (UsersManager* users_manager, char* user_name, char* group_name)
 {
-	FILE* file; 
+	if (users_manager == NULL || user_name == NULL || group_name == NULL)
+	    return USER_MANAGER_ARGS_NOT_INITIALIZED;
 
-	if((file = fopen(FILE_NAME, "a")) == NULL)
-	{
-		printf ("open file failed\n");
-		return OPEN_FILE_FAIL;
-	}
-			
-	fprintf(file, "%s\n%s\n", _namePswr -> m_first, _namePswr -> m_second);			
-	fclose(file);	
-	return SUCCESS;
-}
+    void* user;
+	Map_return m_result = hash_map_find(users_manager->m_users, user_name, &user);
+	if (m_result != MAP_SUCCESS) {return USER_MANAGER_USER_NOT_EXISTS;}
 
-UserMngResult CreateUser (FirstAndSecond* _namePsw, UserMng* _userMng, int _isLowd)
-{
-	User* user;
-	int status;
-	void* pValue;
-	MapResult result;
-
-	if (_namePsw == NULL || _userMng == NULL)
-	{return MALLOC_FAIL;}
-
-	result = HashMapFind(_userMng-> m_dataStructure , _namePsw->m_first , &pValue);
-	if (result == MAP_KEY_NOT_FOUND_ERROR)
-	{
-		char* name = (char*) malloc (sizeof(_namePsw -> m_first));
-		if (name == NULL)
-		{return MALLOC_FAIL;}
-
-		strcpy (name, _namePsw->m_first);
-		user = CreateNewUser (_namePsw);
-		if (user == NULL)
-		{
-			free (name);
-			return MALLOC_FAIL;
-		}
-
-		status = HashMapInsert(_userMng -> m_dataStructure, name, user);
-		if (status != MAP_SUCCESS)
-		{
-			free (name);
-			DestroyUser (user);
-			return MALLOC_FAIL;
-		}
-				
-		if(_isLowd == NOT_FROME_LOWD)
-		{			
-			InsertUserToFile( _namePsw);				 
-		}
-		return SUCCESS;
-	}
-	return DUPLICATE_USERNAME;
-}
-
-int LogInUser (FirstAndSecond* _namePsw, UserMng* _userMng)
-{
-	MapResult result;
-	void* pValue;
-	char password[SIZE];
-
-	if (_namePsw == NULL || _userMng == NULL || _userMng->m_dataStructure == NULL)
-	{
-		return NOT_INITIAL_FAIL;
-	}
-
-	result = HashMapFind(_userMng-> m_dataStructure , _namePsw->m_first, &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		GetUserPassword ((User*)pValue, password);
-		if (strcmp (_namePsw->m_second ,password) == 0)
-		{
-			// if(GetUserStatus ((User*)pValue) == NO_ACTIVE)
-			// {
-				SetUserStatus ((User*) pValue, ACTIVE);
-				return SUCCESS;
-			//}
-			// else
-			// {
-			// 	return ALREADY_LOG_IN;
-			// }
-
-			/*bug - Does not work after log-in, log-out, log-in again with the same user name and trying to log-out for the second time (in the UserLogOut function it does not find the user in the HashMap for the second time)
-			*** NEED TO CHECK ***/
-		}
-		else
-		{
-			return WRONG_DETAILS;
-		}
-	}
-	else
-	{
-		return WRONG_DETAILS;
-	}
-}
-
-UserMngResult UserJoinGroup (UserMng* _userMng, char _username[], char _groupName[])
-{
-	MapResult result;
-	void* pValue;
-
-	if (_username == NULL || _groupName == NULL)
-	{return NOT_INITIAL_FAIL;}
-
-	result = HashMapFind(_userMng-> m_dataStructure , _username , &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		result = AddGroupForUser ((User*)pValue, _groupName);
-		if (result == USER_STRUCT_SUCCESS)
-		{
-			return SUCCESS;
-		}
-		else
-		{
-			return CONNECT_TO_SAME_GROUP;
-		}		
-	}
-	else
-	{
-		return NO_FOUND_IN_HASH;
-	}
+    User_return u_result = add_group_for_user((User*)user, group_name);
+	if (u_result == USER_ALREADY_IN_THE_GROUP) {return USER_MANAGER_USER_ALREADY_IN_THE_GROUP;}
+    else if(u_result == USER_SUCCESS) {return USER_MANAGER_SUCCESS;}
+	return USER_MANAGER_JOIN_GROUP_FAIL;
 }
 	
-UserMngResult UserLeaveGroup (UserMng* _userMng, char* _username, char* _groupName)
+UsersManager_return user_leave_group (UsersManager* users_manager, char* user_name, char* group_name)
 {
-	MapResult result;
-	void* pValue;
+	if (users_manager == NULL || user_name == NULL || group_name == NULL)
+	    return USER_MANAGER_ARGS_NOT_INITIALIZED;
 
-	if (_username == NULL || _groupName == NULL)
-	{return NOT_INITIAL_FAIL;}
+    void* user;
+	Map_return m_result = hash_map_find(users_manager->m_users, user_name, &user);
+	if (m_result != MAP_SUCCESS) {return USER_MANAGER_USER_NOT_EXISTS;}
 
-	result = HashMapFind(_userMng-> m_dataStructure , _username , &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		RemoveGroupFromUser ((User*)pValue, _groupName); 
-		return SUCCESS;
-	}
-	else
-	{
-		return NO_FOUND_IN_HASH;
-	}
+	User_return u_result = remove_group_from_user((User*)user, group_name); 
+    if (u_result == USER_GROUP_NOT_EXISTS) {return USER_MANAGER_GROUP_NOT_EXISTS;}
+    else if(u_result == USER_SUCCESS) {return USER_MANAGER_SUCCESS;}
+	return USER_MANAGER_LEAVE_GROUP_FAIL;
 }
 
-User* GiveUserByName(UserMng* _manager, char _name[])
+UsersManager_return user_log_out(UsersManager* users_manager, char* user_name)
 {
-	MapResult result;
-	void* pValue;
-
-	result = HashMapFind(_manager-> m_dataStructure , _name, &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		return(User*)pValue;
-	}
-	return NULL;
+	if (!hash_map_is_exists(users_manager->m_users, user_name)) {return USER_MANAGER_USER_NOT_EXISTS;}
+	Map_return result = hash_map_remove_and_free(users_manager->m_users , user_name);
+    if(result != MAP_SUCCESS) {return USER_MANAGER_LOGE_OUT_FAIL;}
+	return USER_MANAGER_SUCCESS;
 }
-
-UserMngResult UserLogOut (UserMng* _manager, char _name[])
-{
-	MapResult result;
-	void* pValue;
-
-	result = HashMapFind(_manager-> m_dataStructure , _name, &pValue);
-	if (result == MAP_SUCCESS)
-	{
-		UserNotActive ((User*) pValue);
-		return SUCCESS;
-	}
-	return NO_FOUND_IN_HASH;
-}
-
-/**** FOR DEBUG ****/
-
-//HashMapPrint(_manager -> m_dataStructure, printKey ,printValue ); 
-
-// static void printKey(void* _word)
-// {	
-// 	printf("Key: %s\n", ((char*)_word));
-// }
-
-// static void printValue(void* _value)
-// {
-// 	printf("name: %s\n", ((( User*)_value) -> m_username));
-// 	printf("pass: %s\n", ((( User*)_value) -> m_password));
-// 	printf("active: %d\n", ((( User*)_value) -> m_active));
-// 	printf("\n");		
-// }
+	
