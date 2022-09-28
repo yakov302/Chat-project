@@ -1,31 +1,118 @@
 #include "action_in.h"
 
-void get_buffer(Socket* socket, char* buffer, Mutex* mutex)
+void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex)
 {
-    // need switch case here
+    Message_type type = message_type(buffer);
 
-    Args arg_r;
-    args_create(&arg_r, 1, 1, 0);
-    unpack(buffer, &arg_r);
+    switch (type)
+    {
+        case REGISTRATION_SUCCESS:
 
-    printf("\n-------------------------------------------------------start_message\n");
-    printf("string: %s\n", arg_r.m_strings + (0*STRING_SIZE));
-    printf("int: %d\n", arg_r.m_ints[0]);
-    printf("---------------------------------------------------------end_message\n\n");
+            break;
 
-    args_destroy(&arg_r);
-    
+        case REGISTRATION_USER_NAME_ALREADY_EXISTS:
 
-    char buff[512];
-    char message[30];
+            break;
 
-    Args arg_s;
-    args_create(&arg_s, 1, 1, 0);
-    push_int(&arg_s, my_socket(socket));
-    sprintf(message, "from client to server - %d", my_socket(socket));
-    push_string(&arg_s, message);
-    int size = pack(buff, &arg_s, WAKE_UP_CLIENT);
-    args_destroy(&arg_s);
+        case REGISTRATION_FAIL:
 
-    send_to_server(socket, buff, size, mutex);
+            break; 
+
+        case LOG_IN_SUCCESS:
+
+            break;
+
+        case LOG_IN_FAIL:
+
+            break;
+
+        case LOG_IN_WRONG_USER_NAME:
+
+            break;
+
+        case LOG_IN_WRONG_PASSWORD:
+
+            break;
+
+        case LOG_IN_USER_ALREADY_LOGGED_IN:
+
+            break;
+
+        case EXIT_CHAT_SUCCESS:
+
+            break;
+
+        case EXIT_CHAT_USER_NOT_EXISTS:
+
+            break;
+
+        case EXIT_CHAT_FAIL:
+
+            break;
+
+        case OPEN_NEW_GROUP_SUCCESS:
+
+            break;
+
+        case OPEN_NEW_GROUP_FAIL:
+
+            break;
+
+        case OPEN_NEW_GROUP_GROUP_NAME_ALREADY_EXISTS:
+
+            break;
+
+        case OPEN_NEW_GROUP_USER_NAME_NOT_EXISTS:
+
+            break;
+
+        case PRINT_EXISTING_GROUPS_SUCCESS:
+
+            break;
+
+        case PRINT_EXISTING_GROUPS_NO_GROUPS:
+
+            break;
+
+        case JOIN_EXISTING_GROUP_SUCCESS:
+
+            break;
+
+        case JOIN_EXISTING_GROUP_FAIL:
+
+            break;
+
+        case JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT:
+
+            break;
+
+        case JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS:
+
+            break;
+
+        case JOIN_EXISTING_GROUP_USER_NOT_EXISTS:
+
+            break;
+
+        case LEAVE_GROUP_SUCCESS:
+
+            break;
+
+        case LEAVE_GROUP_FAIL:
+
+            break;
+
+        case LEAVE_GROUP_GROUP_NOT_EXISTS:
+
+            break;
+
+        case LEAVE_GROUP_USER_NOT_EXISTS:
+
+            break;
+
+        default:
+
+            break;
+    }
 }
+
