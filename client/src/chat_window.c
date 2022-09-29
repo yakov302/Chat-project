@@ -11,7 +11,7 @@
 
 static void save_process_id_to_file()
 {	    	
-	FILE* file = fopen("chat_window_process_id.txt", "w");
+	FILE* file = fopen("../resources/chat_window_process_id.txt", "w");
 	if(file == NULL)
 	{
 		printf("fopen fail!\n");

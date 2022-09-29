@@ -44,7 +44,7 @@ static int is_group_name_equal(const void* a, const void* b)
     return NO;
 }
 
-int add_group_for_user(User* user, char* group_name)
+User_return add_group_for_user(User* user, char* group_name)
 {
     if (user == NULL || group_name == NULL)
 	    return USER_ARGS_NOT_INITIALIZED;
@@ -61,7 +61,7 @@ int add_group_for_user(User* user, char* group_name)
 	return USER_SUCCESS;
 }
 	
-int remove_group_from_user(User* user, char* group_name)
+User_return remove_group_from_user(User* user, char* group_name)
 {
     if (user == NULL || group_name == NULL)
 	    return USER_ARGS_NOT_INITIALIZED;
@@ -69,15 +69,10 @@ int remove_group_from_user(User* user, char* group_name)
     ListItr it = find_first(user->m_groups, is_group_name_equal, group_name);
     if(it != NULL)
     {
-        remove_it(user->m_groups, it);
+        free(remove_it(user->m_groups, it));
 		return USER_SUCCESS;
     }
     
 	return USER_GROUP_NOT_EXISTS;
-}
-
-static void free_group_name(void* group_name)
-{
-	free((char*)group_name);
 }
 

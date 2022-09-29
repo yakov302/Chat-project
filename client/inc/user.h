@@ -4,6 +4,8 @@
 #include <string.h>
 
 #include "list_iterator.h"
+#include "group.h"
+
 
 #define MAGIC_NUMBER 144522
 #define STRING_SIZE 68
@@ -31,9 +33,11 @@ User* create_user(const char* name);
 
 void destroy_user(User* user);
 
-User_return remove_group_from_user(User* user, char* group_name);
+User_return add_group_for_user(User* user, Group* group);
 
-User_return add_group_for_user(User* user, char* group_name);
+User_return remove_group_from_user(User* user, Group* group);
+
+Group* group(User* user, char* group_name);
 
 
 #endif // USER_H

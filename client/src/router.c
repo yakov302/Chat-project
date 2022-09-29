@@ -82,7 +82,7 @@ void run_router(Router* router)
         if(!receive_from_server(router->m_socket, router->m_buffer, router->m_mutex))
 			fatal_error(router, "receive fail \n");
 
-        get_buffer(router->m_socket, router->m_buffer, router->m_mutex);
+        //get_buffer(router->m_socket, router->m_buffer, router->m_mutex);
 	}
 
     printf("+ router down\n");

@@ -10,9 +10,9 @@ typedef struct ActionIn
 
 }ActionIn;
 
-ActionIn* create_action_in(......);
+//ActionIn* create_action_in(......);
 
-void destroy_action_in(ActionIn* action_in);
+//void destroy_action_in(ActionIn* action_in);
 
 void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex);
 
