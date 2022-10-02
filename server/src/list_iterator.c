@@ -13,18 +13,18 @@ ListItr end(const List* list)
 	if(list == NULL)
 		return NULL;
 	
-	return (ListItr*)&list-> m_tail;
+	return (ListItr*)&list->m_tail;
 }
 
 int is_equals(const ListItr a, const ListItr b)
 {
 	if(a == NULL || b == NULL)
-		return -1;
+		return NO;
 	
 	if(a == b)
-		return 1;
+		return YES;
 	
-	return 0;
+	return NO;
 }
 
 ListItr next(ListItr itr)
@@ -56,24 +56,21 @@ void* get_data(ListItr itr)
 
 void* set_data(ListItr itr, void* element)
 {
-	void* old_element;
-
 	if(itr == NULL || element == NULL || itr == next(itr))
 		return NULL;
 	
-	old_element = ((Node*)itr)->m_data;
+	void* old_element = ((Node*)itr)->m_data;
 	((Node*)itr)->m_data = element;
 	return old_element;
 }
 
 ListItr insert_before(List* list, ListItr itr, void* element)
 {
-	Node *node = NULL;
-
 	if(itr == NULL || element == NULL) 
 		return NULL;
 
-	if((node = (Node*)malloc(sizeof(Node))) == NULL)
+	Node *node = (Node*)malloc(sizeof(Node));
+	if(node == NULL)
 		return NULL;	
 
 	push_node(node, itr);
@@ -84,12 +81,10 @@ ListItr insert_before(List* list, ListItr itr, void* element)
 
 void* remove_it(List* list, ListItr itr)
 {
-	void* deleted_node_data;
-
 	if(itr == NULL || itr == next(itr))
 		return NULL;
 
-	deleted_node_data = ((Node*)itr)->m_data;
+	void* deleted_node_data = ((Node*)itr)->m_data;
 	pop_node(itr);
 	list->m_size--;	
 	return deleted_node_data;

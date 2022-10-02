@@ -2,68 +2,66 @@
 
 List* list_create()
 {
-	List* list;
-	if ((list = (List*) malloc (sizeof(List))) == NULL) 
+	List* list = (List*)malloc(sizeof(List));
+	if(list == NULL) 
         	return NULL;
 
-   	list-> m_head.m_next = &list-> m_tail;
-  	list-> m_head.m_prev = &list-> m_head;
-  	list-> m_tail.m_next = &list-> m_tail;
-	list-> m_tail.m_prev = &list-> m_head;
+   	list->m_head.m_next = &list->m_tail;
+  	list->m_head.m_prev = &list->m_head;
+  	list->m_tail.m_next = &list->m_tail;
+	list->m_tail.m_prev = &list->m_head;
 	list->m_size = 0;
  	return list;
 }
 
-void list_destroy(List** list, ElementDestroy free_item)
+void list_destroy(List** list, ElementDestroy element_destroy)
 {
-	Node* temp;
-	Node* next;
-
 	if(list == NULL || *list == NULL)
 		return;
-	
-	temp = (*list) -> m_head.m_next;
-   	while (temp != &(*list)-> m_tail)
-	{
-		if(free_item != NULL)
-			free_item(temp -> m_data);		
 
-		next = temp -> m_next;
-		free(temp);
-		temp = next;   		
+	Node* next;
+	Node* node = (*list)->m_head.m_next;
+   	while (node != &(*list)->m_tail)
+	{
+		next = node->m_next;
+
+		if(element_destroy != NULL)
+			element_destroy(node->m_data);		
+		free(node);
+
+		node = next;   		
 	}
 
 	free(*list);
 	*list = NULL;
 }
 
-void list_erase(const List* list, ElementDestroy free_item)
+void list_erase(const List* list, ElementDestroy element_destroy)
 {
 	if(list == NULL)
 		return;
 
 	Node* next;
-	Node* it = list->m_head.m_next;
-   	while (it != &list->m_tail)
+	Node* node = list->m_head.m_next;
+   	while (node != &list->m_tail)
 	{
-		next = it->m_next;
+		next = node->m_next;
 
-		if(free_item != NULL)
-			free_item(it->m_data);
-		pop_node(it);	
+		if(element_destroy != NULL)
+			element_destroy(node->m_data);
+		pop_node(node);	
 
-		it = next;  
+		node = next;  
 	}
 }
 
 List_return list_push_head(List* list, void* item)
 {
-	Node *node = NULL;
-
 	if(list == NULL || item == NULL)
 		return LIST_UNINITIALIZED_ERROR;
-	
-	if((node = (Node*)malloc(sizeof(Node))) == NULL)
+
+	Node* node = (Node*)malloc(sizeof(Node));
+	if(node  == NULL)
 		return LIST_ALLOCATION_ERROR;
 
 	node->m_data = item;
@@ -74,12 +72,11 @@ List_return list_push_head(List* list, void* item)
 
 List_return list_push_tail(List* list, void* item)
 {
-	Node* node = NULL;
-
 	if(list == NULL || item == NULL)
 		return LIST_UNINITIALIZED_ERROR;
 
-	if((node = (Node*) malloc(sizeof(Node))) == NULL)
+	Node* node = (Node*)malloc(sizeof(Node));
+	if(node  == NULL)
 		return LIST_ALLOCATION_ERROR;
 
 	node->m_data = item;
@@ -127,21 +124,35 @@ int list_is_exists(const List* list, Compar is_equal, const void* item)
 		return LIST_NOT_INITIALIZED;
 
 	Node* next;
-	Node* it = list->m_head.m_next;
-   	while (it != &list->m_tail)
+	Node* node = list->m_head.m_next;
+   	while (node != &list->m_tail)
 	{
-		next = it->m_next;
+		next = node->m_next;
 
-		if(is_equal(it->m_data, item) == YES)
+		if(is_equal(node->m_data, item) == YES)
 			return YES;	
 
-		it = next;  
+		node = next;  
 	}
 
 	return NO;
 }
 
-void push_node(Node *node, Node *next)
+void list_print(List* list, PrintItem print)
+{
+	if (list == NULL || print == NULL) 
+        return;
+
+	Node* node = list->m_head.m_next;
+	while(node != &list->m_tail) 
+	{
+		print((void*)node->m_data);
+		node = node->m_next; 
+	} 
+}
+
+
+static void push_node(Node *node, Node *next)
 {
 	node->m_prev = next->m_prev;
 	node->m_next = next;
@@ -149,27 +160,9 @@ void push_node(Node *node, Node *next)
 	next->m_prev = node;
 }
 
-void pop_node(Node* node)
+static void pop_node(Node* node)
 {
 	node->m_next->m_prev = node->m_prev;
 	node->m_prev->m_next = node->m_next;
 	free(node);
-}
-
-void list_print(List* list, PrintItem print)
-{
-	int i = 1;
-	Node *node;
-	void* item;
-
-	if (list == NULL || print == NULL) 
-        return;
-	
-	node =list->m_head.m_next;
-	while(node != &list->m_tail) 
-	{
-		item = node->m_data;
-		print(item);
-		node = node->m_next; 
-	} 
 }

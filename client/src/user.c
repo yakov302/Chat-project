@@ -17,6 +17,7 @@ User* create_user(const char* name)
 	}
 
 	strcpy (user->m_name, name);
+    user->m_is_logged_in = FALSE;
     user->m_magic_number = MAGIC_NUMBER;
 	return user;
 }
@@ -35,6 +36,26 @@ void destroy_user(User* user)
 	list_destroy(&user->m_groups, destroy_grup);
 	free (user);
     user == NULL;
+}
+
+int is_logged_in(User* user)
+{
+    return user->m_is_logged_in;
+}
+
+void set_is_logged_in(User* user, int status)
+{
+    user->m_is_logged_in = status;
+}
+
+
+User_return set_name(User* user, char* name)
+{
+    if (user == NULL || name == NULL)
+	    return USER_ARGS_NOT_INITIALIZED;
+    
+    strcpy(user, name);
+    return USER_SUCCESS;
 }
 
 static int is_groups_equal(const void* a, const void* b)

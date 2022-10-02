@@ -25,6 +25,7 @@ typedef struct User
 {
 	char m_name[STRING_SIZE];
     List* m_groups;
+    int m_is_logged_in;
 	int m_magic_number;
 
 }User;
@@ -32,6 +33,12 @@ typedef struct User
 User* create_user(const char* name);
 
 void destroy_user(User* user);
+
+int is_logged_in(User* user);
+
+void set_is_logged_in(User* user, int status);
+
+User_return set_name(User* user, char* name);
 
 User_return add_group_for_user(User* user, Group* group);
 

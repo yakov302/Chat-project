@@ -44,9 +44,9 @@ static void pop_node(Node* node);
 
 List* list_create(void);
 
-void list_destroy(List** _list, ElementDestroy free_item);
+void list_destroy(List** _list, ElementDestroy element_destroy);
 
-void list_erase(const List* list, ElementDestroy free_item);
+void list_erase(const List* list, ElementDestroy element_destroy);
 
 List_return list_push_head(List* _list, void* item);
 
