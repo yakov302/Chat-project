@@ -34,7 +34,7 @@ void send_only_message(Message_type message_type, int client_socket, Mutex* mute
     int size = pack(buffer, &arg, message_type);
     int result = send_to_client(client_socket, buffer, size, mutex);
     if(result != TRUE)
-        printf("send to client %d fail, return value: %d", client_socket, result);
+        printf("send to client %d fail, return value: %d\n", client_socket, result);
 
     args_destroy(&arg);
 }
@@ -46,7 +46,7 @@ void send_connect_to_group_success(char* group_name, char* ip, Message_type mess
 
     int result = send_to_client(client_socket, buffer, size, mutex);
     if(result != TRUE)
-        printf("send to client %d fail, return value: %d", client_socket, result);
+        printf("send to client %d fail, return value: %d\n", client_socket, result);
 }
 
 void send_all_groups_names(char* groups_names_list, int client_socket, Mutex* mutex)
@@ -56,7 +56,7 @@ void send_all_groups_names(char* groups_names_list, int client_socket, Mutex* mu
 
     int result = send_to_client(client_socket, buffer, size, mutex);
     if(result != TRUE)
-        printf("send to client %d fail, return value: %d", client_socket, result);  
+        printf("send to client %d fail, return value: %d\n", client_socket, result);  
 }
 
 void send_leave_group_success(char* group_name, Message_type message_type, int client_socket, Mutex* mutex)
@@ -66,6 +66,6 @@ void send_leave_group_success(char* group_name, Message_type message_type, int c
 
     int result = send_to_client(client_socket, buffer, size, mutex);
     if(result != TRUE)
-        printf("send to client %d fail, return value: %d", client_socket, result); 
+        printf("send to client %d fail, return value: %d\n", client_socket, result); 
 }
 
