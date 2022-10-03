@@ -7,36 +7,25 @@ static void* thread_function(void* arg)
 	return NULL;
 }
 
-Router* router_create()
+Router* router_create(ActionIn* action_in, Socket* socket, Mutex* mutex)
 {
+    if(action_in == NULL || socket == NULL || mutex == NULL)
+        return NULL;
+
     Router* router = (Router*)malloc(sizeof(Router));
     if(router == NULL)
         return NULL;
     
-    router->m_socket = socket_create();
-    if(router->m_socket == NULL)
-    {
-        free(router);
-        return NULL;
-    }
-
-    router->m_mutex = tcp_create();
-    if(router->m_mutex == NULL)
-    {
-        socket_destroy(router->m_socket);
-        free(router);
-        return NULL;
-    }
-
     router->m_buffer = (char*)malloc(BUFFER_SIZE*sizeof(char));
     if(router->m_socket == NULL)
     {
-        free(router->m_mutex);
-        socket_destroy(router->m_socket);
         free(router);
         return NULL;
     }
 
+    router->m_action_in = action_in;
+    router->m_socket = socket;
+    router->m_mutex = mutex;
     router->m_stop = OFF;
     router->m_thread_id = run_thread(thread_function, (void*)router);
     return router;
@@ -49,12 +38,8 @@ void router_destroy(Router* router)
 
     join_thread(router->m_thread_id);
     free(router->m_buffer);
-    tcp_destroy(router->m_mutex);
-    socket_destroy(router->m_socket);
     free(router);
     router = NULL;
-
-    printf("+ router destroyed\n");
 }
 
 static void fatal_error(Router* router, const char* fail)
@@ -65,27 +50,18 @@ static void fatal_error(Router* router, const char* fail)
 }
 
 void run_router(Router* router)
-{
-    printf("+ router up\n");
-    initial_notice(router->m_socket, router->m_buffer, router->m_mutex); // should be deleted
-    
+{    
     while(!router->m_stop) 
 	{
-        printf("+ enter select\n");	
-
 		int activity = select(MAX_SOCKET_AMOUNT_TO_LISTEN, fd(router->m_socket), NULL, NULL, NULL);
 		if((activity < 0) && (errno != EINTR))
 			fatal_error(router, "select fail: \n");
 
-        printf("+ exit select\n");	
-
         if(!receive_from_server(router->m_socket, router->m_buffer, router->m_mutex))
 			fatal_error(router, "receive fail \n");
 
-        //get_buffer(router->m_socket, router->m_buffer, router->m_mutex);
+        get_buffer(router->m_action_in, router->m_buffer);
 	}
-
-    printf("+ router down\n");
 }
 
 static void wake_up(Router* router)

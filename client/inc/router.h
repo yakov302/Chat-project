@@ -10,12 +10,13 @@
 #include "tcp.h"
 
 #define MAX_SOCKET_AMOUNT_TO_LISTEN 1024
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 1536
 #define OFF 0
 #define ON 1
 
 typedef struct Router
 {
+    ActionIn* m_action_in;
     Socket* m_socket;
     Mutex* m_mutex;
 
@@ -25,7 +26,7 @@ typedef struct Router
 
 }Router;
 
-Router* router_create();
+Router* router_create(ActionIn* action_in, Socket* socket, Mutex* mutex);
 
 void router_destroy(Router* router);
 

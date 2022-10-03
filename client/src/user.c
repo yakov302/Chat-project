@@ -1,4 +1,4 @@
-#include "user.h"
+#include "user_c.h"
 
 User* create_user(const char* name)
 {
@@ -40,11 +40,23 @@ void destroy_user(User* user)
 
 int is_logged_in(User* user)
 {
+    if(user == NULL)
+    {
+        printf("is_logged_in user not initialized!\n");
+        return FALSE;
+    }
+
     return user->m_is_logged_in;
 }
 
 void set_is_logged_in(User* user, int status)
 {
+    if(user == NULL)
+    {
+        printf("set_is_logged_in user not initialized!\n");
+        return;
+    }
+
     user->m_is_logged_in = status;
 }
 
@@ -54,7 +66,7 @@ User_return set_name(User* user, char* name)
     if (user == NULL || name == NULL)
 	    return USER_ARGS_NOT_INITIALIZED;
     
-    strcpy(user, name);
+    strcpy(user->m_name, name);
     return USER_SUCCESS;
 }
 
@@ -101,7 +113,7 @@ static int is_groups_equal_by_name(const void* a, const void* b)
 
 Group* group(User* user, char* group_name)
 {
-    if(group_name == NULL)
+    if(group_name == NULL || group_name == NULL)
         return NULL;
 
     ListItr it = find_first(user->m_groups, is_groups_equal_by_name, group_name);
@@ -111,3 +123,10 @@ Group* group(User* user, char* group_name)
     return NULL;
 }
 
+char* name(User* user)
+{
+    if(user == NULL)
+        return NULL;
+
+    return user->m_name;
+}

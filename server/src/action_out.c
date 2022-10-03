@@ -49,17 +49,7 @@ void send_connect_to_group_success(char* group_name, char* ip, Message_type mess
         printf("send to client %d fail, return value: %d\n", client_socket, result);
 }
 
-void send_all_groups_names(char* groups_names_list, int client_socket, Mutex* mutex)
-{
-    char buffer[GRUPS_NAMES_LIST_SIZE];
-    int size = pack_1_strings(buffer, PRINT_EXISTING_GROUPS_SUCCESS, groups_names_list);
-
-    int result = send_to_client(client_socket, buffer, size, mutex);
-    if(result != TRUE)
-        printf("send to client %d fail, return value: %d\n", client_socket, result);  
-}
-
-void send_leave_group_success(char* group_name, Message_type message_type, int client_socket, Mutex* mutex)
+void send_message_with_1_string(char* group_name, Message_type message_type, int client_socket, Mutex* mutex)
 {
     char buffer[BUFFER_SIZE];
     int size = pack_1_strings(buffer, message_type, group_name);

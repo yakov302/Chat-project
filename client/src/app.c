@@ -3,20 +3,25 @@
 static void* thread_function(void* arg)
 {
 	App* app = (App*)arg;
-	run_router(app);
+	run(app);
 	return NULL;
 }
 
-App* app_create(Mutex* mutex, Socket* socket)
+App* app_create(User* user, Mutex* mutex, Socket* socket)
 {
+    if(user == NULL || mutex == NULL || socket == NULL)
+        return NULL;
+
     App* app = (App*)malloc(sizeof(App));
     if(app == NULL)
         return NULL;
 
     app->m_stop = FALSE;
+    app->m_user = user;
     app->m_mutex = mutex;
     app->m_socket = socket;
     app->m_thread_id = run_thread(thread_function, app);
+    return app;
 }
 
 #define REGISTERATION 1
@@ -28,59 +33,59 @@ App* app_create(Mutex* mutex, Socket* socket)
 #define LOG_OUT 7
 #define EXIT 8
 
-
-    // REGISTRATION_REQUEST,
-    // LOG_IN_REQUEST,
-    // EXIT_CHAT_REQUEST,
-    // OPEN_NEW_GROUP_REQUEST,
-    // PRINT_EXISTING_GROUPS_REQUEST,
-    // JOIN_EXISTING_GROUP_REQUEST,
-    // LEAVE_GROUP_REQUEST,
-
 void run(App* app)
 {
-    char name[STRING_SIZE];
+    char user_name[STRING_SIZE];
+    char group_name[STRING_SIZE];
     char password[STRING_SIZE];
 
     while (!app->m_stop)
     {
-        int choice = menu();
+        int choice = menu(is_logged_in(app->m_user));
         switch (choice)
         {
             case REGISTERATION:
-                enter_user_name(name);
+                enter_user_name(user_name);
                 enter_password(password);
-                send_registration_or_log_in_request(name, password, REGISTRATION_REQUEST, app->m_socket, app->m_mutex);
+                send_requests_with_2_strings(user_name, password, REGISTRATION_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case LOG_IN:
-                enter_user_name(name);
+                enter_user_name(user_name);
                 enter_password(password);
-                send_registration_or_log_in_request(name, password, LOG_IN_REQUEST, app->m_socket, app->m_mutex);
+                send_requests_with_2_strings(user_name, password, LOG_IN_REQUEST, app->m_socket, app->m_mutex);
+                usleep(10000);
                 break;
 
             case CREATE_NEW_GROUP:
-                /* code */
+                strcpy(user_name, name(app->m_user));
+                enter_group_name(group_name);
+                send_requests_with_2_strings(user_name, group_name, OPEN_NEW_GROUP_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case PRINT_GROUPS_NAMES:
-                /* code */
+                send_only_message(PRINT_EXISTING_GROUPS_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case JOIN_EXISTING_GROUP:
-                /* code */
+                strcpy(user_name, name(app->m_user));
+                enter_group_name(group_name);
+                send_requests_with_2_strings(user_name, group_name, JOIN_EXISTING_GROUP_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case LEAVE_GROUP:
-                /* code */
+                strcpy(user_name, name(app->m_user));
+                enter_group_name(group_name);
+                send_requests_with_2_strings(user_name, group_name, LEAVE_GROUP_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case LOG_OUT:
-                /* code */
+                strcpy(user_name, name(app->m_user));
+                send_requests_with_1_strings(user_name, EXIT_CHAT_REQUEST, app->m_socket, app->m_mutex);
                 break;
 
             case EXIT:
-                /* code */
+                app_destroy(app);
                 break;
 
             default:

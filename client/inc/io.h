@@ -14,7 +14,7 @@
 #define TRUE 1 
 #define FALSE 0
 
-int menu(void);
+int menu(int is_looged_in);
 
 int is_logged_in();
 

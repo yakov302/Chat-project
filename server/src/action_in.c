@@ -101,7 +101,7 @@ static void log_in_request(SubscribsManager* subscribs_manager, UsersManager* us
             break;
 
         case USER_MANAGER_SUCCESS:
-            send_only_message(LOG_IN_SUCCESS, client_socket, mutex);
+            send_message_with_1_string(name, LOG_IN_SUCCESS, client_socket, mutex);
             break;
         
         default:
@@ -183,7 +183,7 @@ static void print_existing_request(GroupsManager* groups_manager, int client_soc
     if(num_of_groups(groups_manager) < 1)
         send_only_message(PRINT_EXISTING_GROUPS_NO_GROUPS, client_socket, mutex);
     else
-        send_all_groups_names(groups_names_list, client_socket, mutex);
+        send_message_with_1_string(groups_names_list, PRINT_EXISTING_GROUPS_SUCCESS, client_socket, mutex);
 }
 
 
@@ -267,11 +267,11 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
             break;
 
         case GROUPS_MANAGER_GROUP_DELETED:
-            send_leave_group_success(group_name, LEAVE_GROUP_GROUP_DELETED, client_socket, mutex);
+            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_DELETED, client_socket, mutex);
             break;
 
         case GROUPS_MANAGER_SUCCESS:
-            send_leave_group_success(group_name, LEAVE_GROUP_SUCCESS, client_socket, mutex);
+            send_message_with_1_string(group_name, LEAVE_GROUP_SUCCESS, client_socket, mutex);
             break;
         
         default:

@@ -33,7 +33,6 @@ int receive_from_server(Socket* socket, char* buffer, Mutex* mutex)
 		receive_bytes += current_receive;
 	}	
 
-    printf("+ recv from server\n");
 	if(!mutex_unlock(mutex)) {return MUTEX_FAIL;}
 	return RECEIVE_SUCCESS;
 }
@@ -53,7 +52,6 @@ int send_to_server(Socket* socket, char* buffer, int message_size, Mutex* mutex)
 
     if(!mutex_unlock(mutex)){return MUTEX_FAIL;}
 	if(errno == EPIPE){return FALSE;}
-    printf("+ send to server\n");
 	return TRUE;
 }
 

@@ -1,6 +1,6 @@
 #include "io.h"
 
-int menu()
+int menu(int is_looged_in)
 {
 	printf(YELLOW);
 	printf("\n--------------Yakonel chat--------------\n\n");
@@ -8,11 +8,14 @@ int menu()
 
 	printf("1 - Registration\n");
 	printf("2 - Log in\n");
-    printf("3 - Create new group\n");
-    printf("4 - Print existing groups\n");
-    printf("5 - Join existing group\n");
-    printf("6 - Leave group\n");
-    printf("7 - Log out\n");
+    if(is_looged_in)
+    {
+        printf("3 - Create new group\n");
+        printf("4 - Print existing groups\n");
+        printf("5 - Join existing group\n");
+        printf("6 - Leave group\n");
+        printf("7 - Log out\n");
+    }
     printf("8 - Exit\n");
 	printf( "Select your choice: ");
 
@@ -39,12 +42,13 @@ void enter_password(char* password)
 	scanf("%s", password); 
 }
 
-static print_in_color_format(char* color, char* text)
+static void print_in_color_format(char* color, char* text)
 {  
-    printf(color);
-	printf("\n  ->  ");
+    printf("%s", color);
+	printf("\n                       ->  ");
 	printf("%s", text);
 	printf("  <-  \n");
+    printf(NORMAL);
 }
 
 void print_invalid_choice()

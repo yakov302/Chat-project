@@ -1,9 +1,11 @@
 #ifndef APP_H
 #define APP_H
 
+#include "action_out.h"
 #include "socket.h"
 #include "thread.h"
 #include "mutex.h"
+#include "user_c.h"
 #include "io.h"
 
 #define STRING_SIZE 68
@@ -20,14 +22,16 @@
 
 typedef struct App
 {
-    int m_thread_id;
     int m_stop;
+    int m_thread_id;
+
+    User* m_user;
     Mutex* m_mutex;
     Socket* m_socket;
 
 }App;
 
-App* app_create(Mutex* mutex, Socket* socket);
+App* app_create(User* user, Mutex* mutex, Socket* socket);
 
 void run(App* app);
 

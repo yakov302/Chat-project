@@ -6,9 +6,9 @@
 #include "list_iterator.h"
 #include "group.h"
 
-
 #define MAGIC_NUMBER 144522
 #define STRING_SIZE 68
+#define FALSE 0
 
 typedef enum User_return
 {
@@ -45,6 +45,8 @@ User_return add_group_for_user(User* user, Group* group);
 User_return remove_group_from_user(User* user, Group* group);
 
 Group* group(User* user, char* group_name);
+
+char* name(User* user);
 
 
 #endif // USER_H

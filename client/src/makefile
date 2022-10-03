@@ -12,10 +12,10 @@ CXXFLAGS = $(WARNINGS) $(DEBUG)
 
 CFLAGS = -I$(INC_DIR) -I$(PROTOCOL_DIR)
 
-TARGET = router 
+TARGET = main 
 OBJS = $(SRC_DIR)/main.o $(PROTOCOL_DIR)/protocol.o $(PROTOCOL_DIR)/args.o $(SRC_DIR)/socket.o $(SRC_DIR)/action_out.o 
 OBJS += $(SRC_DIR)/tcp.o $(SRC_DIR)/mutex.o $(SRC_DIR)/thread.o $(SRC_DIR)/router.o $(SRC_DIR)/action_in.o $(SRC_DIR)/list.o
-OBJS += $(SRC_DIR)/user.o $(SRC_DIR)/group.o $(SRC_DIR)/list_iterator.o
+OBJS += $(SRC_DIR)/user.o $(SRC_DIR)/group.o $(SRC_DIR)/list_iterator.o  $(SRC_DIR)/app.o  $(SRC_DIR)/io.o 
 
 $(TARGET):$(OBJS)
 	$(CC) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBRARIES)
