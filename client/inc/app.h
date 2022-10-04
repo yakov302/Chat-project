@@ -5,7 +5,7 @@
 #include "socket.h"
 #include "thread.h"
 #include "mutex.h"
-#include "user_c.h"
+#include "user.h"
 #include "io.h"
 
 #define STRING_SIZE 68

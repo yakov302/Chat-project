@@ -57,6 +57,8 @@ int hash_map_is_exists(const HashMap* map, const void* key);
 
 Map_return hash_map_find(const HashMap* map, const void* key, void** value_ptr);
 
+Element* hash_map_find_by_customize_key(const HashMap* map, ComparisonFunction customize_compar , void* customize_key); // o(n)
+
 size_t hash_map_size(const HashMap* map);
 
 void hash_map_print(HashMap* map, PrintItem print_element);

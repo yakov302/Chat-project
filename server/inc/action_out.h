@@ -14,5 +14,7 @@ void send_connect_to_group_success(char* group_name, char* ip, Message_type mess
 
 void send_message_with_1_string(char* group_name, Message_type message_type, int client_socket, Mutex* mutex);
 
+void send_ping_message_to_all_clients(Socket* socket, Mutex* mutex);
+
 
 #endif // ACTION_OUT_H

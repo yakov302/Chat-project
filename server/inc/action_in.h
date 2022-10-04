@@ -22,5 +22,7 @@ void destroy_action_in(ActionIn* action_in);
 
 void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex);
 
+void delete_disconnected_client(ActionIn* action_in, int client_socket);
+
 
 #endif // ACTION_IN_H

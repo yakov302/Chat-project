@@ -46,7 +46,7 @@ typedef enum Message_type
     PRINT_EXISTING_GROUPS_REQUEST,
     JOIN_EXISTING_GROUP_REQUEST,
     LEAVE_GROUP_REQUEST,
-    WAKE_UP_CLIENT,
+    PING_CLIENT_TO_SERVER,
 
     // Server to client
 
@@ -77,6 +77,7 @@ typedef enum Message_type
     LEAVE_GROUP_GROUP_DELETED,
     LEAVE_GROUP_GROUP_NOT_EXISTS,
     LEAVE_GROUP_USER_NOT_EXISTS,
+    PING_SERVER_TO_CLIENT
     
 } Message_type;
 

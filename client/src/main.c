@@ -1,5 +1,5 @@
 #include "group.h"
-#include "user_c.h"
+#include "user.h"
 #include "tcp.h"
 #include "router.h"
 #include "list.h"
@@ -50,18 +50,17 @@ int main()
     if(y == NULL)
         printf("y\n");
 
-    ActionIn* a = create_action_in(y);
-    if(a == NULL)
-        printf("A\n");
-
-        Mutex* m = tcp_create();
-    if(m == NULL)
-        printf("m\n");
-
     Socket* s = socket_create();
     if(s == NULL)
         printf("s\n");
 
+    Mutex* m = tcp_create();
+    if(m == NULL)
+        printf("m\n");
+
+    ActionIn* a = create_action_in(s, m, y);
+    if(a == NULL)
+        printf("A\n");
 
     Router* router = router_create(a, s, m); 
     if(router == NULL)

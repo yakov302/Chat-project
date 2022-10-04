@@ -78,7 +78,8 @@ static void delete_deleted(Router* router)
 	{
         next_it = next(it);
 
-        //action in other modules that need to know that cliend deleted		
+        int client_socket = *(int*)get_data(it);
+        delete_disconnected_client(router->m_action_in, client_socket);
         delete_from_deleted_sockets(router->m_socket, it);
 
         it = next_it; 
@@ -87,7 +88,6 @@ static void delete_deleted(Router* router)
 
 static void take_care_exists_clients(Router* router)
 {
-
     ListItr next_it;
     ListItr it = begin(connected_sockets(router->m_socket));
 	ListItr end_it = end(connected_sockets(router->m_socket));
@@ -162,6 +162,8 @@ void run_router(Router* router)
 		}
 
 		take_care_exists_clients(router);
+        if(list_size(deleted_sockets(router->m_socket)) > 0)
+            send_ping_message_to_all_clients(router->m_socket, router->m_mutex);
 		delete_deleted(router);
 	}
 

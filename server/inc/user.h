@@ -23,11 +23,12 @@ typedef struct User
 {
 	char m_name[STRING_SIZE];
     List* m_groups;
+	int m_socket;
 	int m_magic_number;
 
 }User;
 
-User* create_user(const char* name);
+User* create_user(const char* name, int socket);
 
 void destroy_user(User* user);
 

@@ -154,10 +154,9 @@ int hash_map_is_exists(const HashMap* map, const void* key)
 {
     if(map == NULL || key == NULL)
         return FALSE;
-	
+
     size_t index = map->m_hash_function((void*)key)%map->m_capacity;
 	if(map->m_lists[index] == NULL){return FALSE;}
-
 	return list_is_exists(map->m_lists[index], map->m_comparison_function, key);
 }
 
@@ -174,6 +173,24 @@ Map_return hash_map_find(const HashMap* map, const void* key, void** value_ptr)
 	
 	*value_ptr = ((Element*)get_data(it))->m_value;
     return MAP_SUCCESS;
+}
+
+Element* hash_map_find_by_customize_key(const HashMap* map, ComparisonFunction customize_compar , void* customize_key)
+{
+	if(map == NULL || customize_compar == NULL || customize_key == NULL)
+        return NULL;
+	
+	for(int i = 0; i < map->m_capacity; ++i)
+	{
+		if(map->m_lists[i] != NULL)
+		{
+			Element* it = find_first(map->m_lists[i],customize_compar, customize_key);
+			if(it != NULL)
+				return (Element*)get_data(it);
+		}
+	}
+	
+    return NULL;
 }
 
 size_t hash_map_size(const HashMap* map)

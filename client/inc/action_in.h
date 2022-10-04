@@ -2,8 +2,10 @@
 #define ACTION_IN_H
 
 #include "mutex.h"
-#include "user_c.h"
+#include "user.h"
 #include "protocol.h"
+#include "action_out.h"
+#include "socket.h"
 #include "io.h"
 
 #define GROUPS_PORT 5555
@@ -13,11 +15,13 @@
 typedef struct ActionIn
 {
     User* m_user;
+    Mutex* m_mutex;
+    Socket* m_socket;
     char* m_buffer;
 
 }ActionIn;
 
-ActionIn* create_action_in(User* user);
+ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user);
 
 void destroy_action_in(ActionIn* action_in);
 

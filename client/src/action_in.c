@@ -1,6 +1,6 @@
 #include "action_in.h"
 
-ActionIn* create_action_in(User* user)
+ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user)
 {
     if(user == NULL)
         return NULL;
@@ -17,6 +17,8 @@ ActionIn* create_action_in(User* user)
     }
     
     action_in->m_user = user;
+    action_in->m_mutex = mutex;
+     action_in->m_socket = soket;
     return action_in;
 }
 
@@ -180,6 +182,10 @@ void get_buffer(ActionIn* action_in, char* buffer)
 
         case LEAVE_GROUP_USER_NOT_EXISTS:
 
+            break;
+        
+        case PING_SERVER_TO_CLIENT:
+            send_only_message(PING_SERVER_TO_CLIENT, action_in->m_socket, action_in->m_mutex);
             break;
 
         default:

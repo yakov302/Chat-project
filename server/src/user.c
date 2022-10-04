@@ -1,6 +1,6 @@
 #include "user.h"
 
-User* create_user(const char* name)
+User* create_user(const char* name, int socket)
 {
 	if(name == NULL)
 		return NULL;
@@ -17,6 +17,8 @@ User* create_user(const char* name)
 	}
 
 	strcpy (user->m_name, name);
+	user->m_socket = socket;
+	printf("user socket: %d\n",user->m_socket);
     user->m_magic_number = MAGIC_NUMBER;
 	return user;
 }

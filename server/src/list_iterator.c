@@ -83,7 +83,7 @@ void* remove_it(List* list, ListItr itr)
 {
 	if(itr == NULL || itr == next(itr))
 		return NULL;
-
+		
 	void* deleted_node_data = ((Node*)itr)->m_data;
 	pop_node(itr);
 	list->m_size--;	

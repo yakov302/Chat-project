@@ -24,14 +24,13 @@ App* app_create(User* user, Mutex* mutex, Socket* socket)
     return app;
 }
 
-#define REGISTERATION 1
-#define LOG_IN 2
-#define CREATE_NEW_GROUP 3
-#define PRINT_GROUPS_NAMES 4
-#define JOIN_EXISTING_GROUP 5
-#define LEAVE_GROUP 6
-#define LOG_OUT 7
-#define EXIT 8
+static void log_in(char* user_name, char* password, App* app, Socket *socket, Mutex *mutex)
+{
+    enter_user_name(user_name);
+    enter_password(password);
+    send_requests_with_2_strings(user_name, password, LOG_IN_REQUEST, app->m_socket, app->m_mutex);
+    usleep(10000);
+}
 
 void run(App* app)
 {
@@ -51,10 +50,7 @@ void run(App* app)
                 break;
 
             case LOG_IN:
-                enter_user_name(user_name);
-                enter_password(password);
-                send_requests_with_2_strings(user_name, password, LOG_IN_REQUEST, app->m_socket, app->m_mutex);
-                usleep(10000);
+                log_in(user_name, password, app, app->m_socket, app->m_mutex);
                 break;
 
             case CREATE_NEW_GROUP:

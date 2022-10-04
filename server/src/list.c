@@ -134,7 +134,7 @@ int list_is_exists(const List* list, Compar is_equal, const void* item)
 
 		node = next;  
 	}
-
+	
 	return NO;
 }
 

@@ -11,13 +11,13 @@ Router* router_create(ActionIn* action_in, Socket* socket, Mutex* mutex)
 {
     if(action_in == NULL || socket == NULL || mutex == NULL)
         return NULL;
-
+        
     Router* router = (Router*)malloc(sizeof(Router));
     if(router == NULL)
         return NULL;
     
     router->m_buffer = (char*)malloc(BUFFER_SIZE*sizeof(char));
-    if(router->m_socket == NULL)
+    if(router->m_buffer == NULL)
     {
         free(router);
         return NULL;
@@ -70,7 +70,7 @@ static void wake_up(Router* router)
     char buff[40];
 
     args_create(&arg, 0, 0, 0);
-    int size = pack(buff, &arg, WAKE_UP_CLIENT);
+    int size = pack(buff, &arg, PING_CLIENT_TO_SERVER);
     args_destroy(&arg);
 
     send_to_server(router->m_socket, buff, size, router->m_mutex);

@@ -6,6 +6,8 @@
 
 #define NOT_EQUAL 0
 #define EQUAL 1
+#define TRUE 1
+#define FALSE 0
 
 typedef struct UsersManager
 {
@@ -35,13 +37,15 @@ UsersManager* create_users_manager(int capacity);
 
 void destroy_users_manager(UsersManager* users_manager);
 
-UsersManager_return user_log_in(UsersManager* users_manager, const char* name);
+UsersManager_return user_log_in(UsersManager* users_manager, const char* name, int socket);
 
 UsersManager_return user_join_group(UsersManager* users_manager, char* user_name, char* group_ame);
 
 UsersManager_return user_leave_group(UsersManager* users_manager, char* _username, char* _groupName);
 
 UsersManager_return user_log_out(UsersManager* users_manager, char* name);
+
+UsersManager_return user_disconnected(UsersManager* users_manager, int socket);
 
 
 #endif // USERS_MANAGER_H

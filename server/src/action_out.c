@@ -59,3 +59,15 @@ void send_message_with_1_string(char* group_name, Message_type message_type, int
         printf("send to client %d fail, return value: %d\n", client_socket, result); 
 }
 
+void send_ping_message_to_all_clients(Socket* socket, Mutex* mutex)
+{
+    Args arg;
+    char buffer[BUFFER_SIZE];
+    args_create(&arg, 0, 0, 0);
+
+    int size = pack(buffer, &arg, PING_SERVER_TO_CLIENT);
+    send_all_clients(socket, buffer, size, mutex);
+
+    args_destroy(&arg);
+}
+

@@ -93,11 +93,12 @@ static void log_in_request(SubscribsManager* subscribs_manager, UsersManager* us
             return;
     }
 
-    UsersManager_return u_result = user_log_in(users_manager, name);
+    UsersManager_return u_result = user_log_in(users_manager, name, client_socket);
     switch (u_result)
     {
         case USER_MANAGER_USER_ALREADY_LOGGED_IN:
-            send_only_message(LOG_IN_USER_ALREADY_LOGGED_IN, client_socket, mutex);
+            send_only_message(LOG_IN_USER_ALREADY_LOGGED_IN, client_socket, mutex); //need to decide if allow one user login twice
+            //send_message_with_1_string(name, LOG_IN_SUCCESS, client_socket, mutex);
             break;
 
         case USER_MANAGER_SUCCESS:
@@ -316,14 +317,19 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             leave_group_request(action_in->m_gruops_manager, action_in->m_users_manager, buffer, client_socket, mutex);
             break;
 
-        case WAKE_UP_CLIENT:
-            send_only_message(WAKE_UP_CLIENT, client_socket, mutex);
+        case PING_CLIENT_TO_SERVER:
+            send_only_message(PING_CLIENT_TO_SERVER, client_socket, mutex);
             break;
 
         default:
             send_only_message(UNKNOWN_COMMAND, client_socket, mutex);
             break;
     }
+}
+
+void delete_disconnected_client(ActionIn* action_in, int client_socket)
+{
+    user_disconnected(action_in->m_users_manager, client_socket);
 }
 
 
