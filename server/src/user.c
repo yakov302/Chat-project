@@ -18,7 +18,6 @@ User* create_user(const char* name, int socket)
 
 	strcpy (user->m_name, name);
 	user->m_socket = socket;
-	printf("user socket: %d\n",user->m_socket);
     user->m_magic_number = MAGIC_NUMBER;
 	return user;
 }

@@ -162,8 +162,6 @@ void run_router(Router* router)
 		}
 
 		take_care_exists_clients(router);
-        if(list_size(deleted_sockets(router->m_socket)) > 0)
-            send_ping_message_to_all_clients(router->m_socket, router->m_mutex);
 		delete_deleted(router);
 	}
 
