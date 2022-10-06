@@ -18,6 +18,7 @@ typedef struct ActionIn
     Mutex* m_mutex;
     Socket* m_socket;
     char* m_buffer;
+    Message_type m_lest_message;
 
 }ActionIn;
 

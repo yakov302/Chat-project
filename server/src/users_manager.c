@@ -129,6 +129,17 @@ UsersManager_return user_leave_group (UsersManager* users_manager, char* user_na
 	return USER_MANAGER_LEAVE_GROUP_FAIL;
 }
 
+List* user_groups_list(UsersManager* users_manager, char* user_name)
+{
+	if (users_manager == NULL || user_name == NULL)
+	    return NULL;
+		
+    void* user;
+	Map_return m_result = hash_map_find(users_manager->m_users, user_name, &user);
+	if (m_result != MAP_SUCCESS) {return USER_MANAGER_USER_NOT_EXISTS;}
+	return ((User*)user)->m_groups;
+}
+
 UsersManager_return user_log_out(UsersManager* users_manager, char* user_name)
 {
 	if (users_manager == NULL || user_name == NULL)

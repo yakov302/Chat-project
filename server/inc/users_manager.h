@@ -3,6 +3,7 @@
 
 #include "user.h"
 #include "hash_map.h"
+#include "groups_manager.h"
 
 #define NOT_EQUAL 0
 #define EQUAL 1
@@ -39,9 +40,11 @@ void destroy_users_manager(UsersManager* users_manager);
 
 UsersManager_return user_log_in(UsersManager* users_manager, const char* name, int socket);
 
-UsersManager_return user_join_group(UsersManager* users_manager, char* user_name, char* group_ame);
+UsersManager_return user_join_group(UsersManager* users_manager, char* user_name, char* group_name);
 
-UsersManager_return user_leave_group(UsersManager* users_manager, char* _username, char* _groupName);
+UsersManager_return user_leave_group(UsersManager* users_manager, char* user_name, char* group_name);
+
+List* user_groups_list(UsersManager* users_manager, char* user_name);
 
 UsersManager_return user_log_out(UsersManager* users_manager, char* name);
 

@@ -112,10 +112,22 @@ static void log_in_request(SubscribsManager* subscribs_manager, UsersManager* us
     }
 }
 
-static void leave_chat_request(UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
+static void leave_chat_request(UsersManager* users_manager, GroupsManager* groups_manager, char* buffer, int client_socket, Mutex* mutex)
 {
     char name[STRING_SIZE]; 
     give_1_strings(buffer, name);
+
+    GroupsManager_return g_result = leave_all_groups(groups_manager, user_groups_list(users_manager, name));
+    switch (g_result)
+    {
+        case GROUPS_MANAGER_SUCCESS:
+            break;
+            
+        default:
+            printf("leave_all_groups fail! GroupsManager_return: %d\n", g_result);
+            send_only_message(EXIT_CHAT_FAIL, client_socket, mutex);
+            return;
+    }
 
     UsersManager_return result = user_log_out(users_manager, name);
     switch (result)
@@ -298,7 +310,7 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             break;
 
         case EXIT_CHAT_REQUEST:
-            leave_chat_request(action_in->m_users_manager, buffer, client_socket, mutex);
+            leave_chat_request(action_in->m_users_manager, action_in->m_gruops_manager, buffer, client_socket, mutex);
             break; 
 
         case OPEN_NEW_GROUP_REQUEST:

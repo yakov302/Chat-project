@@ -104,6 +104,25 @@ User_return remove_group_from_user(User* user, Group* group)
 	return USER_GROUP_NOT_EXISTS;
 }
 
+User_return remove_all_groups_from_user(User* user)
+{
+    if (user == NULL)
+	    return USER_ARGS_NOT_INITIALIZED;
+
+    ListItr it_next; 
+    ListItr it = begin(user->m_groups);
+    ListItr it_end = end(user->m_groups);
+
+    while(it != it_end)
+    {
+        it_next = next(it);
+        group_destroy((Group*)get_data(it));
+        it = it_next;
+    }
+    
+	return USER_SUCCESS;
+}
+
 static int is_groups_equal_by_name(const void* a, const void* b)
 {
     if(strcmp((char*)((Group*)a)->m_name, (char*)b) == 0)

@@ -13,6 +13,7 @@
 
 #define TRUE 1 
 #define FALSE 0
+#define INVALID_CHOICE 20
 
 int menu(int is_looged_in);
 
@@ -25,6 +26,8 @@ void enter_group_name(char* group_name);
 void enter_password(char* password);
 
 void print_invalid_choice();
+
+void print_exit();
 
 void print_message(Message_type message_type);
 

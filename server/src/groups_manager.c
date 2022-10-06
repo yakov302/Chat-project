@@ -162,7 +162,7 @@ static void insert_ip_to_queue(GroupsManager* groups_manager, Group* group)
     queue_insert(groups_manager->m_ips, (void*)ip);
 }
 
-GroupsManager_return leave_group (GroupsManager* groups_manager, char* group_name)
+GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name)
 {
 	if (groups_manager == NULL || group_name == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
@@ -182,8 +182,27 @@ GroupsManager_return leave_group (GroupsManager* groups_manager, char* group_nam
 	return GROUPS_MANAGER_SUCCESS;
 }
 
+GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups)
+{
+	if (groups_manager == NULL || list_of_user_groups == NULL)
+	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
+
+	ListItr it_next;
+	ListItr it = begin(list_of_user_groups);
+	ListItr it_end = end(list_of_user_groups);
+	while(it != it_end)
+	{
+		it_next = next(it);
+		leave_group(groups_manager, ((Group*)get_data(it))->m_name);
+		it = it_next;
+	}
+	
+	return GROUPS_MANAGER_SUCCESS;
+}
+
 static void write_key_to_buffer(void* group_name, char* groups_names_list)
 {
+	strcat(groups_names_list, " * ");
     strcat(groups_names_list, (char*)group_name);
 	strcat(groups_names_list, "\n");
 }

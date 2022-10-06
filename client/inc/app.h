@@ -2,6 +2,7 @@
 #define APP_H
 
 #include "action_out.h"
+#include "action_in.h"
 #include "socket.h"
 #include "thread.h"
 #include "mutex.h"
@@ -14,11 +15,10 @@
 #define REGISTERATION 1
 #define LOG_IN 2
 #define CREATE_NEW_GROUP 3
-#define PRINT_GROUPS_NAMES 4
-#define JOIN_EXISTING_GROUP 5
-#define LEAVE_GROUP 6
-#define LOG_OUT 7
-#define EXIT 8
+#define JOIN_EXISTING_GROUP 4
+#define LEAVE_GROUP 5
+#define LOG_OUT 6
+#define EXIT 7
 
 typedef struct App
 {
@@ -28,12 +28,15 @@ typedef struct App
     User* m_user;
     Mutex* m_mutex;
     Socket* m_socket;
+    ActionIn* m_action_in;
 
 }App;
 
-App* app_create(User* user, Mutex* mutex, Socket* socket);
+App* app_create(User* user, Mutex* mutex, Socket* socket, ActionIn* action_in);
 
 void run(App* app);
+
+int stop(App* app);
 
 void app_destroy(App* group);
 

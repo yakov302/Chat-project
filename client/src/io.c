@@ -1,26 +1,47 @@
 #include "io.h"
 
-int menu(int is_looged_in)
+int internal_is_loged_in;
+int is_menue_print;
+
+static void print_menu()
 {
-	printf(YELLOW);
+    if(is_menue_print)
+        return;
+
+    is_menue_print = TRUE;
+
+    printf(YELLOW);
 	printf("\n--------------Yakonel chat--------------\n\n");
 	printf(NORMAL);
 
-	printf("1 - Registration\n");
-	printf("2 - Log in\n");
-    if(is_looged_in)
+    if(!internal_is_loged_in)
     {
-        printf("3 - Create new group\n");
-        printf("4 - Print existing groups\n");
-        printf("5 - Join existing group\n");
-        printf("6 - Leave group\n");
-        printf("7 - Log out\n");
+        printf(" 1 - Registration\n");
+        printf(" 2 - Log in\n");
     }
-    printf("8 - Exit\n");
-	printf( "Select your choice: ");
+    else
+    {
+        printf(" 3 - Create new group\n");
+        printf(" 4 - Join existing group\n");
+        printf(" 5 - Leave group\n");
+        printf(" 6 - Log out\n");
+    }
 
-    int choice;
+    printf(" 7 - Exit\n");
+	printf("\nEnter your choice: ");
+}
+
+int menu(int is_looged_in)
+{
+    internal_is_loged_in = is_looged_in;
+    print_menu();
+
+    int choice = 0;
 	scanf("%d", &choice);
+
+    if(choice == 0)
+        return INVALID_CHOICE;
+
 	return choice;
 }
 
@@ -44,17 +65,28 @@ void enter_password(char* password)
 
 static void print_in_color_format(char* color, char* text)
 {  
+    is_menue_print = FALSE;
+
     printf("%s", color);
 	printf("\n                       ->  ");
 	printf("%s", text);
 	printf("  <-  \n");
+
     printf(NORMAL);
+    if(text != "Log in success!" && text != "Successfully disconnected!")
+        print_menu();
 }
 
 void print_invalid_choice()
 {
     print_in_color_format(RED, "Invalid choice!");
 }
+
+void print_exit()
+{
+    print_in_color_format(GREEN, "Successfully disconnected!");
+}
+
 
 void print_message(Message_type message_type)
 {
@@ -93,7 +125,7 @@ void print_message(Message_type message_type)
             break;
 
         case EXIT_CHAT_SUCCESS:
-            print_in_color_format(GREEN, "Successfully disconnected!");
+            print_in_color_format(GREEN, "Successfully loged out!");
             break;
 
         case EXIT_CHAT_USER_NOT_EXISTS:
@@ -125,6 +157,7 @@ void print_message(Message_type message_type)
 
         case PRINT_EXISTING_GROUPS_NO_GROUPS:
             print_in_color_format(RED, "No groups yet!");
+            break;
 
         case JOIN_EXISTING_GROUP_SUCCESS:
             print_in_color_format(GREEN, "successfully connected to the group!");
@@ -147,7 +180,11 @@ void print_message(Message_type message_type)
             break;
 
         case LEAVE_GROUP_SUCCESS:
-            print_in_color_format(GREEN, "You left the group successfully!");
+            print_in_color_format(GREEN, "You are last, the group is deleted!");
+            break;
+
+        case LEAVE_GROUP_GROUP_DELETED:
+            print_in_color_format(GREEN, "You are lest group deleted!");
             break;
 
         case LEAVE_GROUP_FAIL:
@@ -171,5 +208,6 @@ void print_message(Message_type message_type)
 void print_groups_names_list(char* groups_names_list)
 {
     printf("\nExisting groups:\n");
-	printf("%s", groups_names_list);
+	printf("%s\n", groups_names_list);
+    print_menu();
 }

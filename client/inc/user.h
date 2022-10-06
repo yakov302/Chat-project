@@ -44,6 +44,8 @@ User_return add_group_for_user(User* user, Group* group);
 
 User_return remove_group_from_user(User* user, Group* group);
 
+User_return remove_all_groups_from_user(User* user);
+
 Group* group(User* user, char* group_name);
 
 char* name(User* user);

@@ -69,17 +69,13 @@ int main()
         return 0;
     }
 
-    App* app = app_create(y, m, s);
+    App* app = app_create(y, m, s, a);
     if(app == NULL)
         printf("app not iniy\n");
 
     while(TRUE)
     {
-        // char c = getchar();
-        // if(c == 'q' || c == 27)
-        // {
-        //     app_destroy(app);
-        //     break;
-        // }
+        if(stop(app))
+            break;
     }
 }
