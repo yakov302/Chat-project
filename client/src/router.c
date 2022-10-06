@@ -11,7 +11,7 @@ Router* router_create(ActionIn* action_in, Socket* socket, Mutex* mutex)
 {
     if(action_in == NULL || socket == NULL || mutex == NULL)
         return NULL;
-        
+
     Router* router = (Router*)malloc(sizeof(Router));
     if(router == NULL)
         return NULL;
@@ -79,5 +79,5 @@ static void wake_up(Router* router)
 void stop_router(Router* router)
 {
     router->m_stop = ON;
-   // wake_up(router);
+    wake_up(router);
 }

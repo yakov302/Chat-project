@@ -4,6 +4,7 @@
 #include "action_out.h"
 #include "action_in.h"
 #include "socket.h"
+#include "router.h"
 #include "thread.h"
 #include "mutex.h"
 #include "user.h"
@@ -27,12 +28,13 @@ typedef struct App
 
     User* m_user;
     Mutex* m_mutex;
+    Router* m_router;
     Socket* m_socket;
     ActionIn* m_action_in;
 
 }App;
 
-App* app_create(User* user, Mutex* mutex, Socket* socket, ActionIn* action_in);
+App* app_create(User* user, Mutex* mutex, Router* router, Socket* socket, ActionIn* action_in);
 
 void run(App* app);
 

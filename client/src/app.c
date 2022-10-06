@@ -7,7 +7,7 @@ static void* thread_function(void* arg)
 	return NULL;
 }
 
-App* app_create(User* user, Mutex* mutex, Socket* socket, ActionIn* action_in)
+App* app_create(User* user, Mutex* mutex,  Router* router, Socket* socket, ActionIn* action_in)
 {
     if(user == NULL || mutex == NULL || socket == NULL)
         return NULL;
@@ -19,6 +19,7 @@ App* app_create(User* user, Mutex* mutex, Socket* socket, ActionIn* action_in)
     app->m_stop = FALSE;
     app->m_user = user;
     app->m_mutex = mutex;
+    app->m_router = router;
     app->m_socket = socket;
     app->m_action_in = action_in;
     app->m_thread_id = run_thread(thread_function, app);
@@ -74,7 +75,9 @@ static void log_in_switch(App* app, int choice)
             break;
 
         case EXIT:
-            app_destroy(app);
+            print_exit();
+            stop_router(app->m_router);
+            app->m_stop = TRUE;
             break;
 
         default:
@@ -101,7 +104,9 @@ static void unlog_in_switch(App* app, int choice)
             break;
 
         case EXIT:
-            app_destroy(app);
+            print_exit();
+            app->m_stop = TRUE;
+            stop_router(app->m_router);
             break;
 
         default:
@@ -130,10 +135,7 @@ void run(App* app)
 
 void app_destroy(App* app)
 {
-    print_exit();
-    app->m_stop = TRUE;
     join_thread(app->m_thread_id);
-    usleep(10000);
     free(app);
 }
 

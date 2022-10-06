@@ -73,7 +73,7 @@ static void print_in_color_format(char* color, char* text)
 	printf("  <-  \n");
 
     printf(NORMAL);
-    if(text != "Log in success!" && text != "Successfully disconnected!")
+    if((text != "Log in success!") && (text != "Successfully loged out!") && (text != "Successfully disconnected!"))
         print_menu();
 }
 
@@ -85,6 +85,7 @@ void print_invalid_choice()
 void print_exit()
 {
     print_in_color_format(GREEN, "Successfully disconnected!");
+    printf("\n");
 }
 
 

@@ -3,7 +3,6 @@
 
 #include "user.h"
 #include "hash_map.h"
-#include "groups_manager.h"
 
 #define NOT_EQUAL 0
 #define EQUAL 1
