@@ -2,9 +2,8 @@
 #define ACTION_OUT_H
 
 #include "tcp.h"
-#include "mutex.h"
 
-#define BUFFER_SIZE 512
+#define BUFFER_OUT_SIZE 512
 
 void send_only_message(Message_type message_type, Socket* socket, Mutex* mutex);
 

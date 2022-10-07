@@ -2,14 +2,14 @@
 
 ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user)
 {
-    if(user == NULL)
+    if(soket == NULL || mutex == NULL || user == NULL)
         return NULL;
 
     ActionIn* action_in = (ActionIn*)malloc(sizeof(ActionIn));
     if(action_in == NULL)
         return NULL;
 
-    action_in->m_buffer = (char*)malloc(sizeof(char)* BUFFER_SIZE);
+    action_in->m_buffer = (char*)malloc(sizeof(char)*BUFFER_SIZE);
     if(action_in->m_buffer == NULL)
     {
         free(action_in);
@@ -18,7 +18,7 @@ ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user)
     
     action_in->m_user = user;
     action_in->m_mutex = mutex;
-     action_in->m_socket = soket;
+    action_in->m_socket = soket;
     return action_in;
 }
 
@@ -60,14 +60,14 @@ static void log_in_success(User* user, char* buffer)
     char name[STRING_SIZE];
     give_1_strings(buffer, name);
     set_name(user, name);
-    set_is_logged_in(user, TRUE);
+    set_log_in_status(user, TRUE);
 }
 
 static void log_out_success(User* user, char* buffer)
 {
     print_message(EXIT_CHAT_SUCCESS);
     remove_all_groups_from_user(user);
-    set_is_logged_in(user, FALSE);
+    set_log_in_status(user, FALSE);
 }
 
 static void new_group(User* user, char* buffer, Message_type message_type)
@@ -101,10 +101,10 @@ static void leave_group(User* user, char* buffer, Message_type message_type)
 
 void get_buffer(ActionIn* action_in, char* buffer)
 {
-    Message_type type = message_type(buffer);
-    action_in->m_lest_message = type;
+    Message_type message = message_type(buffer);
+    action_in->m_lest_message = message;
 
-    switch (type)
+    switch (message)
     {
         case REGISTRATION_SUCCESS:
             print_message(REGISTRATION_SUCCESS);
@@ -175,7 +175,7 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
         
         case JOIN_EXISTING_GROUP_SUCCESS:
-            new_group(action_in->m_user, buffer, type);
+            new_group(action_in->m_user, buffer, message);
             break;
 
         case JOIN_EXISTING_GROUP_FAIL:
@@ -219,8 +219,11 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
 
         default:
-
             break;
     }
 }
 
+int lest_message_arrive(ActionIn* action_in)
+{
+    return action_in->m_lest_message;
+}

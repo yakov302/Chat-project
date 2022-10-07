@@ -49,11 +49,11 @@ int is_logged_in(User* user)
     return user->m_is_logged_in;
 }
 
-void set_is_logged_in(User* user, int status)
+void set_log_in_status(User* user, int status)
 {
     if(user == NULL)
     {
-        printf("set_is_logged_in user not initialized!\n");
+        printf("set_log_in_status user not initialized!\n");
         return;
     }
 

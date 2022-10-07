@@ -36,31 +36,55 @@ int menu(int is_looged_in)
     internal_is_loged_in = is_looged_in;
     print_menu();
 
-    int choice = 0;
+    int choice;
 	scanf("%d", &choice);
-
-    if(choice == 0)
-        return INVALID_CHOICE;
-
 	return choice;
 }
 
 void enter_user_name(char* user_name)
 {
+    if(user_name == NULL)
+    {
+        printf("enter_user_name user_name not initialized\n");
+        return;
+    }
+
 	printf("Enter user name: ");
 	scanf("%s", user_name);  
 }
 
 void enter_group_name(char* group_name)
 {
+    if(group_name == NULL)
+    {
+        printf("enter_group_name group_name not initialized\n");
+        return;
+    }
+
    	printf("Enter group name: ");
 	scanf("%s", group_name);   
 }
 
 void enter_password(char* password)
 {
+    if(password == NULL)
+    {
+        printf("enter_password password not initialized\n");
+        return;
+    }
+
     printf("Enter password: ");
 	scanf("%s", password); 
+}
+
+static int should_i_print_menu(char* text)
+{
+    if( text == "Log in success!" ||
+        text == "Successfully loged out!" ||
+        text == "Successfully disconnected!\n" )
+        return FALSE;
+    else
+        return TRUE;
 }
 
 static void print_in_color_format(char* color, char* text)
@@ -73,7 +97,7 @@ static void print_in_color_format(char* color, char* text)
 	printf("  <-  \n");
 
     printf(NORMAL);
-    if((text != "Log in success!") && (text != "Successfully loged out!") && (text != "Successfully disconnected!"))
+    if(should_i_print_menu(text))
         print_menu();
 }
 
@@ -82,10 +106,9 @@ void print_invalid_choice()
     print_in_color_format(RED, "Invalid choice!");
 }
 
-void print_exit()
+void print_exit_chat()
 {
-    print_in_color_format(GREEN, "Successfully disconnected!");
-    printf("\n");
+    print_in_color_format(GREEN, "Successfully disconnected!\n");
 }
 
 
@@ -181,7 +204,7 @@ void print_message(Message_type message_type)
             break;
 
         case LEAVE_GROUP_SUCCESS:
-            print_in_color_format(GREEN, "You are last, the group is deleted!");
+            print_in_color_format(GREEN, "Successfully left the group!");
             break;
 
         case LEAVE_GROUP_GROUP_DELETED:
@@ -201,13 +224,18 @@ void print_message(Message_type message_type)
             break;
 
         default:
-            print_invalid_choice();
             break;
     }
 }
 
 void print_groups_names_list(char* groups_names_list)
 {
+    if(groups_names_list == NULL)
+    {
+        printf("groups_names_list not initialized\n");
+        return;
+    }
+
     printf("\nExisting groups:\n");
 	printf("%s\n", groups_names_list);
     print_menu();

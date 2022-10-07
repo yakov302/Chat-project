@@ -4,7 +4,6 @@
 #include <sys/select.h>
 
 #include "action_in.h"
-#include "action_out.h"
 #include "thread.h"
 #include "socket.h"
 #include "tcp.h"

@@ -11,7 +11,7 @@ int main()
 
     while(TRUE)
     {
-        if(client_manager_stop(client_manager))
+        if(is_client_manager_stop(client_manager))
             break;
 
     }

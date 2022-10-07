@@ -1,18 +1,12 @@
 #ifndef APP_H
 #define APP_H
 
-#include "action_out.h"
-#include "action_in.h"
-#include "socket.h"
 #include "router.h"
-#include "thread.h"
-#include "mutex.h"
-#include "user.h"
-#include "io.h"
 
 #define STRING_SIZE 68
 #define TRUE 1
 #define FALSE 0
+
 #define REGISTERATION 1
 #define LOG_IN 2
 #define CREATE_NEW_GROUP 3
@@ -36,9 +30,9 @@ typedef struct App
 
 App* app_create(User* user, Mutex* mutex, Router* router, Socket* socket, ActionIn* action_in);
 
-void run(App* app);
+void run_app(App* app);
 
-int stop(App* app);
+int is_app_stop(App* app);
 
 void app_destroy(App* group);
 

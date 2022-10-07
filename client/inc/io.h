@@ -1,9 +1,6 @@
 #ifndef IO_H
 #define IO_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "protocol.h"
 
 #define YELLOW "\x1B[33m"
@@ -27,7 +24,7 @@ void enter_password(char* password);
 
 void print_invalid_choice();
 
-void print_exit();
+void print_exit_chat();
 
 void print_message(Message_type message_type);
 

@@ -1,8 +1,6 @@
 #ifndef USER_H
 #define USER_H
 
-#include <string.h>
-
 #include "list_iterator.h"
 #include "group.h"
 
@@ -36,7 +34,7 @@ void destroy_user(User* user);
 
 int is_logged_in(User* user);
 
-void set_is_logged_in(User* user, int status);
+void set_log_in_status(User* user, int status);
 
 User_return set_name(User* user, char* name);
 

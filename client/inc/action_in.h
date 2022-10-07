@@ -1,11 +1,8 @@
 #ifndef ACTION_IN_H
 #define ACTION_IN_H
 
-#include "mutex.h"
-#include "user.h"
-#include "protocol.h"
 #include "action_out.h"
-#include "socket.h"
+#include "user.h"
 #include "io.h"
 
 #define GROUPS_PORT 5555
@@ -14,10 +11,10 @@
 
 typedef struct ActionIn
 {
+    char* m_buffer;
     User* m_user;
     Mutex* m_mutex;
     Socket* m_socket;
-    char* m_buffer;
     Message_type m_lest_message;
 
 }ActionIn;
@@ -27,6 +24,8 @@ ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user);
 void destroy_action_in(ActionIn* action_in);
 
 void get_buffer(ActionIn* action_in, char* buffer);
+
+int lest_message_arrive(ActionIn* action_in);
 
 
 #endif // ACTION_IN_H

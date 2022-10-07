@@ -1,11 +1,6 @@
 #ifndef CLIENT_MANAGER_H
 #define CLIENT_MANAGER_H
 
-#include "socket.h"
-#include "router.h"
-#include "group.h"
-#include "user.h"
-#include "tcp.h"
 #include "app.h"
 
 typedef struct ClientManager
@@ -21,7 +16,7 @@ typedef struct ClientManager
 
 ClientManager* client_manager_create();
 
-int client_manager_stop(ClientManager* client_manager);
+int is_client_manager_stop(ClientManager* client_manager);
 
 void client_manager_destroy(ClientManager* client_manager);
 

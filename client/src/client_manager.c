@@ -66,16 +66,16 @@ ClientManager* client_manager_create()
     return client_manager;
 }
 
-int client_manager_stop(ClientManager* client_manager)
+int is_client_manager_stop(ClientManager* client_manager)
 {
-    return stop(client_manager->m_app);
+    return is_app_stop(client_manager->m_app);
 }
 
 void client_manager_destroy(ClientManager* client_manager)
 {
     if(client_manager == NULL)
         return;
-        
+
     app_destroy(client_manager->m_app);
     router_destroy(client_manager->m_router);
     destroy_action_in(client_manager->m_action_in);
