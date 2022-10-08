@@ -136,7 +136,7 @@ List* user_groups_list(UsersManager* users_manager, char* user_name)
 		
     void* user;
 	Map_return m_result = hash_map_find(users_manager->m_users, user_name, &user);
-	if (m_result != MAP_SUCCESS) {return USER_MANAGER_USER_NOT_EXISTS;}
+	if (m_result != MAP_SUCCESS) {return NULL;}
 	return ((User*)user)->m_groups;
 }
 

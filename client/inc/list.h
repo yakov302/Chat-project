@@ -58,7 +58,7 @@ List_return list_pop_tail(List* _list, void** deleted_item);
 
 size_t list_size(const List* _list);
 
-void list_print(List* _list, PrintItem print);
+void list_print(List* list, PrintItem print);
 
 int list_is_exists(const List* list, Compar is_equal, const void* item);
 

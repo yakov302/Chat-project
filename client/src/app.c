@@ -40,37 +40,33 @@ static void log_in(App* app, Socket *socket, Mutex *mutex, char* user_name, char
     send_requests_with_2_strings(user_name, password, LOG_IN_REQUEST, app->m_socket, app->m_mutex);
 }
 
-static void create_new_group(App* app, char* user_name, char* group_name)
+static void create_new_group(App* app, char* group_name)
 {
-    strcpy(user_name, name(app->m_user));
     enter_group_name(group_name);
-    send_requests_with_2_strings(user_name, group_name, OPEN_NEW_GROUP_REQUEST, app->m_socket, app->m_mutex);
+    send_requests_with_2_strings(name(app->m_user), group_name, OPEN_NEW_GROUP_REQUEST, app->m_socket, app->m_mutex);
 }
 
-static void join_exsisting_group(App* app, char* user_name, char* group_name)
+static void join_exsisting_group(App* app, char* group_name)
 {
     send_only_message(PRINT_EXISTING_GROUPS_REQUEST, app->m_socket, app->m_mutex);
     usleep(10000);
 
     if(lest_message_arrive(app->m_action_in) != PRINT_EXISTING_GROUPS_NO_GROUPS)
     {
-        strcpy(user_name, name(app->m_user));
         enter_group_name(group_name);
-        send_requests_with_2_strings(user_name, group_name, JOIN_EXISTING_GROUP_REQUEST, app->m_socket, app->m_mutex);
+        send_requests_with_2_strings(name(app->m_user), group_name, JOIN_EXISTING_GROUP_REQUEST, app->m_socket, app->m_mutex);
     }
 }
 
-static void leave_group(App* app, char* user_name, char* group_name)
+static void leave_group(App* app, char* group_name)
 {
-    strcpy(user_name, name(app->m_user));
     enter_group_name(group_name);
-    send_requests_with_2_strings(user_name, group_name, LEAVE_GROUP_REQUEST, app->m_socket, app->m_mutex);
+    send_requests_with_2_strings(name(app->m_user), group_name, LEAVE_GROUP_REQUEST, app->m_socket, app->m_mutex);
 }
 
-static void log_out(App* app, char* user_name)
+static void log_out(App* app)
 {
-    strcpy(user_name, name(app->m_user));
-    send_requests_with_1_strings(user_name, EXIT_CHAT_REQUEST, app->m_socket, app->m_mutex);
+    send_requests_with_1_strings(name(app->m_user), EXIT_CHAT_REQUEST, app->m_socket, app->m_mutex);
 }
 
 static void exit_chat(App* app)
@@ -82,29 +78,28 @@ static void exit_chat(App* app)
 
 static void logged_switch(App* app, int choice)
 {
-    char user_name[STRING_SIZE];
     char group_name[STRING_SIZE];
 
     switch (choice)
     {
         case CREATE_NEW_GROUP:
-            create_new_group(app, user_name, group_name);
+            create_new_group(app, group_name);
             break;
 
         case JOIN_EXISTING_GROUP:
-            join_exsisting_group(app, user_name, group_name);
+            join_exsisting_group(app, group_name);
             break;
 
         case LEAVE_GROUP:
-            leave_group(app, user_name, group_name);
+            leave_group(app, group_name);
             break;
 
         case LOG_OUT:
-            log_out(app, user_name);
+            log_out(app);
             break;
 
         case EXIT:
-            log_out(app, user_name);
+            log_out(app);
             exit_chat(app);
             break;
 
@@ -139,10 +134,27 @@ static void unlogged_switch(App* app, int choice)
     }
 }
 
+static int close_kill_groups(void* group, void* app)
+{
+    if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
+    || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
+    {
+        send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
+    }
+
+    return TRUE;
+}
+
+static void check_if_groups_are_live(App* app)
+{
+    list_for_each(groups_list(app->m_user), close_kill_groups, app);
+}
+
 void run_app(App* app)
 {
     while (!app->m_stop)
     {
+        check_if_groups_are_live(app);
         usleep(10000);
         int choice = menu(is_logged_in(app->m_user));
         
@@ -150,6 +162,7 @@ void run_app(App* app)
             logged_switch(app, choice);
         else
             unlogged_switch(app, choice);
+
     }
 }
 

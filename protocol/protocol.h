@@ -27,6 +27,14 @@
         .
         .
     [int n]
+
+    [number of float]         (1 bytes)
+
+    [float 1]
+        .
+        .
+        .
+    [float n]
 */
 
 typedef enum Message_type

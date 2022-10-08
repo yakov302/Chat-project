@@ -46,6 +46,8 @@ User_return remove_all_groups_from_user(User* user);
 
 Group* group(User* user, char* group_name);
 
+List* groups_list(User* user);
+
 char* name(User* user);
 
 

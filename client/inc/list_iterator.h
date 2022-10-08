@@ -3,6 +3,9 @@
 
 #include "list.h"
 
+#define FALSE 0
+
+typedef int(*ActionFunction)(void* element, void* context);
 typedef void* ListItr;
 
 ListItr begin(const List* list);
@@ -24,6 +27,8 @@ ListItr insert_before(List* list, ListItr itr, void* element);
 void* remove_it(List* list, ListItr itr);
 
 ListItr find_first(const List* list, Compar is_equal, const void* item);
+
+ListItr list_for_each(List* list, ActionFunction action , void* context);
 
 
 #endif // LIST_ITERATOR_H

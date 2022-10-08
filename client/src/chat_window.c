@@ -47,6 +47,13 @@ static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip
         return FALSE;
     }
 
+    int optval = 1;
+    if (setsockopt(*socket_number, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+    {
+        perror("setsockopt fail");
+        return FALSE;
+    }
+
     struct ip_mreq mreq;
     set_multicast(&mreq, ip);
     if (setsockopt(*socket_number, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)

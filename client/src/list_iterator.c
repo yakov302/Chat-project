@@ -108,6 +108,27 @@ ListItr find_first(const List* list, Compar is_equal, const void* item)
 	return NULL;
 }
 
+ListItr list_for_each(List* list, ActionFunction action , void* context)
+{
+	if(list == NULL || action == NULL)
+		return NULL;
+
+	ListItr it_next;
+	ListItr it = begin(list);
+	ListItr end_it = end(list);
+	while(it != end_it)
+	{
+		it_next = next(it);
+
+		if(action(get_data(it), context) == FALSE)
+			return it;
+		
+		it = it_next;
+	}
+
+	return NULL;
+}
+
 static void push_node(Node* node, Node* next)
 {
 	node->m_prev = next->m_prev;

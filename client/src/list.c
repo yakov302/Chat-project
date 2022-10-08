@@ -151,7 +151,6 @@ void list_print(List* list, PrintItem print)
 	} 
 }
 
-
 static void push_node(Node *node, Node *next)
 {
 	node->m_prev = next->m_prev;

@@ -104,22 +104,18 @@ User_return remove_group_from_user(User* user, Group* group)
 	return USER_GROUP_NOT_EXISTS;
 }
 
+static int remove_group(void* group, void* context)
+{
+    group_destroy((Group*)group);
+    return TRUE;
+}
+
 User_return remove_all_groups_from_user(User* user)
 {
     if (user == NULL)
 	    return USER_ARGS_NOT_INITIALIZED;
 
-    ListItr it_next; 
-    ListItr it = begin(user->m_groups);
-    ListItr it_end = end(user->m_groups);
-
-    while(it != it_end)
-    {
-        it_next = next(it);
-        group_destroy((Group*)get_data(it));
-        it = it_next;
-    }
-    
+    list_for_each(user->m_groups, remove_group, NULL);
 	return USER_SUCCESS;
 }
 
@@ -140,6 +136,14 @@ Group* group(User* user, char* group_name)
 		return get_data(it);
 
     return NULL;
+}
+
+List* groups_list(User* user)
+{
+    if (user == NULL)
+	    return NULL;
+    
+    return user->m_groups;
 }
 
 char* name(User* user)
