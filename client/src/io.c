@@ -1,20 +1,12 @@
 #include "io.h"
 
-int internal_is_loged_in;
-int is_menue_print;
-
-static void print_menu()
+static void print_menu(int is_looged_in)
 {
-    if(is_menue_print)
-        return;
-
-    is_menue_print = TRUE;
-
     printf(YELLOW);
 	printf("\n--------------Yakonel chat--------------\n\n");
 	printf(NORMAL);
 
-    if(!internal_is_loged_in)
+    if(!is_looged_in)
     {
         printf(" 1 - Registration\n");
         printf(" 2 - Log in\n");
@@ -33,10 +25,9 @@ static void print_menu()
 
 int menu(int is_looged_in)
 {
-    internal_is_loged_in = is_looged_in;
-    print_menu();
+    print_menu(is_looged_in);
 
-    int choice;
+    int choice = GET_OUT_FROM_SCANF;
 	scanf("%d", &choice);
 	return choice;
 }
@@ -77,19 +68,10 @@ void enter_password(char* password)
 	scanf("%s", password); 
 }
 
-static int should_i_print_menu(char* text)
-{
-    if( text == "Log in success!" ||
-        text == "Successfully loged out!" ||
-        text == "Successfully disconnected!\n" )
-        return FALSE;
-    else
-        return TRUE;
-}
-
 static void print_in_color_format(char* color, char* text)
 {  
-    is_menue_print = FALSE;
+    struct pollfd poll_stdin = {STDIN_FILENO, POLLIN|POLLPRI}; 
+    poll(&poll_stdin, 1, 1);
 
     printf("%s", color);
 	printf("\n                       ->  ");
@@ -97,8 +79,6 @@ static void print_in_color_format(char* color, char* text)
 	printf("  <-  \n");
 
     printf(NORMAL);
-    if(should_i_print_menu(text))
-        print_menu();
 }
 
 void print_invalid_choice()
@@ -238,5 +218,4 @@ void print_groups_names_list(char* groups_names_list)
 
     printf("\nExisting groups:\n");
 	printf("%s\n", groups_names_list);
-    print_menu();
 }

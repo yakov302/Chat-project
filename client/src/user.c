@@ -104,8 +104,12 @@ User_return remove_group_from_user(User* user, Group* group)
 	return USER_GROUP_NOT_EXISTS;
 }
 
-static int remove_group(void* group, void* context)
+static int remove_group(void* group, void* user)
 {
+    if((Group*)group == NULL)
+        return TRUE; 
+
+    remove_group_from_user((User*)user, (Group*)group);
     group_destroy((Group*)group);
     return TRUE;
 }
@@ -115,7 +119,7 @@ User_return remove_all_groups_from_user(User* user)
     if (user == NULL)
 	    return USER_ARGS_NOT_INITIALIZED;
 
-    list_for_each(user->m_groups, remove_group, NULL);
+    list_for_each(user->m_groups, remove_group, user);
 	return USER_SUCCESS;
 }
 

@@ -3,6 +3,9 @@
 
 #include "protocol.h"
 
+#include <poll.h>
+#include<unistd.h>
+
 #define YELLOW "\x1B[33m"
 #define NORMAL "\x1B[0m"
 #define RED "\x1B[91m"
@@ -11,6 +14,7 @@
 #define TRUE 1 
 #define FALSE 0
 #define INVALID_CHOICE 20
+#define GET_OUT_FROM_SCANF 187
 
 int menu(int is_looged_in);
 

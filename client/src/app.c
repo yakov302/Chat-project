@@ -103,6 +103,9 @@ static void logged_switch(App* app, int choice)
             exit_chat(app);
             break;
 
+        case GET_OUT_FROM_SCANF:
+            break;
+
         default:
             print_invalid_choice();
             break;
@@ -128,6 +131,9 @@ static void unlogged_switch(App* app, int choice)
             exit_chat(app);
             break;
 
+        case GET_OUT_FROM_SCANF:
+            break;
+
         default:
             print_invalid_choice();
             break;
@@ -136,6 +142,9 @@ static void unlogged_switch(App* app, int choice)
 
 static int close_kill_groups(void* group, void* app)
 {
+    if((Group*)group == NULL)
+        return TRUE;
+
     if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
     || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
     {
@@ -154,7 +163,6 @@ void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        check_if_groups_are_live(app);
         usleep(10000);
         int choice = menu(is_logged_in(app->m_user));
         
@@ -163,6 +171,7 @@ void run_app(App* app)
         else
             unlogged_switch(app, choice);
 
+        check_if_groups_are_live(app);
     }
 }
 
