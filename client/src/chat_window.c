@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
+#define MAX_SOCKET_AMOUNT_TO_LISTEN 10
+#define SELECT_FAIL -1
 #define BUFFER_SIZE 1024
 #define IP_SIZE 20
 #define TRUE 1
@@ -84,6 +87,23 @@ static void decrypt(const char* key, char* buffer, int message_size)
 	}	
 }
 
+static void set_fd(int socket_number, fd_set* fd)
+{
+    FD_ZERO(fd);
+    FD_SET(socket_number, fd);
+}
+
+static int enter_select(int socket_number, fd_set* fd)
+{
+    set_fd(socket_number, fd);
+    struct timeval timeval = {3, 0};
+    int activity = select(MAX_SOCKET_AMOUNT_TO_LISTEN, fd, NULL, NULL, &timeval);
+    if((activity < 0) && (errno != EINTR))
+        return SELECT_FAIL;
+
+    return activity;
+}
+
 int main(int argc, char* argv[])
 {  
     if(argc < 3) {printf("IP and PORT required\n"); return FALSE;}
@@ -95,21 +115,31 @@ int main(int argc, char* argv[])
 
     save_process_id_to_file();
 
+    fd_set* fd;
     char buffer[BUFFER_SIZE];
     socklen_t sin_len = sizeof(sin);
 
     while (TRUE) 
     {
-        int receive_bytes  = recvfrom(socket_number, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&sin, &sin_len);
-        if (receive_bytes < 0) 
+        int result = enter_select(socket_number, fd);
+        if(result)
         {
-            perror("recvfrom fail");
-            return FALSE;
-        }
+            int receive_bytes  = recvfrom(socket_number, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&sin, &sin_len);
+            if (receive_bytes < 0) 
+            {
+                perror("recvfrom fail");
+                return FALSE;
+            }
 
-        buffer[receive_bytes] = '\0';
-        decrypt("zaidenberg", buffer, strlen(buffer));
-        puts(buffer);
+            buffer[receive_bytes] = '\0';
+            decrypt("zaidenberg", buffer, strlen(buffer));
+            puts(buffer);
+        }
+        else if(result == SELECT_FAIL)
+        {
+            perror("select fail");
+            return FALSE;       
+        }
     }
 
     return TRUE;

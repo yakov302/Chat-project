@@ -68,11 +68,16 @@ void enter_password(char* password)
 	scanf("%s", password); 
 }
 
-static void print_in_color_format(char* color, char* text)
-{  
+static void get_out_from_scanf()
+{
     struct pollfd poll_stdin = {STDIN_FILENO, POLLIN|POLLPRI}; 
     poll(&poll_stdin, 1, 1);
+}
 
+static void print_in_color_format(char* color, char* text)
+{  
+    get_out_from_scanf();
+    
     printf("%s", color);
 	printf("\n                       ->  ");
 	printf("%s", text);
