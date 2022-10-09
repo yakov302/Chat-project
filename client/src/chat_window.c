@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#include <signal.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 #define MAX_SOCKET_AMOUNT_TO_LISTEN 10
+#define PROCESS_KILLED -1
 #define SELECT_FAIL -1
 #define BUFFER_SIZE 1024
 #define IP_SIZE 20
@@ -104,15 +106,27 @@ static int enter_select(int socket_number, fd_set* fd)
     return activity;
 }
 
+static void check_if_main_process_still_alive(pid_t main_process_id, pid_t text_bar_process_id)
+{
+    if(kill(main_process_id, 0) == PROCESS_KILLED)
+    {
+        kill(text_bar_process_id, SIGKILL);
+        kill(getpid(), SIGKILL);
+    }
+}
+
 int main(int argc, char* argv[])
-{  
-    if(argc < 3) {printf("IP and PORT required\n"); return FALSE;}
+{ 
+
+    if(argc < 5) {printf("IP, PORT, MAIN PROCESS ID and TEXT BAR PROCESS ID required\n"); return FALSE;}
 
     int socket_number;
     struct sockaddr_in sin;
     if(!udp_server_init(&socket_number, &sin, argv[1], atoi(argv[2])))
         return FALSE;
 
+    pid_t main_process_id = atoi(argv[3]);
+    pid_t text_bar_process_id = atoi(argv[4]);
     save_process_id_to_file();
 
     fd_set* fd;
@@ -140,6 +154,8 @@ int main(int argc, char* argv[])
             perror("select fail");
             return FALSE;       
         }
+
+        check_if_main_process_still_alive(main_process_id, text_bar_process_id);
     }
 
     return TRUE;

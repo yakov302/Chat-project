@@ -34,15 +34,6 @@ static int read_text_bar_process_id_from_file()
     return process_id;
 }
 
-static int open_chat_window(char* ip, int port, char* group_name)
-{   
-    char command[COMMAND_SIZE];
-    sprintf(command, "gnome-terminal -q --geometry=55x13 --title=%s -- ./chat_window %s %d", group_name, ip, port);            
-    int result = system(command);
-    if(result == ERROR) {perror("system fail!"); return ERROR;}
-    return read_chat_window_process_id_from_file();
-}
-
 static int open_text_bar_window(char* ip, int port, char* group_name, char* user_name)
 {
     char command[COMMAND_SIZE];
@@ -50,6 +41,15 @@ static int open_text_bar_window(char* ip, int port, char* group_name, char* user
     int result = system(command);
     if(result == ERROR) {perror("system fail!"); return ERROR;}
     return read_text_bar_process_id_from_file();
+}
+
+static int open_chat_window(char* ip, int port, char* group_name, int text_bar_process_id)
+{   
+    char command[COMMAND_SIZE];
+    sprintf(command, "gnome-terminal -q --geometry=55x13 --title=%s -- ./chat_window %s %d %d %d ", group_name, ip, port, getpid(), text_bar_process_id);            
+    int result = system(command);
+    if(result == ERROR) {perror("system fail!"); return ERROR;}
+    return read_chat_window_process_id_from_file();
 }
 
 Group* group_create(char* ip, int port, char* group_name, char* user_name)
@@ -61,8 +61,8 @@ Group* group_create(char* ip, int port, char* group_name, char* user_name)
 	if(group == NULL) {printf("malloc fail!\n"); return NULL;}
 
 	strcpy(group->m_name, group_name);
-	group->m_chat_window_process_id = open_chat_window(ip, port, group_name);
 	group->m_text_bar_process_id = open_text_bar_window(ip, port, group_name, user_name);
+	group->m_chat_window_process_id = open_chat_window(ip, port, group_name, group->m_text_bar_process_id);
 	if(group->m_chat_window_process_id == ERROR || group->m_text_bar_process_id == ERROR)
 	{printf("open windows fail!\n"); return NULL;}
 

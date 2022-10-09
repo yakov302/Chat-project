@@ -158,14 +158,14 @@ static int find_user_by_socket(const void* hash_element, const void* socket)
     return FALSE;
 }
 
-UsersManager_return user_disconnected(UsersManager* users_manager, int socket)
+User* give_user_by_socket(UsersManager* users_manager, int socket)
 {
 	if (users_manager == NULL)
-	    return USER_MANAGER_ARGS_NOT_INITIALIZED;
+	    return NULL;
 	
 	Element* element = hash_map_find_by_customize_key(users_manager->m_users, find_user_by_socket, &socket);
-	if(element == NULL) {return USER_MANAGER_USER_NOT_EXISTS;}
-	user_log_out(users_manager, ((User*)(element->m_value))->m_name);
+	if(element == NULL) {return NULL;}
+	return element->m_value;
 }
 
 	

@@ -341,7 +341,16 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
 
 void delete_disconnected_client(ActionIn* action_in, int client_socket)
 {
-    user_disconnected(action_in->m_users_manager, client_socket);
+    User* user = give_user_by_socket(action_in->m_users_manager, client_socket);
+    if(user == NULL) {return;}
+
+    List* group_list = user_groups_list(action_in->m_users_manager, user->m_name);
+    if(group_list == NULL) {return;}
+
+    GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list);
+    if(resoult != GROUPS_MANAGER_SUCCESS) {printf("leave_all_groups fail\n");}
+    
+    user_log_out(action_in->m_users_manager,user->m_name);
 }
 
 

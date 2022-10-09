@@ -47,7 +47,7 @@ List* user_groups_list(UsersManager* users_manager, char* user_name);
 
 UsersManager_return user_log_out(UsersManager* users_manager, char* name);
 
-UsersManager_return user_disconnected(UsersManager* users_manager, int socket);
+User* give_user_by_socket(UsersManager* users_manager, int socket);
 
 
 #endif // USERS_MANAGER_H
