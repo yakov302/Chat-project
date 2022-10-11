@@ -7,6 +7,7 @@
 #define STRING_SIZE 68
 #define TRUE 1
 #define FALSE 0
+#define ESC 27
 
 #define REGISTERATION 1
 #define LOG_IN 2

@@ -7,6 +7,7 @@
 
 #define GROUPS_PORT 5555
 #define BUFFER_SIZE 1536
+#define STRING_SIZE 68
 #define TRUE 1
 
 typedef struct ActionIn

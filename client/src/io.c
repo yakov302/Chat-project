@@ -40,7 +40,7 @@ void enter_user_name(char* user_name)
         return;
     }
 
-	printf("Enter user name: ");
+	printf("Enter user name (Esc for back): ");
 	scanf("%s", user_name);  
 }
 
@@ -52,8 +52,8 @@ void enter_group_name(char* group_name)
         return;
     }
 
-   	printf("Enter group name: ");
-	scanf("%s", group_name);   
+   	printf("Enter group name (Esc for back): ");
+	scanf("%s", group_name);
 }
 
 void enter_password(char* password)
@@ -64,7 +64,7 @@ void enter_password(char* password)
         return;
     }
 
-    printf("Enter password: ");
+    printf("Enter password (Esc for back): ");
 	scanf("%s", password); 
 }
 
@@ -76,13 +76,12 @@ static void get_out_from_scanf()
 
 static void print_in_color_format(char* color, char* text)
 {  
-    get_out_from_scanf();
-    
+    //get_out_from_scanf();
+
     printf("%s", color);
-	printf("\n                       ->  ");
+	printf("\n  ->  ");
 	printf("%s", text);
 	printf("  <-  \n");
-
     printf(NORMAL);
 }
 
@@ -91,22 +90,40 @@ void print_invalid_choice()
     print_in_color_format(RED, "Invalid choice!");
 }
 
-void print_exit_chat()
+static void concat_string_at_the_beginning(char* string, char* text, char* concat_message)
 {
-    print_in_color_format(GREEN, "Successfully disconnected!\n");
+    strcpy(concat_message, string);
+    strcat(concat_message, text);
 }
 
-
-void print_message(Message_type message_type)
+static void concat_string_at_the_end(char* string, char* text, char* concat_message)
 {
+    strcpy(concat_message, text);
+    strcat(concat_message, string);
+    strcat(concat_message, " group!");
+}
+
+void print_exit_chat(char* name)
+{
+    char concat_message[MESSAGE_SIZE];
+    concat_string_at_the_beginning(name, " disconnected!", concat_message);
+    print_in_color_format(GREEN, concat_message);
+}
+
+void print_message(Message_type message_type, char* string)
+{
+    char concat_message[MESSAGE_SIZE];
+
     switch (message_type)
     {
         case REGISTRATION_SUCCESS:
-            print_in_color_format(GREEN, "Registration success!");
+            concat_string_at_the_beginning(string, " has successfully registered!", concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case REGISTRATION_USER_NAME_ALREADY_EXISTS:
-            print_in_color_format(RED, "Username already taken!");
+            concat_string_at_the_beginning(string, " already taken!", concat_message);
+            print_in_color_format(RED, concat_message);
             break;
 
         case REGISTRATION_FAIL:
@@ -114,7 +131,8 @@ void print_message(Message_type message_type)
             break; 
 
         case LOG_IN_SUCCESS:
-            print_in_color_format(GREEN, "Log in success!");
+            concat_string_at_the_beginning(string, " login successfully!", concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case LOG_IN_FAIL:
@@ -130,35 +148,39 @@ void print_message(Message_type message_type)
             break;
 
         case LOG_IN_USER_ALREADY_LOGGED_IN:
-            print_in_color_format(RED, "You are already logged in!");
+            concat_string_at_the_beginning(string,  " already logged in!", concat_message);
+            print_in_color_format(RED, concat_message);
             break;
 
         case EXIT_CHAT_SUCCESS:
-            print_in_color_format(GREEN, "Successfully loged out!");
+            concat_string_at_the_beginning(string, " logout successfully!", concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case EXIT_CHAT_USER_NOT_EXISTS:
-            print_in_color_format(RED, "Fail. wrong user name!");
+            print_in_color_format(RED, "Wrong user name!");
             break;
 
         case EXIT_CHAT_FAIL:
-            print_in_color_format(RED, "Exit fail!");
+            print_in_color_format(RED, "Log out fail!");
             break;
 
         case OPEN_NEW_GROUP_SUCCESS:
-            print_in_color_format(GREEN, "The group opened successfully!");
+            concat_string_at_the_beginning(string,  " group opened successfully!",  concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case OPEN_NEW_GROUP_FAIL:
-            print_in_color_format(RED, "Failed to open the group!");
+            print_in_color_format(RED, "Open group fail!");
             break;
 
         case OPEN_NEW_GROUP_GROUP_NAME_ALREADY_EXISTS:
-            print_in_color_format(RED, "Group name already taken!");
+            concat_string_at_the_beginning(string, " group already exists!", concat_message);
+            print_in_color_format(RED, concat_message);
             break;
 
         case OPEN_NEW_GROUP_USER_NAME_NOT_EXISTS:
-            print_in_color_format(RED, "Fail. wrong user name!");
+            print_in_color_format(RED, "Wrong user name!");
             break;
 
         case PRINT_EXISTING_GROUPS_SUCCESS:
@@ -169,7 +191,8 @@ void print_message(Message_type message_type)
             break;
 
         case JOIN_EXISTING_GROUP_SUCCESS:
-            print_in_color_format(GREEN, "successfully connected to the group!");
+            concat_string_at_the_end(string, "Successfully join ", concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case JOIN_EXISTING_GROUP_FAIL:
@@ -177,7 +200,8 @@ void print_message(Message_type message_type)
             break;
 
         case JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT:
-            print_in_color_format(RED, "You are already in the group!");
+            concat_string_at_the_end(string, "Already in ", concat_message);
+            print_in_color_format(RED, concat_message);
             break;
 
         case JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS:
@@ -189,15 +213,18 @@ void print_message(Message_type message_type)
             break;
 
         case LEAVE_GROUP_SUCCESS:
-            print_in_color_format(GREEN, "Successfully left the group!");
+            concat_string_at_the_end(string, "Successfully left ", concat_message);
+            print_in_color_format(GREEN, concat_message);
             break;
 
         case LEAVE_GROUP_GROUP_DELETED:
-            print_in_color_format(GREEN, "You are lest group deleted!");
+            concat_string_at_the_end(string, "Successfully left ", concat_message);
+            print_in_color_format(GREEN, concat_message);
+            print_in_color_format(GREEN, "You are last - group deleted!");
             break;
 
         case LEAVE_GROUP_FAIL:
-            print_in_color_format(RED, "Live fail!");
+            print_in_color_format(RED, "Live group fail!");
             break;
 
         case LEAVE_GROUP_GROUP_NOT_EXISTS:

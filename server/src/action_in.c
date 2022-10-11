@@ -54,11 +54,11 @@ static void registeration_request(SubscribsManager* subscribs_manager, char* buf
     switch (result)
     {
         case SUBSCRIBS_MANAGER_USERNAME_ALREADY_EXISTS:
-            send_only_message(REGISTRATION_USER_NAME_ALREADY_EXISTS, client_socket, mutex);
+            send_message_with_1_string(name, REGISTRATION_USER_NAME_ALREADY_EXISTS, client_socket, mutex);
             break;
 
         case SUBSCRIBS_MANAGER_SUCCESS:
-            send_only_message(REGISTRATION_SUCCESS, client_socket, mutex);
+            send_message_with_1_string(name, REGISTRATION_SUCCESS, client_socket, mutex);
             break;    
 
         default:
@@ -97,8 +97,7 @@ static void log_in_request(SubscribsManager* subscribs_manager, UsersManager* us
     switch (u_result)
     {
         case USER_MANAGER_USER_ALREADY_LOGGED_IN:
-            send_only_message(LOG_IN_USER_ALREADY_LOGGED_IN, client_socket, mutex); //need to decide if allow one user login twice
-            //send_message_with_1_string(name, LOG_IN_SUCCESS, client_socket, mutex);
+            send_message_with_1_string(name, LOG_IN_USER_ALREADY_LOGGED_IN, client_socket, mutex);
             break;
 
         case USER_MANAGER_SUCCESS:
@@ -137,7 +136,7 @@ static void leave_chat_request(UsersManager* users_manager, GroupsManager* group
             break;
 
          case USER_MANAGER_SUCCESS:
-            send_only_message(EXIT_CHAT_SUCCESS, client_socket, mutex);
+            send_message_with_1_string(name, EXIT_CHAT_SUCCESS, client_socket, mutex);
             break;
 
         default:
@@ -156,7 +155,7 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS:
-            send_only_message(OPEN_NEW_GROUP_GROUP_NAME_ALREADY_EXISTS, client_socket, mutex);
+            send_message_with_1_string(group_name, OPEN_NEW_GROUP_GROUP_NAME_ALREADY_EXISTS, client_socket, mutex);
             return;
 
         case GROUPS_MANAGER_SUCCESS:
@@ -209,7 +208,7 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUP_NOT_EXISTS:
-            send_only_message(JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
+            send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
             return;
 
         case GROUPS_MANAGER_SUCCESS:
@@ -231,7 +230,7 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
 
         case USER_MANAGER_USER_ALREADY_IN_THE_GROUP:
             leave_group(groups_manager, group_name);
-            send_only_message(JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
+            send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
             break;   
 
         case USER_MANAGER_SUCCESS:
@@ -259,7 +258,7 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
             return;
 
          case USER_MANAGER_GROUP_NOT_EXISTS:
-            send_only_message(LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
+            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
             return;
 
          case USER_MANAGER_SUCCESS:
@@ -349,7 +348,7 @@ void delete_disconnected_client(ActionIn* action_in, int client_socket)
 
     GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list);
     if(resoult != GROUPS_MANAGER_SUCCESS) {printf("leave_all_groups fail\n");}
-    
+
     user_log_out(action_in->m_users_manager,user->m_name);
 }
 

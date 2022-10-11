@@ -110,6 +110,8 @@ static void check_if_main_process_still_alive(pid_t main_process_id, pid_t text_
 {
     if(kill(main_process_id, 0) == PROCESS_KILLED)
     {
+        printf("main process kiled!/n");
+        usleep(10000000);
         kill(text_bar_process_id, SIGKILL);
         kill(getpid(), SIGKILL);
     }
@@ -117,13 +119,25 @@ static void check_if_main_process_still_alive(pid_t main_process_id, pid_t text_
 
 int main(int argc, char* argv[])
 { 
+    printf("test on\n"); 
+    //usleep(1000000);
 
-    if(argc < 5) {printf("IP, PORT, MAIN PROCESS ID and TEXT BAR PROCESS ID required\n"); return FALSE;}
+    if(argc < 5) 
+    {
+        printf("IP, PORT, MAIN PROCESS ID and TEXT BAR PROCESS ID required\n"); 
+        usleep(10000000);
+        return FALSE;
+    }
+
 
     int socket_number;
     struct sockaddr_in sin;
     if(!udp_server_init(&socket_number, &sin, argv[1], atoi(argv[2])))
+    {
+        printf("udp_server_init fail!\n");
+        usleep(10000000);
         return FALSE;
+    }
 
     pid_t main_process_id = atoi(argv[3]);
     pid_t text_bar_process_id = atoi(argv[4]);
@@ -142,6 +156,7 @@ int main(int argc, char* argv[])
             if (receive_bytes < 0) 
             {
                 perror("recvfrom fail");
+                usleep(10000000);
                 return FALSE;
             }
 
@@ -152,6 +167,7 @@ int main(int argc, char* argv[])
         else if(result == SELECT_FAIL)
         {
             perror("select fail");
+            usleep(10000000);
             return FALSE;       
         }
 

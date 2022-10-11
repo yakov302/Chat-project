@@ -15,6 +15,7 @@
 #define FALSE 0
 #define INVALID_CHOICE 20
 #define GET_OUT_FROM_SCANF 187
+#define MESSAGE_SIZE 100
 
 int menu(int is_looged_in);
 
@@ -28,9 +29,9 @@ void enter_password(char* password);
 
 void print_invalid_choice();
 
-void print_exit_chat();
+void print_exit_chat(char* name);
 
-void print_message(Message_type message_type);
+void print_message(Message_type message_type, char* string);
 
 void print_groups_names_list(char* groups_names_list);
 
