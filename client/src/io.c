@@ -14,12 +14,13 @@ static void print_menu(int is_looged_in)
     else
     {
         printf(" 3 - Create new group\n");
-        printf(" 4 - Join existing group\n");
-        printf(" 5 - Leave group\n");
-        printf(" 6 - Log out\n");
+        printf(" 4 - Print connected users\n");
+        printf(" 5 - Join existing group\n");
+        printf(" 6 - Leave group\n");
+        printf(" 7 - Log out\n");
     }
 
-    printf(" 7 - Exit\n");
+    printf(" 8 - Exit\n");
 	printf("\nEnter your choice: ");
 }
 
@@ -68,16 +69,9 @@ void enter_password(char* password)
 	scanf("%s", password); 
 }
 
-static void get_out_from_scanf()
-{
-    struct pollfd poll_stdin = {STDIN_FILENO, POLLIN|POLLPRI}; 
-    poll(&poll_stdin, 1, 1);
-}
 
 static void print_in_color_format(char* color, char* text)
 {  
-    //get_out_from_scanf();
-
     printf("%s", color);
 	printf("\n  ->  ");
 	printf("%s", text);
@@ -92,13 +86,13 @@ void print_invalid_choice()
 
 static void concat_string_at_the_beginning(char* string, char* text, char* concat_message)
 {
-    strcpy(concat_message, string);
+    strcat(concat_message, string);
     strcat(concat_message, text);
 }
 
 static void concat_string_at_the_end(char* string, char* text, char* concat_message)
 {
-    strcpy(concat_message, text);
+    strcat(concat_message, text);
     strcat(concat_message, string);
     strcat(concat_message, " group!");
 }
@@ -112,7 +106,7 @@ void print_exit_chat(char* name)
 
 void print_message(Message_type message_type, char* string)
 {
-    char concat_message[MESSAGE_SIZE];
+    char concat_message[MESSAGE_SIZE] = {0};
 
     switch (message_type)
     {
@@ -190,6 +184,13 @@ void print_message(Message_type message_type, char* string)
             print_in_color_format(RED, "No groups yet!");
             break;
 
+        case PRINT_EXISTING_USERS_SUCCESS:
+            break;
+
+        case PRINT_EXISTING_USERS_NO_USERS:
+            print_in_color_format(RED, "No users connected!");
+            break;
+
         case JOIN_EXISTING_GROUP_SUCCESS:
             concat_string_at_the_end(string, "Successfully join ", concat_message);
             print_in_color_format(GREEN, concat_message);
@@ -200,7 +201,7 @@ void print_message(Message_type message_type, char* string)
             break;
 
         case JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT:
-            concat_string_at_the_end(string, "Already in ", concat_message);
+            concat_string_at_the_end(string, "You lready in ", concat_message);
             print_in_color_format(RED, concat_message);
             break;
 
@@ -240,14 +241,13 @@ void print_message(Message_type message_type, char* string)
     }
 }
 
-void print_groups_names_list(char* groups_names_list)
+void print_buffer(char* names_list)
 {
-    if(groups_names_list == NULL)
+    if(names_list == NULL)
     {
-        printf("groups_names_list not initialized\n");
+        printf("names_list not initialized\n");
         return;
     }
 
-    printf("\nExisting groups:\n");
-	printf("%s\n", groups_names_list);
+	printf("%s\n", names_list);
 }

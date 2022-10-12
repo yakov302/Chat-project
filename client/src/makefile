@@ -21,7 +21,7 @@ $(TARGET):$(OBJS)
 	$(CC) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBRARIES)
 
 check: $(TARGET)
-	./$(TARGET)  
+	./$(TARGET) 
 
 debug: $(TARGET)
 	gdb ./$(TARGET)

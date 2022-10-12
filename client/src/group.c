@@ -40,6 +40,8 @@ static int open_text_bar_window(char* ip, int port, char* group_name, char* user
     sprintf(command, "gnome-terminal -q --geometry=55x3 --title=%s -- ./text_bar %s %d %s",group_name, ip, port, user_name);            
     int result = system(command);
     if(result == ERROR) {perror("system fail!"); return ERROR;}
+	//usleep(100000);
+	
     return read_text_bar_process_id_from_file();
 }
 
@@ -49,6 +51,8 @@ static int open_chat_window(char* ip, int port, char* group_name, int text_bar_p
     sprintf(command, "gnome-terminal -q --geometry=55x13 --title=%s -- ./chat_window %s %d %d %d ", group_name, ip, port, getpid(), text_bar_process_id);            
     int result = system(command);
     if(result == ERROR) {perror("system fail!"); return ERROR;}
+	//usleep(100000);
+
     return read_chat_window_process_id_from_file();
 }
 
@@ -74,6 +78,7 @@ void group_destroy(Group* group)
 	if(group == NULL)
 		return;
 	
+	printf("in group.c -> group_destroy() -> kill %s group\n", group->m_name);
 	kill(group->m_chat_window_process_id , SIGKILL);
 	kill(group->m_text_bar_process_id , SIGKILL);
 	free(group);

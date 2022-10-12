@@ -6,7 +6,7 @@
 #include "subscribs_manager.h"
 #include "users_manager.h"
 
-#define GRUPS_NAMES_LIST_SIZE 1536
+#define LIST_OF_STRINGS_SIZE 1536
 
 typedef struct ActionIn
 {

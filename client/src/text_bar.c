@@ -62,12 +62,19 @@ static void encrypt(const char* key, char* buffer, int message_size)
 int main(int argc, char *argv[])
 {
     if(argc < 4) 
-    {printf("IP, PORT and USER NAME required\n"); return FALSE;}
+    {
+        printf("IP, PORT and USER NAME required\n"); 
+        usleep(10000000);
+        return FALSE;
+    }
 
     int socket_number;
     struct sockaddr_in sin;
     if(!udp_client_init(&socket_number, &sin, argv[1], atoi(argv[2])))
+    {
+        usleep(10000000);
         return FALSE;
+    }
 
     char buffer[BUFFER_SIZE];
     char message[MESSAGE_SIZE];
@@ -85,6 +92,7 @@ int main(int argc, char *argv[])
         if (bytes_dend < 0) 
         {
             perror("sendto fail!");
+            usleep(10000000);
             return FALSE;
         }
 

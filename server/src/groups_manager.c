@@ -110,7 +110,7 @@ static char* create_key(const char* group_name)
     return key;
 }
 
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* return_ip)
+GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip)
 {
 	if (groups_manager == NULL || group_name == NULL || return_ip == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
@@ -129,29 +129,33 @@ GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_
    if (group_name_key == NULL) {return GROUPS_MANAGER_MALLOC_FAIL;}
    strcpy (group_name_key, group_name);
 
-    Map_return result = hash_map_insert(groups_manager->m_groups, group_name_key, group);
-    if (result != MAP_SUCCESS)
+    Map_return m_result = hash_map_insert(groups_manager->m_groups, group_name_key, group);
+    if (m_result != MAP_SUCCESS)
     {
         free (group_name_key);
         destroy_group (group);
         return GROUPS_MANAGER_NEW_GROUP_FAIL;
     }
     
-    increse_num_of_cleints(group);
+    Group_return g_result = insert_client_to_group(group, user_name);
+	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
+	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;};
     return GROUPS_MANAGER_SUCCESS;
 }
 
-GroupsManager_return join_existing_group(GroupsManager* groups_manager, char* group_name, char* return_ip)
+GroupsManager_return join_existing_group(GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip)
 {
 	if (groups_manager == NULL || group_name == NULL || return_ip == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
     
     Group* group;
-	Map_return result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
-	if (result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
+	Map_return m_result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
+	if (m_result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
 
 	group_ip(group, return_ip);
-	increse_num_of_cleints(group);
+	Group_return g_result = insert_client_to_group(group, user_name);
+	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
+	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
 	return GROUPS_MANAGER_SUCCESS;
 }
 
@@ -162,16 +166,19 @@ static void insert_ip_to_queue(GroupsManager* groups_manager, Group* group)
     queue_insert(groups_manager->m_ips, (void*)ip);
 }
 
-GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name)
+GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name, char* user_name)
 {
 	if (groups_manager == NULL || group_name == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
 	
     Group* group;
-	Map_return result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
-	if(result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
+	Map_return m_result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
+	if(m_result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
 	
-	decrese_num_of_cleints (group);
+	Group_return g_result = remove_cleint_from_group(group, user_name);
+	if(g_result == GROUP_USER_NOT_EXISTS){return GROUPS_MANAGER_USER_NOT_EXISTS;}
+	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_REMOVE_CLIENT_FAIL;};
+
 	if(number_of_clients(group) < 1)
 	{
         insert_ip_to_queue(groups_manager, group);
@@ -182,7 +189,7 @@ GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name
 	return GROUPS_MANAGER_SUCCESS;
 }
 
-GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups)
+GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups, char* user_name)
 {
 	if (groups_manager == NULL || list_of_user_groups == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
@@ -193,25 +200,46 @@ GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_
 	while(it != it_end)
 	{
 		it_next = next(it);
-		leave_group(groups_manager, ((Group*)get_data(it))->m_name);
+		leave_group(groups_manager, ((Group*)get_data(it))->m_name, user_name);
 		it = it_next;
 	}
-	
+
 	return GROUPS_MANAGER_SUCCESS;
 }
 
-static void write_key_to_buffer(void* group_name, char* groups_names_list)
+static void write_key_to_buffer(void* name, char* names_list)
 {
-	strcat(groups_names_list, " * ");
-    strcat(groups_names_list, (char*)group_name);
-	strcat(groups_names_list, "\n");
+	strcat(names_list, " * ");
+    strcat(names_list, (char*)name);
+	strcat(names_list, "\n");
 }
 
 void give_all_groups_names(GroupsManager* groups_manager, char* groups_names_list)
 {
     if (groups_manager == NULL || groups_names_list == NULL) {return;}
-    
+
+    strcat(groups_names_list, "\nExisting groups:\n");
     give_all_keys_names(groups_manager->m_groups, groups_names_list, write_key_to_buffer);
+}
+
+static void sprint_group_name(void* hash_element, void* users_names_list)
+{
+	char open_message[OPEN_MESSAGE_SIZE];
+	sprintf(open_message, "\nIn %s group:\n", ((Group*)((Element*)hash_element)->m_value)->m_name);
+	strcat(users_names_list, open_message);
+}
+
+static int give_users_names(void* hash_element, void* users_names_list)
+{
+	sprint_group_name(hash_element, users_names_list);
+	give_all_keys_names(((Group*)((Element*)hash_element)->m_value)->m_users, (char*)users_names_list, write_key_to_buffer);
+}
+
+void give_all_users_names(GroupsManager* groups_manager, char* users_names_list)
+{
+    if (groups_manager == NULL || users_names_list == NULL) {return;}
+
+	hash_map_for_each(groups_manager->m_groups, give_users_names , users_names_list);
 }
 
 int num_of_groups(GroupsManager* groups_manager)

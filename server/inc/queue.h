@@ -8,7 +8,7 @@
 #define FALSE 0
 
 typedef void(*DestroyItem)(void* element);
-typedef int(*ActionFunction)(const void* element, void* context);
+typedef int(*ActionFunction)(void* element, void* context);
 
 typedef struct Queue
 {

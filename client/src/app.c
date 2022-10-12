@@ -26,21 +26,24 @@ App* app_create(User* user, Mutex* mutex,  Router* router, Socket* socket, Actio
     return app;
 }
 
-static int exit_to_menu(char* string)
+static int exit_to_menu(App* app, char* string)
 {
     if(*(char*)string == ESC)
+    {
+        set_work_status(app->m_action_in, FALSE);
         return TRUE;
+    }
     return FALSE;
 }
 
 static void registration_or_log_in(App* app, char* user_name, char* password, Message_type message_type)
 {
     enter_user_name(user_name);
-    if(exit_to_menu(user_name))
+    if(exit_to_menu(app, user_name))
         return;
 
     enter_password(password);
-    if(exit_to_menu(password))
+    if(exit_to_menu(app, password))
         return;
 
     send_requests_with_2_strings(user_name, password, message_type, app->m_socket, app->m_mutex);
@@ -49,16 +52,17 @@ static void registration_or_log_in(App* app, char* user_name, char* password, Me
 static void create_or_leave_group(App* app, char* group_name, Message_type message_type)
 {
     enter_group_name(group_name);
-    if(exit_to_menu(group_name))
+    if(exit_to_menu(app, group_name))
         return;
 
     send_requests_with_2_strings(name(app->m_user), group_name, message_type, app->m_socket, app->m_mutex);
+    usleep(600000);
 }
 
 static void join_exsisting_group(App* app, char* group_name)
 {
     send_only_message(PRINT_EXISTING_GROUPS_REQUEST, app->m_socket, app->m_mutex);
-    usleep(10000);
+    usleep(50000);
 
     if(lest_message_arrive(app->m_action_in) != PRINT_EXISTING_GROUPS_NO_GROUPS)
         create_or_leave_group(app, group_name, JOIN_EXISTING_GROUP_REQUEST);
@@ -86,6 +90,10 @@ static void logged_switch(App* app, int choice)
         case CREATE_NEW_GROUP:
             create_or_leave_group(app, group_name, OPEN_NEW_GROUP_REQUEST);
             break;
+        
+        case PRINT_USERS:
+            send_only_message(PRINT_EXISTING_USERS_REQUEST, app->m_socket, app->m_mutex);
+            break;
 
         case JOIN_EXISTING_GROUP:
             join_exsisting_group(app, group_name);
@@ -105,9 +113,6 @@ static void logged_switch(App* app, int choice)
             break;
 
         case GET_OUT_FROM_SCANF:
-            break;
-        
-        case ESC:
             break;
 
         default:
@@ -138,9 +143,6 @@ static void unlogged_switch(App* app, int choice)
         case GET_OUT_FROM_SCANF:
             break;
 
-        case ESC:
-            break;
-
         default:
             print_invalid_choice();
             break;
@@ -155,7 +157,7 @@ static int close_kill_groups(void* group, void* app)
     if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
     || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
     {
-        printf("kill: %s/n", ((Group*)group)->m_name);
+        printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
         send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
     }
 
@@ -171,8 +173,12 @@ void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        usleep(150000);
+        usleep(100000);
+        while(work_in_is_working(app->m_action_in)){usleep(10000);}
+
         int choice = menu(is_logged_in(app->m_user));
+
+        set_work_status(app->m_action_in, TRUE);
         
         if(is_logged_in(app->m_user))
             logged_switch(app, choice);

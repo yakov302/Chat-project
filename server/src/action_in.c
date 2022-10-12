@@ -116,7 +116,7 @@ static void leave_chat_request(UsersManager* users_manager, GroupsManager* group
     char name[STRING_SIZE]; 
     give_1_strings(buffer, name);
 
-    GroupsManager_return g_result = leave_all_groups(groups_manager, user_groups_list(users_manager, name));
+    GroupsManager_return g_result = leave_all_groups(groups_manager, user_groups_list(users_manager, name), name);
     switch (g_result)
     {
         case GROUPS_MANAGER_SUCCESS:
@@ -151,7 +151,7 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
     char user_name[STRING_SIZE]; char group_name[STRING_SIZE]; char return_ip[IP_SIZE]; 
     give_2_strings(buffer, user_name, group_name);
 
-    GroupsManager_return g_result = new_group(groups_manager, group_name, return_ip);
+    GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, return_ip);
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS:
@@ -171,7 +171,7 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
     switch (u_result)
     {
         case USER_MANAGER_USER_NOT_EXISTS:
-            leave_group(groups_manager, group_name);
+            leave_group(groups_manager, group_name, user_name);
             send_only_message(OPEN_NEW_GROUP_USER_NAME_NOT_EXISTS, client_socket, mutex);
             break;
 
@@ -181,34 +181,52 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
             
         default:
             printf("user_join_group fail! UsersManager_return: %d\n", u_result);
-            leave_group(groups_manager, group_name);
+            leave_group(groups_manager, group_name, user_name);
             send_only_message(OPEN_NEW_GROUP_FAIL, client_socket, mutex);
             break;
     }
 }
 
-static void print_existing_request(GroupsManager* groups_manager, int client_socket, Mutex* mutex)
+static void print_existing_groups_request(GroupsManager* groups_manager, int client_socket, Mutex* mutex)
 {
-    char groups_names_list[GRUPS_NAMES_LIST_SIZE] = {0};
-    give_all_groups_names(groups_manager, groups_names_list);
-
     if(num_of_groups(groups_manager) < 1)
+    {
         send_only_message(PRINT_EXISTING_GROUPS_NO_GROUPS, client_socket, mutex);
-    else
-        send_message_with_1_string(groups_names_list, PRINT_EXISTING_GROUPS_SUCCESS, client_socket, mutex);
+        return;
+    }
+
+    char groups_names_list[LIST_OF_STRINGS_SIZE] = {0};
+    give_all_groups_names(groups_manager, groups_names_list);
+    send_message_with_1_string(groups_names_list, PRINT_EXISTING_GROUPS_SUCCESS, client_socket, mutex);
 }
 
+static void print_existing_users_request(GroupsManager* groups_manager, int client_socket, Mutex* mutex)
+{
+    if(num_of_groups(groups_manager) < 1)
+    {
+        send_only_message(PRINT_EXISTING_USERS_NO_USERS, client_socket, mutex);
+        return;
+    }
+
+    char users_names_list[LIST_OF_STRINGS_SIZE] = {0};
+    give_all_users_names(groups_manager, users_names_list);
+    send_message_with_1_string(users_names_list, PRINT_EXISTING_USERS_SUCCESS, client_socket, mutex);
+}
 
 static void join_existing_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
 {
     char user_name[STRING_SIZE]; char group_name[STRING_SIZE]; char return_ip[IP_SIZE]; 
     give_2_strings(buffer, user_name, group_name);
 
-    GroupsManager_return g_result = join_existing_group(groups_manager, group_name, return_ip);
+    GroupsManager_return g_result = join_existing_group(groups_manager, group_name, user_name, return_ip);
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUP_NOT_EXISTS:
             send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
+            return;
+
+        case GROUPS_MANAGER_INSERT_CLIENT_FAIL:
+            send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
             return;
 
         case GROUPS_MANAGER_SUCCESS:
@@ -224,12 +242,12 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
     switch (u_result)
     {
         case USER_MANAGER_USER_NOT_EXISTS:
-            leave_group(groups_manager, group_name);
+            leave_group(groups_manager, group_name, user_name);
             send_only_message(JOIN_EXISTING_GROUP_USER_NOT_EXISTS, client_socket, mutex);
             break;
 
         case USER_MANAGER_USER_ALREADY_IN_THE_GROUP:
-            leave_group(groups_manager, group_name);
+            leave_group(groups_manager, group_name, user_name);
             send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
             break;   
 
@@ -239,7 +257,7 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
             
         default:
             printf("user_join_group fail! UsersManager_return: %d\n", u_result);
-            leave_group(groups_manager, group_name);
+            leave_group(groups_manager, group_name, user_name);
             send_only_message(JOIN_EXISTING_GROUP_FAIL, client_socket, mutex);
             break;
     }
@@ -270,7 +288,7 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
             return;
     }
 
-    GroupsManager_return g_result = leave_group(groups_manager, group_name);
+    GroupsManager_return g_result = leave_group(groups_manager, group_name, user_name);
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUP_NOT_EXISTS:
@@ -281,6 +299,9 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
         case GROUPS_MANAGER_GROUP_DELETED:
             send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_DELETED, client_socket, mutex);
             break;
+
+        case GROUPS_MANAGER_USER_NOT_EXISTS:
+            send_only_message(LEAVE_GROUP_USER_NOT_EXISTS, client_socket, mutex);
 
         case GROUPS_MANAGER_SUCCESS:
             send_message_with_1_string(group_name, LEAVE_GROUP_SUCCESS, client_socket, mutex);
@@ -317,7 +338,11 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             break;
 
         case PRINT_EXISTING_GROUPS_REQUEST:
-            print_existing_request(action_in->m_gruops_manager, client_socket, mutex);
+            print_existing_groups_request(action_in->m_gruops_manager, client_socket, mutex);
+            break;
+
+        case PRINT_EXISTING_USERS_REQUEST:
+            print_existing_users_request(action_in->m_gruops_manager, client_socket, mutex);
             break;
 
         case JOIN_EXISTING_GROUP_REQUEST:
@@ -346,7 +371,7 @@ void delete_disconnected_client(ActionIn* action_in, int client_socket)
     List* group_list = user_groups_list(action_in->m_users_manager, user->m_name);
     if(group_list == NULL) {return;}
 
-    GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list);
+    GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list, user->m_name);
     if(resoult != GROUPS_MANAGER_SUCCESS) {printf("leave_all_groups fail\n");}
 
     user_log_out(action_in->m_users_manager,user->m_name);

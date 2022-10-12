@@ -13,6 +13,7 @@ typedef struct Element
 
 }Element;
 
+typedef int(*ActionFunction)(void* element, void* context);
 typedef size_t (*HashFunction)(void* key);
 typedef int (*ComparisonFunction)(const void* hash_element, const void* key);
 typedef void (*ElementDestroy)(void* element);
@@ -64,6 +65,8 @@ size_t hash_map_size(const HashMap* map);
 void hash_map_print(HashMap* map, PrintItem print_element);
 
 void give_all_keys_names(HashMap* map, char* key_list, WriteKeyToBuffer write_key_to_buffer);
+
+Element* hash_map_for_each(HashMap* map, ActionFunction action , void* context);
 
 
 #endif // HASH_MAP_H

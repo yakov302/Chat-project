@@ -12,6 +12,7 @@
 #define IP_SIZE 20
 #define NOT_EQUAL 0
 #define NUM_OF_IPS 250
+#define OPEN_MESSAGE_SIZE 100
 #define MAGIC_NUMBER 144522
 
 typedef struct GroupsManager
@@ -31,7 +32,11 @@ typedef enum GroupsManager_return
     GROUPS_MANAGER_CREATE_GROUP_FAIL,
     GROUPS_MANAGER_NEW_GROUP_FAIL,
     GROUPS_MANAGER_SUCCESS,
-    GROUPS_MANAGER_GROUP_DELETED
+    GROUPS_MANAGER_GROUP_DELETED,
+    GROUPS_MANAGER_INSERT_CLIENT_FAIL,
+    GROUPS_MANAGER_REMOVE_CLIENT_FAIL,
+    GROUP_MANAGER_USER_ALREADY_IN_GROUP,
+    GROUPS_MANAGER_USER_NOT_EXISTS
 
 }GroupsManager_return;
 
@@ -40,15 +45,17 @@ GroupsManager* create_groups_manager(int capacity);
 
 void destroy_groups_manager(GroupsManager* groups_manager);
 
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* return_ip);
+GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* USER_name, char* return_ip);
 
-GroupsManager_return join_existing_group (GroupsManager* groups_manager, char* group_name, char* return_ip);
+GroupsManager_return join_existing_group (GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip);
 
-GroupsManager_return leave_group (GroupsManager* groups_manager, char* group_name);
+GroupsManager_return leave_group (GroupsManager* groups_manager, char* group_name, char* user_name);
 
-GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups);
+GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups, char* user_name);
 
 void give_all_groups_names(GroupsManager* groups_manager, char* groups_names_list);
+
+void give_all_users_names(GroupsManager* groups_manager, char* users_names_list);
 
 int num_of_groups(GroupsManager* groups_manager);
 

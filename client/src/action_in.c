@@ -15,7 +15,8 @@ ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user)
         free(action_in);
         return NULL;
     }
-    
+
+    action_in->m_i_am_in_work = FALSE;
     action_in->m_user = user;
     action_in->m_mutex = mutex;
     action_in->m_socket = soket;
@@ -75,17 +76,17 @@ static void new_group(User* user, char* buffer, Message_type message_type)
     char group_name[STRING_SIZE];
     char group_ip[STRING_SIZE];
     give_2_strings(buffer, group_name, group_ip);
-    print_message(message_type, group_name);
 
     Group* group = group_create(group_ip, GROUPS_PORT, group_name, name(user));
     add_group_for_user(user, group);
+    print_message(message_type, group_name);
 }
 
-static void print_existing_groups_name(char* buffer)
+static void print_list_of_names(char* buffer)
 {
-    char groups_names_list[BUFFER_SIZE];
-    give_1_strings(buffer, groups_names_list);
-    print_groups_names_list(groups_names_list);
+    char list_of_names[BUFFER_SIZE];
+    give_1_strings(buffer, list_of_names);
+    print_buffer(list_of_names);
 }
 
 static void leave_group(User* user, char* buffer, Message_type message_type)
@@ -174,11 +175,19 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
 
         case PRINT_EXISTING_GROUPS_SUCCESS:
-            print_existing_groups_name(buffer);
+            print_list_of_names(buffer);
             break;
 
         case PRINT_EXISTING_GROUPS_NO_GROUPS:
             print_message(PRINT_EXISTING_GROUPS_NO_GROUPS, "");
+            break;
+        
+        case PRINT_EXISTING_USERS_SUCCESS:
+            print_list_of_names(buffer);
+            break;
+
+        case PRINT_EXISTING_USERS_NO_USERS:
+            print_message(PRINT_EXISTING_USERS_NO_USERS, "");
             break;
         
         case JOIN_EXISTING_GROUP_SUCCESS:
@@ -229,9 +238,32 @@ void get_buffer(ActionIn* action_in, char* buffer)
         default:
             break;
     }
+
+    set_work_status(action_in, FALSE);
 }
 
 int lest_message_arrive(ActionIn* action_in)
 {
+    if(action_in == NULL)
+        return FALSE;
+
     return action_in->m_lest_message;
 }
+
+void set_work_status(ActionIn* action_in, int status)
+{
+    if(action_in == NULL)
+        return;
+
+    action_in->m_i_am_in_work =  status;
+}
+
+int work_in_is_working(ActionIn* action_in)
+{    
+    if(action_in == NULL)
+        return FALSE;
+
+    return action_in->m_i_am_in_work;
+}
+
+

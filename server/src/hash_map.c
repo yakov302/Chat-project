@@ -235,3 +235,22 @@ void give_all_keys_names(HashMap* map, char* key_list, WriteKeyToBuffer write_ke
 	}
 }
 
+Element* hash_map_for_each(HashMap* map, ActionFunction action , void* context)
+{
+	if(map == NULL || action == NULL)
+        return NULL;
+	
+	for(int i = 0; i < map->m_capacity; ++i)
+	{
+		if(map->m_lists[i] != NULL)
+		{
+			Element* element = list_for_each(map->m_lists[i], action , context);
+			if(element != NULL)
+				return element;
+		}
+	}
+	
+    return NULL;
+}
+
+

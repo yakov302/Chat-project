@@ -33,7 +33,7 @@ void print_exit_chat(char* name);
 
 void print_message(Message_type message_type, char* string);
 
-void print_groups_names_list(char* groups_names_list);
+void print_buffer(char* names_list);
 
 
 #endif // IO_H
