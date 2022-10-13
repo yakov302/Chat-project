@@ -7,6 +7,8 @@
 #include "users_manager.h"
 
 #define LIST_OF_STRINGS_SIZE 1536
+#define GROUP_LIVE 0
+#define GROUP_DEAD 1
 
 typedef struct ActionIn
 {
@@ -15,6 +17,15 @@ typedef struct ActionIn
     GroupsManager* m_gruops_manager;
 
 }ActionIn;
+
+typedef struct ArgsForLeavePrivateChat
+{
+    GroupsManager* groups_manager;
+    UsersManager* users_manager;
+    char group_name[STRING_SIZE];
+    Mutex* mutex;
+
+}ArgsForLeavePrivateChat;
 
 ActionIn* create_action_in(SubscribsManager* subscribs_manager, UsersManager* users_manager, GroupsManager* gruops_manager);
 

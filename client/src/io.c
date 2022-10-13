@@ -1,5 +1,14 @@
 #include "io.h"
 
+#define REGISTERATION 1
+#define LOG_IN 2
+#define CREATE_NEW_GROUP 3
+#define JOIN_EXISTING_GROUP 4
+#define LEAVE_GROUP 5
+#define CREATE_PRIVATE_CHAT 6
+#define LOG_OUT 7
+#define EXIT 8
+
 static void print_menu(int is_looged_in)
 {
     printf(YELLOW);
@@ -14,9 +23,9 @@ static void print_menu(int is_looged_in)
     else
     {
         printf(" 3 - Create new group\n");
-        printf(" 4 - Print connected users\n");
-        printf(" 5 - Join existing group\n");
-        printf(" 6 - Leave group\n");
+        printf(" 4 - Join existing group\n");
+        printf(" 5 - Leave group\n");
+        printf(" 6 - Create a private chat\n");
         printf(" 7 - Log out\n");
     }
 
@@ -160,7 +169,7 @@ void print_message(Message_type message_type, char* string)
             break;
 
         case OPEN_NEW_GROUP_SUCCESS:
-            concat_string_at_the_beginning(string,  " group opened successfully!",  concat_message);
+            concat_string_at_the_beginning(string, " group opened successfully!",  concat_message);
             print_in_color_format(GREEN, concat_message);
             break;
 
@@ -233,6 +242,24 @@ void print_message(Message_type message_type, char* string)
             break;
 
         case LEAVE_GROUP_USER_NOT_EXISTS:
+            print_in_color_format(RED, "Wrong user name!");
+            break;
+
+        case OPEN_PRIVATE_CHAT_SUCCESS:
+            concat_string_at_the_beginning(string, " room opened successfully!",  concat_message);
+            print_in_color_format(GREEN, concat_message);
+            break;
+
+        case OPEN_PRIVATE_CHAT_FAIL:
+            print_in_color_format(RED, "Open private chat fail!");
+            break;
+
+        case OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS:
+            concat_string_at_the_beginning(string, " room already exists!", concat_message);
+            print_in_color_format(RED, concat_message);
+            break;
+
+        case OPEN_PRIVATE_CHAT_USER_NOT_EXISTS:
             print_in_color_format(RED, "Wrong user name!");
             break;
 

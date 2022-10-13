@@ -25,15 +25,17 @@ typedef enum Group_return
 
 typedef struct Group
 {
+	//char second_party_name[STRING_SIZE];
 	char m_name[STRING_SIZE];
 	char m_ip[STRING_SIZE];
 	int m_num_of_clients;
 	int m_magic_number;
+	int m_is_private;
 	HashMap* m_users;
 
 }Group;
 
-Group* create_group(const char* group_name, char* group_ip);
+Group* create_group(const char* group_name, char* group_ip, int is_private);
 
 void destroy_group(Group* group);
 
@@ -44,6 +46,10 @@ int number_of_clients(Group* group);
 Group_return insert_client_to_group(Group* group, char* user_name);
 
 Group_return remove_cleint_from_group(Group* group, char* user_name);
+
+int is_private(Group* group);
+
+HashMap* give_users_list(Group* group);
 
 
 #endif //GROUP_H

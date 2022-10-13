@@ -29,7 +29,7 @@ static void destroy_user_element(void* element)
     }
 }
 
-Group* create_group(const char* group_name, char* group_ip)
+Group* create_group(const char* group_name, char* group_ip, int is_private)
 {
     Group* group = (Group*)malloc(sizeof(Group));
 	if(group == NULL)
@@ -45,6 +45,7 @@ Group* create_group(const char* group_name, char* group_ip)
 	strcpy (group->m_name, group_name);
     strcpy (group->m_ip, group_ip);
 	group->m_num_of_clients = 0;
+	group->m_is_private = is_private;
 	group->m_magic_number = MAGIC_NUMBER;
 	return group;
 }
@@ -114,4 +115,20 @@ Group_return remove_cleint_from_group (Group* group, char* user_name)
 
     group->m_num_of_clients--; 
 	return GROUP_SUCCESS;
+}
+
+int is_private(Group* group)
+{
+	if(group == NULL)
+	    return FALSE;
+	
+	return group->m_is_private;
+}
+
+HashMap* give_users_list(Group* group)
+{
+	if(group == NULL)
+	    return FALSE;
+	
+	return group->m_users;
 }

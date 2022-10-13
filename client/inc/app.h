@@ -12,9 +12,9 @@
 #define REGISTERATION 1
 #define LOG_IN 2
 #define CREATE_NEW_GROUP 3
-#define PRINT_USERS 4
-#define JOIN_EXISTING_GROUP 5
-#define LEAVE_GROUP 6
+#define JOIN_EXISTING_GROUP 4
+#define LEAVE_GROUP 5
+#define CREATE_PRIVATE_CHAT 6
 #define LOG_OUT 7
 #define EXIT 8
 

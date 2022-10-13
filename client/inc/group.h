@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define COMMAND_SIZE 100
+#define COMMAND_SIZE 256
 #define STRING_SIZE 68
 #define ERROR -1
 #define FALSE 0

@@ -71,6 +71,14 @@ static char* create_key(const char* name)
     return user_name;
 }
 
+int user_log_in_check(UsersManager* users_manager, const char* name)
+{
+	if (users_manager == NULL || name == NULL)
+		return FALSE;
+
+	return hash_map_is_exists(users_manager ->m_users, name);
+}
+
 UsersManager_return user_log_in(UsersManager* users_manager, const char* name, int socket)
 {
 	if (users_manager == NULL || name == NULL)
@@ -167,5 +175,17 @@ User* give_user_by_socket(UsersManager* users_manager, int socket)
 	if(element == NULL) {return NULL;}
 	return element->m_value;
 }
+
+int user_socket(UsersManager* users_manager, char* user_name)
+{
+	if (users_manager == NULL || user_name == NULL)
+	    return FALSE;
+
+	User* user;
+	Map_return m_result = hash_map_find(users_manager->m_users, user_name, (void**)&user);
+	if (m_result != MAP_SUCCESS) {return FALSE;}
+	return my_socket(user);
+}
+
 
 	

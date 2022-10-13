@@ -13,10 +13,7 @@ static void save_process_id_to_file()
 {	    	
 	FILE* file = fopen("../resources/text_bar_process_id.txt", "w");
 	if(file == NULL)
-	{
-		printf("fopen fail!\n");
-		return;
-	}
+	{printf("fopen fail!\n"); return;}
 
     pid_t process_id = getpid();
 	fprintf(file,"%d\n", process_id);	
@@ -35,10 +32,7 @@ static int udp_client_init(int* socket_number, struct sockaddr_in* sin, char* ip
 {
     *socket_number = socket(AF_INET, SOCK_DGRAM, 0);
     if (*socket_number < 0) 
-    {
-        perror("open_socket failed!");
-        return FALSE;
-    }
+    {perror("open_socket failed!"); return FALSE;}
 
     set_sin(sin, ip, port);
     return TRUE;
@@ -62,24 +56,17 @@ static void encrypt(const char* key, char* buffer, int message_size)
 int main(int argc, char *argv[])
 {
     if(argc < 4) 
-    {
-        printf("IP, PORT and USER NAME required\n"); 
-        usleep(10000000);
-        return FALSE;
-    }
+    {printf("IP, PORT and USER NAME required\n"); return FALSE;}
+
+    save_process_id_to_file();
 
     int socket_number;
     struct sockaddr_in sin;
     if(!udp_client_init(&socket_number, &sin, argv[1], atoi(argv[2])))
-    {
-        usleep(10000000);
-        return FALSE;
-    }
+    {printf("udp_client_init fail!"); return FALSE;}
 
     char buffer[BUFFER_SIZE];
     char message[MESSAGE_SIZE];
-
-    save_process_id_to_file();
     printf("Hi %s, type your messages:\n\n", argv[3]);
 
     while (TRUE) 
@@ -90,11 +77,7 @@ int main(int argc, char *argv[])
 
         int bytes_dend = sendto(socket_number, message, strlen(message), 0, (struct sockaddr*)&sin, sizeof(sin));
         if (bytes_dend < 0) 
-        {
-            perror("sendto fail!");
-            usleep(10000000);
-            return FALSE;
-        }
+        {perror("sendto fail!"); return FALSE;}
 
         printf("\n");
     }

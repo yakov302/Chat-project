@@ -77,3 +77,11 @@ User_return remove_group_from_user(User* user, char* group_name)
 	return USER_GROUP_NOT_EXISTS;
 }
 
+int my_socket(User* user)
+{
+	if (user == NULL)
+	    return FALSE;
+		
+	return user->m_socket;
+}
+

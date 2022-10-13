@@ -107,6 +107,7 @@ void get_buffer(ActionIn* action_in, char* buffer)
     action_in->m_lest_message = message;
     char user_name[STRING_SIZE];
     char group_name[STRING_SIZE];
+    int dont_release = FALSE;
 
     switch (message)
     {
@@ -175,6 +176,7 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
 
         case PRINT_EXISTING_GROUPS_SUCCESS:
+            dont_release = TRUE;
             print_list_of_names(buffer);
             break;
 
@@ -183,6 +185,7 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
         
         case PRINT_EXISTING_USERS_SUCCESS:
+            dont_release = TRUE;
             print_list_of_names(buffer);
             break;
 
@@ -231,6 +234,22 @@ void get_buffer(ActionIn* action_in, char* buffer)
             print_message(LEAVE_GROUP_USER_NOT_EXISTS, "");
             break;
         
+        case OPEN_PRIVATE_CHAT_SUCCESS:
+            new_group(action_in->m_user, buffer, OPEN_PRIVATE_CHAT_SUCCESS);
+            break;
+
+        case OPEN_PRIVATE_CHAT_FAIL:
+            print_message(OPEN_PRIVATE_CHAT_FAIL, "");
+            break;
+
+        case OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS:
+            print_message(OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS, "");
+            break;
+
+        case OPEN_PRIVATE_CHAT_USER_NOT_EXISTS:
+            print_message(OPEN_PRIVATE_CHAT_USER_NOT_EXISTS, "");
+            break;
+        
         case PING_SERVER_TO_CLIENT:
             send_only_message(PING_SERVER_TO_CLIENT, action_in->m_socket, action_in->m_mutex);
             break;
@@ -238,8 +257,9 @@ void get_buffer(ActionIn* action_in, char* buffer)
         default:
             break;
     }
-
-    set_work_status(action_in, FALSE);
+    
+    if(!dont_release)
+        set_work_status(action_in, FALSE);
 }
 
 int lest_message_arrive(ActionIn* action_in)

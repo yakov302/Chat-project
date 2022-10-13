@@ -45,6 +45,19 @@ static void give_2_strings(char* buffer, char* first_string, char* second_string
     args_destroy(&arg);
 }
 
+static void give_2_strings_and_1_int(char* buffer, char* first_string, char* second_string, int* integer)
+{
+    Args arg;
+    args_create(&arg, 2, 1, 0);
+    unpack(buffer, &arg);
+
+    strcpy(first_string, strings_by_index(&arg, 0));
+    strcpy(second_string, strings_by_index(&arg, 1));
+    *integer = ints(&arg)[0];
+
+    args_destroy(&arg);
+}
+
 static void registeration_request(SubscribsManager* subscribs_manager, char* buffer, int client_socket, Mutex* mutex)
 {
     char name[STRING_SIZE]; char password[STRING_SIZE];
@@ -146,12 +159,97 @@ static void leave_chat_request(UsersManager* users_manager, GroupsManager* group
     }
 }
 
-static void open_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
+static int leave_group_action(GroupsManager* groups_manager, UsersManager* users_manager, char* user_name, char* group_name, int client_socket, Mutex* mutex)
 {
-    char user_name[STRING_SIZE]; char group_name[STRING_SIZE]; char return_ip[IP_SIZE]; 
+    UsersManager_return u_result = user_leave_group(users_manager, user_name, group_name);
+    switch (u_result)
+    {
+        case USER_MANAGER_USER_NOT_EXISTS:
+            send_only_message(LEAVE_GROUP_USER_NOT_EXISTS, client_socket, mutex);
+            return GROUP_LIVE;
+
+         case USER_MANAGER_GROUP_NOT_EXISTS:
+            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
+            return GROUP_LIVE;
+
+         case USER_MANAGER_SUCCESS:
+            break;
+
+        default:
+            printf("user_leave_group fail! UsersManager_return: %d\n", u_result);
+            send_only_message(LEAVE_GROUP_FAIL, client_socket, mutex);
+            return GROUP_LIVE;
+    }
+
+    GroupsManager_return g_result = leave_group(groups_manager, group_name, user_name);
+    switch (g_result)
+    {
+        case GROUPS_MANAGER_GROUP_NOT_EXISTS:
+            send_only_message(LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
+            user_join_group(users_manager, user_name, group_name);
+            break;
+
+        case GROUPS_MANAGER_GROUP_DELETED:
+            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_DELETED, client_socket, mutex);
+            return GROUP_DEAD;
+
+        case GROUPS_MANAGER_USER_NOT_EXISTS:
+            send_only_message(LEAVE_GROUP_USER_NOT_EXISTS, client_socket, mutex);
+
+        case GROUPS_MANAGER_SUCCESS:
+            send_message_with_1_string(group_name, LEAVE_GROUP_SUCCESS, client_socket, mutex);
+            break;
+        
+        default:
+            printf("leave_group fail! GroupsManager_return: %d\n", g_result);
+            user_join_group(users_manager, user_name, group_name);
+            send_only_message(LEAVE_GROUP_FAIL, client_socket, mutex);
+            break;
+    }
+
+    return GROUP_LIVE;
+}
+
+static int leave_private_chat(void* hash_element, void* args)
+{
+	if(leave_group_action(((ArgsForLeavePrivateChat*)args)->groups_manager, 
+                          ((ArgsForLeavePrivateChat*)args)->users_manager, 
+                          ((Element*)hash_element)->m_key, 
+                          ((ArgsForLeavePrivateChat*)args)->group_name, 
+                          user_socket(((ArgsForLeavePrivateChat*)args)->users_manager, ((Element*)hash_element)->m_key), 
+                          ((ArgsForLeavePrivateChat*)args)->mutex)){return FALSE;}
+    return TRUE;
+}
+
+static ArgsForLeavePrivateChat* make_args(GroupsManager* groups_manager, UsersManager* users_manager, char* group_name, Mutex* mutex)
+{
+    ArgsForLeavePrivateChat* args = (ArgsForLeavePrivateChat*)malloc(sizeof(ArgsForLeavePrivateChat));
+    args->groups_manager = groups_manager;
+    args->users_manager = users_manager;
+    strcpy(args->group_name, group_name);
+    args->mutex = mutex;
+    return args;
+}
+
+static void leave_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
+{
+    char user_name[STRING_SIZE]; char group_name[STRING_SIZE];
     give_2_strings(buffer, user_name, group_name);
 
-    GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, return_ip);
+    if(is_a_private(groups_manager, group_name))
+    {
+        ArgsForLeavePrivateChat* args = make_args(groups_manager, users_manager, group_name, mutex);
+        HashMap* users = group_users(groups_manager, group_name);
+        hash_map_for_each(users, leave_private_chat, (void*)args);
+        free(args);
+    }
+    else
+        leave_group_action(groups_manager, users_manager, user_name, group_name, client_socket, mutex);
+}
+
+static void open_group_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name, char* group_name, char* ip,  int is_private, int client_socket)
+{
+    GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
     switch (g_result)
     {
         case GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS:
@@ -176,7 +274,7 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
             break;
 
         case USER_MANAGER_SUCCESS:
-            send_connect_to_group_success(group_name, return_ip, OPEN_NEW_GROUP_SUCCESS, client_socket, mutex);
+            send_connect_to_group_success(group_name, ip, OPEN_NEW_GROUP_SUCCESS, client_socket, mutex);
             break;   
             
         default:
@@ -185,6 +283,84 @@ static void open_group_request(GroupsManager* groups_manager, UsersManager* user
             send_only_message(OPEN_NEW_GROUP_FAIL, client_socket, mutex);
             break;
     }
+}
+
+static void set_group_name(char* group_name, char* user_name_1, char* user_name_2)
+{
+    sprintf(group_name, "\"Private %s & %s\"", user_name_1, user_name_2);
+}
+
+static int open_private_chat(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name, char* group_name, char* ip,  int is_private, int client_socket)
+{
+    GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
+    switch (g_result)
+    {
+        case GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS:
+            send_message_with_1_string(group_name, OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS, client_socket, mutex);
+            return FALSE;
+
+        case GROUPS_MANAGER_SUCCESS:
+            break;   
+            
+        default:
+            printf("new_group fail! GroupsManager_return: %d\n", g_result);
+            send_only_message(OPEN_PRIVATE_CHAT_FAIL, client_socket, mutex);
+            return FALSE;
+    }
+
+    UsersManager_return u_result = user_join_group(users_manager, user_name, group_name);
+    switch (u_result)
+    {
+        case USER_MANAGER_USER_ALREADY_IN_THE_GROUP:
+            send_message_with_1_string(group_name, OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS, client_socket, mutex);
+            break;
+
+        case USER_MANAGER_USER_NOT_EXISTS:
+            leave_group(groups_manager, group_name, user_name);
+            send_only_message(OPEN_PRIVATE_CHAT_USER_NOT_EXISTS, client_socket, mutex);
+            break;
+
+        case USER_MANAGER_SUCCESS:
+            send_connect_to_group_success(group_name, ip, OPEN_PRIVATE_CHAT_SUCCESS, client_socket, mutex);
+            return TRUE;  
+            
+        default:
+            printf("user_join_group fail! UsersManager_return: %d\n", u_result);
+            leave_group(groups_manager, group_name, user_name);
+            send_only_message(OPEN_PRIVATE_CHAT_FAIL, client_socket, mutex);
+            break;
+    }
+
+    return FALSE;
+}
+
+static void open_private_chat_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name_1, char* user_name_2, char* ip,  int is_private, int client_socket)
+{
+    if(!user_log_in_check(users_manager, user_name_2))
+    {
+        send_only_message(OPEN_PRIVATE_CHAT_USER_NOT_EXISTS, client_socket, mutex);
+        return;
+    }
+
+    char group_name[STRING_SIZE];
+    set_group_name(group_name, user_name_1, user_name_2);
+
+   if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
+   {
+        if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
+            leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
+   }
+}
+
+static void open_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
+{
+    char user_name[STRING_SIZE]; char group_or_user_name[STRING_SIZE]; char return_ip[IP_SIZE]; int is_private;
+    give_2_strings_and_1_int(buffer, user_name, group_or_user_name, &is_private);
+
+    if(!is_private)
+        open_group_action(groups_manager, users_manager, mutex, user_name, group_or_user_name, return_ip, is_private, client_socket);
+    else
+        open_private_chat_action(groups_manager, users_manager, mutex, user_name, group_or_user_name, return_ip, is_private, client_socket);
 }
 
 static void print_existing_groups_request(GroupsManager* groups_manager, int client_socket, Mutex* mutex)
@@ -263,58 +439,6 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
     }
 }
 
-static void leave_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
-{
-    char user_name[STRING_SIZE]; char group_name[STRING_SIZE];
-    give_2_strings(buffer, user_name, group_name);
-
-    UsersManager_return u_result = user_leave_group(users_manager, user_name, group_name);
-    switch (u_result)
-    {
-        case USER_MANAGER_USER_NOT_EXISTS:
-            send_only_message(LEAVE_GROUP_USER_NOT_EXISTS, client_socket, mutex);
-            return;
-
-         case USER_MANAGER_GROUP_NOT_EXISTS:
-            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
-            return;
-
-         case USER_MANAGER_SUCCESS:
-            break;
-
-        default:
-            printf("user_leave_group fail! UsersManager_return: %d\n", u_result);
-            send_only_message(LEAVE_GROUP_FAIL, client_socket, mutex);
-            return;
-    }
-
-    GroupsManager_return g_result = leave_group(groups_manager, group_name, user_name);
-    switch (g_result)
-    {
-        case GROUPS_MANAGER_GROUP_NOT_EXISTS:
-            send_only_message(LEAVE_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
-            user_join_group(users_manager, user_name, group_name);
-            break;
-
-        case GROUPS_MANAGER_GROUP_DELETED:
-            send_message_with_1_string(group_name, LEAVE_GROUP_GROUP_DELETED, client_socket, mutex);
-            break;
-
-        case GROUPS_MANAGER_USER_NOT_EXISTS:
-            send_only_message(LEAVE_GROUP_USER_NOT_EXISTS, client_socket, mutex);
-
-        case GROUPS_MANAGER_SUCCESS:
-            send_message_with_1_string(group_name, LEAVE_GROUP_SUCCESS, client_socket, mutex);
-            break;
-        
-        default:
-            printf("leave_group fail! GroupsManager_return: %d\n", g_result);
-            user_join_group(users_manager, user_name, group_name);
-            send_only_message(LEAVE_GROUP_FAIL, client_socket, mutex);
-            break;
-    }
-}
-
 void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex)
 {
     Message_type type = message_type(buffer);
@@ -353,6 +477,9 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             leave_group_request(action_in->m_gruops_manager, action_in->m_users_manager, buffer, client_socket, mutex);
             break;
 
+        case OPEN_PRIVATE_CHAT_REQUEST:
+            open_group_request(action_in->m_gruops_manager, action_in->m_users_manager, buffer, client_socket, mutex);
+
         case PING_CLIENT_TO_SERVER:
             send_only_message(PING_CLIENT_TO_SERVER, client_socket, mutex);
             break;
@@ -371,6 +498,7 @@ void delete_disconnected_client(ActionIn* action_in, int client_socket)
     List* group_list = user_groups_list(action_in->m_users_manager, user->m_name);
     if(group_list == NULL) {return;}
 
+    //need to fix for private chats 
     GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list, user->m_name);
     if(resoult != GROUPS_MANAGER_SUCCESS) {printf("leave_all_groups fail\n");}
 

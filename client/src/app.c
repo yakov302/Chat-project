@@ -49,24 +49,51 @@ static void registration_or_log_in(App* app, char* user_name, char* password, Me
     send_requests_with_2_strings(user_name, password, message_type, app->m_socket, app->m_mutex);
 }
 
-static void create_or_leave_group(App* app, char* group_name, Message_type message_type)
+static void create_group(App* app, char* group_or_user_name, int is_private, Message_type message_type)
+{
+    if(is_private)
+    {
+        enter_user_name(group_or_user_name);
+        if(exit_to_menu(app, group_or_user_name))
+            return;
+    }
+    else
+    {
+        enter_group_name(group_or_user_name);
+        if(exit_to_menu(app, group_or_user_name))
+            return;
+    }
+
+    send_requests_with_2_strings_and_1_int(name(app->m_user), group_or_user_name, is_private, message_type, app->m_socket, app->m_mutex);
+}
+
+static void join_or_leave_group(App* app, char* group_name, Message_type message_type)
 {
     enter_group_name(group_name);
     if(exit_to_menu(app, group_name))
         return;
 
     send_requests_with_2_strings(name(app->m_user), group_name, message_type, app->m_socket, app->m_mutex);
-    usleep(600000);
 }
 
 static void join_exsisting_group(App* app, char* group_name)
 {
     send_only_message(PRINT_EXISTING_GROUPS_REQUEST, app->m_socket, app->m_mutex);
-    usleep(50000);
+    usleep(10000);
 
     if(lest_message_arrive(app->m_action_in) != PRINT_EXISTING_GROUPS_NO_GROUPS)
-        create_or_leave_group(app, group_name, JOIN_EXISTING_GROUP_REQUEST);
+        join_or_leave_group(app, group_name, JOIN_EXISTING_GROUP_REQUEST);
 }
+
+static void create_private_chat(App* app, char* group_name)
+{
+    send_only_message(PRINT_EXISTING_USERS_REQUEST, app->m_socket, app->m_mutex);
+    usleep(10000);
+
+    if(lest_message_arrive(app->m_action_in) != PRINT_EXISTING_USERS_NO_USERS)
+        create_group(app, group_name, TRUE, OPEN_PRIVATE_CHAT_REQUEST);
+}
+
 
 static void log_out(App* app)
 {
@@ -84,23 +111,24 @@ static void exit_chat(App* app)
 static void logged_switch(App* app, int choice)
 {
     char group_name[STRING_SIZE];
+    char user_name[STRING_SIZE];
 
     switch (choice)
     {
         case CREATE_NEW_GROUP:
-            create_or_leave_group(app, group_name, OPEN_NEW_GROUP_REQUEST);
+            create_group(app, group_name, FALSE, OPEN_NEW_GROUP_REQUEST);
             break;
         
-        case PRINT_USERS:
-            send_only_message(PRINT_EXISTING_USERS_REQUEST, app->m_socket, app->m_mutex);
-            break;
-
         case JOIN_EXISTING_GROUP:
             join_exsisting_group(app, group_name);
             break;
 
         case LEAVE_GROUP:
-            create_or_leave_group(app, group_name, LEAVE_GROUP_REQUEST);
+            join_or_leave_group(app, group_name, LEAVE_GROUP_REQUEST);
+            break;
+
+        case CREATE_PRIVATE_CHAT:
+            create_private_chat(app, group_name);
             break;
 
         case LOG_OUT:
@@ -116,6 +144,7 @@ static void logged_switch(App* app, int choice)
             break;
 
         default:
+            set_work_status(app->m_action_in, FALSE);
             print_invalid_choice();
             break;
     }
@@ -145,6 +174,7 @@ static void unlogged_switch(App* app, int choice)
 
         default:
             print_invalid_choice();
+            set_work_status(app->m_action_in, FALSE);
             break;
     }
 }
@@ -173,7 +203,7 @@ void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        usleep(100000);
+        //usleep(100000);
         while(work_in_is_working(app->m_action_in)){usleep(10000);}
 
         int choice = menu(is_logged_in(app->m_user));

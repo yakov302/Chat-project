@@ -37,6 +37,8 @@ UsersManager* create_users_manager(int capacity);
 
 void destroy_users_manager(UsersManager* users_manager);
 
+int user_log_in_check(UsersManager* users_manager, const char* name);
+
 UsersManager_return user_log_in(UsersManager* users_manager, const char* name, int socket);
 
 UsersManager_return user_join_group(UsersManager* users_manager, char* user_name, char* group_name);
@@ -48,6 +50,8 @@ List* user_groups_list(UsersManager* users_manager, char* user_name);
 UsersManager_return user_log_out(UsersManager* users_manager, char* name);
 
 User* give_user_by_socket(UsersManager* users_manager, int socket);
+
+int user_socket(UsersManager* users_manager, char* name);
 
 
 #endif // USERS_MANAGER_H

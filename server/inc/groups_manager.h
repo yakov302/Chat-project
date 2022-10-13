@@ -45,7 +45,7 @@ GroupsManager* create_groups_manager(int capacity);
 
 void destroy_groups_manager(GroupsManager* groups_manager);
 
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* USER_name, char* return_ip);
+GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip, int is_private);
 
 GroupsManager_return join_existing_group (GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip);
 
@@ -58,6 +58,10 @@ void give_all_groups_names(GroupsManager* groups_manager, char* groups_names_lis
 void give_all_users_names(GroupsManager* groups_manager, char* users_names_list);
 
 int num_of_groups(GroupsManager* groups_manager);
+
+int is_a_private(GroupsManager* groups_manager, char* group_name);
+
+HashMap* group_users(GroupsManager* groups_manager, char* group_name);
 
 
 #endif // GROUPS_MANAGER_H
