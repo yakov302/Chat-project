@@ -13,8 +13,10 @@
 
 #define TRUE 1 
 #define FALSE 0
+#define ERROR -1
 #define INVALID_CHOICE 20
 #define GET_OUT_FROM_SCANF 187
+#define COMMAND_SIZE 256
 #define MESSAGE_SIZE 100
 
 int menu(int is_looged_in);

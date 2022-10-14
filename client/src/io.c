@@ -1,14 +1,5 @@
 #include "io.h"
 
-#define REGISTERATION 1
-#define LOG_IN 2
-#define CREATE_NEW_GROUP 3
-#define JOIN_EXISTING_GROUP 4
-#define LEAVE_GROUP 5
-#define CREATE_PRIVATE_CHAT 6
-#define LOG_OUT 7
-#define EXIT 8
-
 static void print_menu(int is_looged_in)
 {
     printf(YELLOW);
@@ -81,11 +72,15 @@ void enter_password(char* password)
 
 static void print_in_color_format(char* color, char* text)
 {  
-    printf("%s", color);
-	printf("\n  ->  ");
-	printf("%s", text);
-	printf("  <-  \n");
-    printf(NORMAL);
+    char windwo_size[8];
+    int string_size = strlen(text)*1.3;
+    sprintf(windwo_size, "%dx5", string_size);
+
+    char command[COMMAND_SIZE];
+    sprintf(command, "gnome-terminal -q --geometry=%s --title=pop_up_message -- ./pop_up_message %s %s",windwo_size, color, text); 
+           
+    int result = system(command);
+    if(result == ERROR) {perror("system fail!");}
 }
 
 void print_invalid_choice()

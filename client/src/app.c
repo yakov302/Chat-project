@@ -203,12 +203,12 @@ void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        //usleep(100000);
-        while(work_in_is_working(app->m_action_in)){usleep(10000);}
+        usleep(10000);
+        //while(work_in_is_working(app->m_action_in)){usleep(10000);}
 
         int choice = menu(is_logged_in(app->m_user));
 
-        set_work_status(app->m_action_in, TRUE);
+        //set_work_status(app->m_action_in, TRUE);
         
         if(is_logged_in(app->m_user))
             logged_switch(app, choice);
