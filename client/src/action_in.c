@@ -78,6 +78,7 @@ static void new_group(User* user, char* buffer, Message_type message_type)
     give_2_strings(buffer, group_name, group_ip);
 
     Group* group = group_create(group_ip, GROUPS_PORT, group_name, name(user));
+    printf("add %s group to %s user\n", group->m_name, user->m_name);
     add_group_for_user(user, group);
     print_message(message_type, group_name);
 }

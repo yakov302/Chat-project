@@ -100,6 +100,41 @@ void destroy_groups_manager(GroupsManager* groups_manager)
 	free(groups_manager);
 }
 
+static GroupsManager_return add_client_to_group(Group* group, char* user_name)
+{
+	Group_return g_result = insert_client_to_group(group, user_name);
+
+	printf("add_client %s to %s group \nnum of client in %s group:%d\n",user_name, group->m_name,  group->m_name, number_of_clients(group));
+
+	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUP_MANAGER_USER_ALREADY_IN_GROUP;}
+	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;};
+    return GROUPS_MANAGER_SUCCESS;
+}
+
+static GroupsManager_return group_already_exists(GroupsManager* groups_manager, const char* group_name, char* user_name, int is_private)
+{
+	if(is_private)
+	{
+		Group* group;
+		Map_return m_result = hash_map_find(groups_manager->m_groups, (void*)group_name, (void**)&group);
+		if (m_result != MAP_SUCCESS) {return GROUPS_MANAGER_NEW_GROUP_FAIL;}
+		return add_client_to_group(group, user_name);
+	}
+
+	return GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS;
+}
+
+static Group* create_new_group(GroupsManager* groups_manager, const char* group_name, char* return_ip, int is_private)
+{
+	char* ip;
+    queue_remove(groups_manager->m_ips, (void*)&ip);
+    Group* group = create_group(group_name, ip, is_private);
+    if (group == NULL) {return NULL;}
+    strcpy (return_ip, ip);
+    free(ip);
+	return group;
+}
+
 static char* create_key(const char* group_name)
 {
     char* key = (char*)malloc(sizeof(group_name));
@@ -110,43 +145,9 @@ static char* create_key(const char* group_name)
     return key;
 }
 
-static GroupsManager_return add_client_to_group(Group* group, char* user_name)
+static GroupsManager_return insert_group_to_groups_manager_map(GroupsManager* groups_manager, Group* group, const char* group_name)
 {
-	Group_return g_result = insert_client_to_group(group, user_name);
-
-	printf("add_client %s to %s group \nnum of client in %s group:%d\n",user_name, group->m_name,  group->m_name, number_of_clients(group));
-
-	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
-	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;};
-    return GROUPS_MANAGER_SUCCESS;
-}
-
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip, int is_private)
-{
-	if (groups_manager == NULL || group_name == NULL || return_ip == NULL)
-	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
-	
-	if(hash_map_is_exists(groups_manager->m_groups, group_name))
-	{
-		if(!is_private)
-        	return GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS;
-		else
-		{
-			Group* group;
-			Map_return m_result = hash_map_find(groups_manager->m_groups, (void*)group_name, (void**)&group);
-			if (m_result != MAP_SUCCESS) {return GROUPS_MANAGER_NEW_GROUP_FAIL;}
-			return add_client_to_group(group, user_name);
-		}
-	}
-
-    char* ip;
-    queue_remove(groups_manager->m_ips, (void*)&ip);
-    Group* group = create_group(group_name, ip, is_private);
-    if (group == NULL) {return GROUPS_MANAGER_CREATE_GROUP_FAIL;}
-    strcpy (return_ip, ip);
-    free(ip);
-
-    char* group_name_key = create_key(group_name);
+	char* group_name_key = create_key(group_name);
    	if (group_name_key == NULL) {return GROUPS_MANAGER_MALLOC_FAIL;}
    	strcpy (group_name_key, group_name);
 
@@ -157,24 +158,39 @@ GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_
         destroy_group (group);
         return GROUPS_MANAGER_NEW_GROUP_FAIL;
     }
-    
+
+	return GROUPS_MANAGER_SUCCESS;
+}
+
+GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip, int is_private)
+{
+	if (groups_manager == NULL || group_name == NULL || user_name == NULL || return_ip == NULL)
+	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
+	
+	if(hash_map_is_exists(groups_manager->m_groups, group_name))
+		return group_already_exists(groups_manager, group_name, user_name, is_private);
+
+	Group* group = create_new_group(groups_manager, group_name,  return_ip, is_private);
+	if(group == NULL){return GROUPS_MANAGER_CREATE_GROUP_FAIL;}
+
+	GroupsManager_return result = insert_group_to_groups_manager_map(groups_manager,group, group_name);
+	if(result != GROUPS_MANAGER_SUCCESS){return result;}
+
 	return add_client_to_group(group, user_name);
 }
 
 GroupsManager_return join_existing_group(GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip)
 {
-	if (groups_manager == NULL || group_name == NULL || return_ip == NULL)
+	if (groups_manager == NULL || group_name == NULL || user_name == NULL || return_ip == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
     
     Group* group;
 	Map_return m_result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
 	if (m_result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
+	if(is_private(group)) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
 
 	group_ip(group, return_ip);
-	Group_return g_result = insert_client_to_group(group, user_name);
-	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
-	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;}
-	return GROUPS_MANAGER_SUCCESS;
+	return add_client_to_group(group, user_name);
 }
 
 static void insert_ip_to_queue(GroupsManager* groups_manager, Group* group)
@@ -186,7 +202,7 @@ static void insert_ip_to_queue(GroupsManager* groups_manager, Group* group)
 
 GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name, char* user_name)
 {
-	if (groups_manager == NULL || group_name == NULL)
+	if (groups_manager == NULL || group_name == NULL || user_name == NULL )
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
 	
 	printf("%s leave %s group\n", user_name, group_name);
@@ -214,7 +230,7 @@ GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name
 
 GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups, char* user_name)
 {
-	if (groups_manager == NULL || list_of_user_groups == NULL)
+	if (groups_manager == NULL || list_of_user_groups == NULL || user_name == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
 
 	ListItr it_next;

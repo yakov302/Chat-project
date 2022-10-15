@@ -21,7 +21,9 @@
 typedef struct App
 {
     int m_stop;
-    int m_thread_id;
+    int m_run_app_thread_id;
+    int m_check_close_groups_thread_id;
+
 
     User* m_user;
     Mutex* m_mutex;

@@ -347,6 +347,7 @@ static void open_private_chat_action(GroupsManager* groups_manager, UsersManager
 
    if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
    {
+        usleep(100000);
         if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
             leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
    }

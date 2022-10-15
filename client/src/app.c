@@ -1,9 +1,40 @@
 # include "app.h"
 
-static void* thread_function(void* arg)
+static void* run_app_loop(void* arg)
 {
 	App* app = (App*)arg;
 	run_app(app);
+	return NULL;
+}
+
+static int close_kill_groups(void* group, void* app)
+{
+    if((Group*)group == NULL)
+        return TRUE;
+
+    if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
+    || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
+    {
+        usleep(100000);
+        if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
+        || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
+        {   
+            printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
+            send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
+        }
+    }
+
+    return TRUE;
+}
+
+static void* check_close_groups(void* arg)
+{
+	App* app = (App*)arg;
+	while (!app->m_stop)
+    {
+        sleep(1);
+        list_for_each(groups_list(app->m_user), close_kill_groups, app);
+    }
 	return NULL;
 }
 
@@ -22,7 +53,8 @@ App* app_create(User* user, Mutex* mutex,  Router* router, Socket* socket, Actio
     app->m_router = router;
     app->m_socket = socket;
     app->m_action_in = action_in;
-    app->m_thread_id = run_thread(thread_function, app);
+    app->m_run_app_thread_id = run_thread(run_app_loop, app);
+    app->m_check_close_groups_thread_id = run_thread(check_close_groups, app);
     return app;
 }
 
@@ -47,6 +79,7 @@ static void registration_or_log_in(App* app, char* user_name, char* password, Me
         return;
 
     send_requests_with_2_strings(user_name, password, message_type, app->m_socket, app->m_mutex);
+    usleep(10000);
 }
 
 static void create_group(App* app, char* group_or_user_name, int is_private, Message_type message_type)
@@ -98,6 +131,7 @@ static void create_private_chat(App* app, char* group_name)
 static void log_out(App* app)
 {
     send_requests_with_1_strings(name(app->m_user), EXIT_CHAT_REQUEST, app->m_socket, app->m_mutex);
+    usleep(10000);
 }
 
 static void exit_chat(App* app)
@@ -179,31 +213,21 @@ static void unlogged_switch(App* app, int choice)
     }
 }
 
-static int close_kill_groups(void* group, void* app)
-{
-    if((Group*)group == NULL)
-        return TRUE;
 
-    if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
-    || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
-    {
-        printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
-        send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
-    }
-
-    return TRUE;
-}
-
-static void check_if_groups_are_live(App* app)
-{
-    list_for_each(groups_list(app->m_user), close_kill_groups, app);
-}
+// static void check_if_groups_are_live(App* app)
+// {
+//     while (!app->m_stop)
+//     {
+//         list_for_each(groups_list(app->m_user), close_kill_groups, app);
+//         sleep(1);
+//     }
+// }
 
 void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        usleep(10000);
+        //usleep(10000);
         //while(work_in_is_working(app->m_action_in)){usleep(10000);}
 
         int choice = menu(is_logged_in(app->m_user));
@@ -215,13 +239,14 @@ void run_app(App* app)
         else
             unlogged_switch(app, choice);
 
-        check_if_groups_are_live(app);
+        //check_if_groups_are_live(app);
     }
 }
 
 void app_destroy(App* app)
 {
-    join_thread(app->m_thread_id);
+    join_thread(app->m_check_close_groups_thread_id);
+    join_thread(app->m_run_app_thread_id);
     free(app);
 }
 

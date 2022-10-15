@@ -77,6 +77,9 @@ void group_destroy(Group* group)
 		return;
 	
 	printf("in group.c -> group_destroy() -> kill %s group\n", group->m_name);
+	printf("m_chat_window_process_id: %d\n", group->m_chat_window_process_id);
+	printf("m_text_bar_process_id: %d\n", group->m_text_bar_process_id);
+
 	kill(group->m_chat_window_process_id , SIGKILL);
 	kill(group->m_text_bar_process_id , SIGKILL);
 	free(group);

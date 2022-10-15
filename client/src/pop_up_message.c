@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     for(int i = 2; i < argc; ++i)
 	    printf("%s ", argv[i]);
 	printf("\n");
-    sleep(3);
+    sleep(2);
 
     return TRUE;
 }
