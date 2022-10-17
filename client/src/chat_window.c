@@ -5,6 +5,9 @@
 #include <signal.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h> 
 
 #define MAX_SOCKET_AMOUNT_TO_LISTEN 10
 #define PROCESS_KILLED -1
@@ -15,11 +18,12 @@
 #define FALSE 0
 
 static void save_process_id_to_file()
-{	    	
+{	 
+    pid_t process_id;   	
 	FILE* file = fopen("../resources/chat_window_process_id.txt", "w");
 	if(file == NULL) {printf("fopen fail!\n"); return;}
 
-    pid_t process_id = getpid();
+    process_id = getpid();
 	fprintf(file,"%d\n", process_id);	
 	fclose(file);
 }
@@ -32,7 +36,7 @@ static void set_sin(struct sockaddr_in* sin, char* ip, int port)
     sin->sin_port = htons(port);
 }
 
-static void set_multicast( struct ip_mreq* mreq, char* ip)
+static void set_multicast(struct ip_mreq* mreq, char* ip)
 {
     memset(mreq, 0, sizeof(*mreq));
     mreq->imr_multiaddr.s_addr = inet_addr(ip);

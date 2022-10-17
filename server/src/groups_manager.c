@@ -162,11 +162,22 @@ static GroupsManager_return insert_group_to_groups_manager_map(GroupsManager* gr
 	return GROUPS_MANAGER_SUCCESS;
 }
 
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip, int is_private)
+static int check_if_private(char* name)
+{
+	char check[STRING_SIZE] = {0};
+	strncpy(check, name, 8);
+	if(!strcmp(check, "\"Private"))
+		return TRUE;
+	return FALSE;
+}
+
+GroupsManager_return new_group(GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip, int is_private)
 {
 	if (groups_manager == NULL || group_name == NULL || user_name == NULL || return_ip == NULL)
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
 	
+	if(check_if_private(group_name) && !is_private){return GROUPS_MANAGER_CREATE_GROUP_FAIL;}
+
 	if(hash_map_is_exists(groups_manager->m_groups, group_name))
 		return group_already_exists(groups_manager, group_name, user_name, is_private);
 
@@ -244,15 +255,6 @@ GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_
 	}
 
 	return GROUPS_MANAGER_SUCCESS;
-}
-
-static int check_if_private(char* name)
-{
-	char check[STRING_SIZE] = {0};
-	strncpy(check, name, 8);
-	if(!strcmp(check, "\"Private"))
-		return TRUE;
-	return FALSE;
 }
 
 static void write_key_to_buffer(void* name, char* names_list)

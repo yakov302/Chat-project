@@ -64,7 +64,9 @@ Group* group_create(char* ip, int port, char* group_name, char* user_name)
 
 	strcpy(group->m_name, group_name);
 	group->m_text_bar_process_id = open_text_bar_window(ip, port, group_name, user_name);
+	printf("text_bar_process_id of %s group is: %d\n", group_name, group->m_text_bar_process_id);
 	group->m_chat_window_process_id = open_chat_window(ip, port, group_name, group->m_text_bar_process_id);
+	printf("chat_window_process_id of %s group is: %d\n", group_name, group->m_chat_window_process_id);
 	if(group->m_chat_window_process_id == ERROR || group->m_text_bar_process_id == ERROR)
 	{printf("open windows fail!\n"); return NULL;}
 

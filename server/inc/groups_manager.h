@@ -45,7 +45,7 @@ GroupsManager* create_groups_manager(int capacity);
 
 void destroy_groups_manager(GroupsManager* groups_manager);
 
-GroupsManager_return new_group(GroupsManager* groups_manager, const char* group_name, char* user_name, char* return_ip, int is_private);
+GroupsManager_return new_group(GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip, int is_private);
 
 GroupsManager_return join_existing_group (GroupsManager* groups_manager, char* group_name, char* user_name, char* return_ip);
 

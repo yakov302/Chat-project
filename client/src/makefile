@@ -21,12 +21,15 @@ $(TARGET):$(OBJS)
 	$(CC) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBRARIES)
 
 check: $(TARGET)
+	gcc -pedantic -g3 pop_up_message.c -o pop_up_message -pthread
+	gcc -pedantic -g3 chat_window.c -o chat_window -pthread
+	gcc -pedantic -g3 text_bar.c -o text_bar -pthread
 	./$(TARGET) 
 
 debug: $(TARGET)
 	gdb ./$(TARGET)
 
 clean:
-	@$(RM) $(TARGET) $(OBJS)
+	@$(RM) $(TARGET) $(OBJS) pop_up_message chat_window text_bar
 
 .PHONY: check clean

@@ -295,9 +295,8 @@ static int open_private_chat(GroupsManager* groups_manager, UsersManager* users_
     GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
     switch (g_result)
     {
-        case GROUPS_MANAGER_GROUPNAME_ALREADY_EXISTS:
+        case GROUP_MANAGER_USER_ALREADY_IN_GROUP:
             send_message_with_1_string(group_name, OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS, client_socket, mutex);
-            return FALSE;
 
         case GROUPS_MANAGER_SUCCESS:
             break;   
@@ -347,7 +346,7 @@ static void open_private_chat_action(GroupsManager* groups_manager, UsersManager
 
    if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
    {
-        usleep(100000);
+        usleep(200000); //relevant only when you run multy clients from the same computer
         if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
             leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
    }

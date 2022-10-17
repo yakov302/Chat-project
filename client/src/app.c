@@ -7,21 +7,27 @@ static void* run_app_loop(void* arg)
 	return NULL;
 }
 
+static int one_of_the_process_killed(void* group)
+{
+    if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
+    || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
+        return TRUE;
+    return FALSE;
+}
+
 static int close_kill_groups(void* group, void* app)
 {
     if((Group*)group == NULL)
         return TRUE;
 
-    if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
-    || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
+    if(one_of_the_process_killed(group))
     {
-        usleep(100000);
-        if(kill(((Group*)group)->m_chat_window_process_id, 0) == PROCESS_KILLED
-        || kill(((Group*)group)->m_text_bar_process_id, 0) == PROCESS_KILLED)
-        {   
+        // usleep(200000); // let new process time to load and check again
+        // if(one_of_the_process_killed(group))
+        // {   
             printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
             send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
-        }
+        // }
     }
 
     return TRUE;
