@@ -22,12 +22,15 @@ static int close_kill_groups(void* group, void* app)
 
     if(one_of_the_process_killed(group))
     {
-        // usleep(200000); // let new process time to load and check again
+        // usleep(500000); // let new process time to load and check again
         // if(one_of_the_process_killed(group))
         // {   
             printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
+            printf("text_bar_process_id: %d\n", ((Group*)group)->m_text_bar_process_id);
+            printf("chat_window_process_id: %d\n", ((Group*)group)->m_chat_window_process_id);
+
             send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
-        // }
+       // }
     }
 
     return TRUE;

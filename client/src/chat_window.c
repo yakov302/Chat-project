@@ -111,12 +111,14 @@ static void fatal_error(char* explain, int* run_loop)
 
 int main(int argc, char* argv[])
 {
+    save_process_id_to_file();
+    sleep(1);
+
     if(argc < 5) 
     {printf("IP, PORT, MAIN PROCESS ID and TEXT BAR PROCESS ID required\n"); return FALSE;}
     
     pid_t main_process_id = atoi(argv[3]);
     pid_t text_bar_process_id = atoi(argv[4]);
-    save_process_id_to_file();
 
     int socket_number;
     struct sockaddr_in sin;

@@ -55,6 +55,9 @@ static void encrypt(const char* key, char* buffer, int message_size)
 
 int main(int argc, char *argv[])
 {
+    save_process_id_to_file();
+    sleep(1);
+    
     if(argc < 4) 
     {printf("IP, PORT and USER NAME required\n"); return FALSE;}
 

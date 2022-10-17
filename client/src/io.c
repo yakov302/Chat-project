@@ -16,7 +16,7 @@ static void print_menu(int is_looged_in)
         printf(" 3 - Create new group\n");
         printf(" 4 - Join existing group\n");
         printf(" 5 - Leave group\n");
-        printf(" 6 - Create a private chat\n");
+        printf(" 6 - Create private chat\n");
         printf(" 7 - Log out\n");
     }
 
