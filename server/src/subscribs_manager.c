@@ -45,7 +45,7 @@ static Subscriber* create_subscriber_from_file(FILE* file, SubscribsManager* sub
 
 static char* create_key(char* name)
 {
-    char* user_name = (char*)malloc(sizeof(name));
+    char* user_name = (char*)malloc(sizeof(char)*strlen(name));
     if (user_name == NULL)
         return NULL;
 

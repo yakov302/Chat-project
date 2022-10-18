@@ -79,7 +79,7 @@ int number_of_clients(Group* group)
 
 static char* create_key(char* name)
 {
-    char* user_name = (char*)malloc(sizeof(name));
+    char* user_name = (char*)malloc(sizeof(char)*strlen(name));
     if (user_name == NULL)
         return NULL;
 

@@ -25,7 +25,6 @@ typedef enum Group_return
 
 typedef struct Group
 {
-	//char second_party_name[STRING_SIZE];
 	char m_name[STRING_SIZE];
 	char m_ip[STRING_SIZE];
 	int m_num_of_clients;

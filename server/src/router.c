@@ -79,7 +79,7 @@ static void delete_deleted(Router* router)
         next_it = next(it);
 
         int client_socket = *(int*)get_data(it);
-        delete_disconnected_client(router->m_action_in, client_socket);
+        delete_disconnected_client(router->m_action_in, client_socket, router->m_mutex);
         delete_from_deleted_sockets(router->m_socket, it);
 
         it = next_it; 

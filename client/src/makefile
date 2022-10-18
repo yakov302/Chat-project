@@ -27,6 +27,9 @@ check: $(TARGET)
 	./$(TARGET) 
 
 debug: $(TARGET)
+	gcc -pedantic -g3 pop_up_message.c -o pop_up_message -pthread
+	gcc -pedantic -g3 chat_window.c -o chat_window -pthread
+	gcc -pedantic -g3 text_bar.c -o text_bar -pthread
 	gdb ./$(TARGET)
 
 clean:

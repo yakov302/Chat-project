@@ -41,6 +41,18 @@ static int pack_2_strings_and_1_int(char* buffer, Message_type message_type, cha
     return size;
 }
 
+static int pack_1_strings(char* buffer, Message_type message_type, char* string)
+{
+    Args arg;
+    args_create(&arg, 1, 0, 0);
+    push_string(&arg, string);
+
+    int size = pack(buffer, &arg, message_type);
+
+    args_destroy(&arg);
+    return size;
+}
+
 void send_requests_with_2_strings(char* first_string, char* second_string, Message_type message_type, Socket* socket, Mutex* mutex)
 {
     char buffer[BUFFER_OUT_SIZE];
@@ -59,18 +71,6 @@ void send_requests_with_2_strings_and_1_int(char* first_string, char* second_str
     int result = send_to_server(socket, buffer, size, mutex);
     if(result != TRUE)
         printf("send to server fail, return value: %d\n", result);
-}
-
-static int pack_1_strings(char* buffer, Message_type message_type, char* string)
-{
-    Args arg;
-    args_create(&arg, 1, 0, 0);
-    push_string(&arg, string);
-
-    int size = pack(buffer, &arg, message_type);
-
-    args_destroy(&arg);
-    return size;
 }
 
 void send_requests_with_1_strings(char* string, Message_type message_type, Socket* socket, Mutex* mutex)

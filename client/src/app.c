@@ -15,23 +15,13 @@ static int one_of_the_process_killed(void* group)
     return FALSE;
 }
 
-static int close_kill_groups(void* group, void* app)
+static int close_killed_groups(void* group, void* app)
 {
     if((Group*)group == NULL)
         return TRUE;
 
     if(one_of_the_process_killed(group))
-    {
-        // usleep(500000); // let new process time to load and check again
-        // if(one_of_the_process_killed(group))
-        // {   
-            printf("in app.c -> close_kill_groups() -> kill %s group\n", ((Group*)group)->m_name);
-            printf("text_bar_process_id: %d\n", ((Group*)group)->m_text_bar_process_id);
-            printf("chat_window_process_id: %d\n", ((Group*)group)->m_chat_window_process_id);
-
-            send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
-       // }
-    }
+        send_requests_with_2_strings(name(((App*)app)->m_user), ((Group*)group)->m_name, LEAVE_GROUP_REQUEST, ((App*)app)->m_socket, ((App*)app)->m_mutex);
 
     return TRUE;
 }
@@ -42,7 +32,7 @@ static void* check_close_groups(void* arg)
 	while (!app->m_stop)
     {
         sleep(1);
-        list_for_each(groups_list(app->m_user), close_kill_groups, app);
+        list_for_each(groups_list(app->m_user), close_killed_groups, app);
     }
 	return NULL;
 }
@@ -70,10 +60,7 @@ App* app_create(User* user, Mutex* mutex,  Router* router, Socket* socket, Actio
 static int exit_to_menu(App* app, char* string)
 {
     if(*(char*)string == ESC)
-    {
-        set_work_status(app->m_action_in, FALSE);
         return TRUE;
-    }
     return FALSE;
 }
 
@@ -136,7 +123,6 @@ static void create_private_chat(App* app, char* group_name)
         create_group(app, group_name, TRUE, OPEN_PRIVATE_CHAT_REQUEST);
 }
 
-
 static void log_out(App* app)
 {
     send_requests_with_1_strings(name(app->m_user), EXIT_CHAT_REQUEST, app->m_socket, app->m_mutex);
@@ -187,7 +173,6 @@ static void logged_switch(App* app, int choice)
             break;
 
         default:
-            set_work_status(app->m_action_in, FALSE);
             print_invalid_choice();
             break;
     }
@@ -217,38 +202,20 @@ static void unlogged_switch(App* app, int choice)
 
         default:
             print_invalid_choice();
-            set_work_status(app->m_action_in, FALSE);
             break;
     }
 }
-
-
-// static void check_if_groups_are_live(App* app)
-// {
-//     while (!app->m_stop)
-//     {
-//         list_for_each(groups_list(app->m_user), close_kill_groups, app);
-//         sleep(1);
-//     }
-// }
 
 void run_app(App* app)
 {
     while (!app->m_stop)
     {
-        //usleep(10000);
-        //while(work_in_is_working(app->m_action_in)){usleep(10000);}
-
         int choice = menu(is_logged_in(app->m_user));
-
-        //set_work_status(app->m_action_in, TRUE);
-        
+   
         if(is_logged_in(app->m_user))
             logged_switch(app, choice);
         else
             unlogged_switch(app, choice);
-
-        //check_if_groups_are_live(app);
     }
 }
 

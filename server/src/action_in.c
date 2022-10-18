@@ -124,41 +124,6 @@ static void log_in_request(SubscribsManager* subscribs_manager, UsersManager* us
     }
 }
 
-static void leave_chat_request(UsersManager* users_manager, GroupsManager* groups_manager, char* buffer, int client_socket, Mutex* mutex)
-{
-    char name[STRING_SIZE]; 
-    give_1_strings(buffer, name);
-
-    GroupsManager_return g_result = leave_all_groups(groups_manager, user_groups_list(users_manager, name), name);
-    switch (g_result)
-    {
-        case GROUPS_MANAGER_SUCCESS:
-            break;
-            
-        default:
-            printf("leave_all_groups fail! GroupsManager_return: %d\n", g_result);
-            send_only_message(EXIT_CHAT_FAIL, client_socket, mutex);
-            return;
-    }
-
-    UsersManager_return result = user_log_out(users_manager, name);
-    switch (result)
-    {
-        case USER_MANAGER_USER_NOT_EXISTS:
-            send_only_message(EXIT_CHAT_USER_NOT_EXISTS, client_socket, mutex);
-            break;
-
-         case USER_MANAGER_SUCCESS:
-            send_message_with_1_string(name, EXIT_CHAT_SUCCESS, client_socket, mutex);
-            break;
-
-        default:
-            printf("user_log_out fail! UsersManager_return: %d\n", result);
-            send_only_message(EXIT_CHAT_FAIL, client_socket, mutex);
-            break;
-    }
-}
-
 static int leave_group_action(GroupsManager* groups_manager, UsersManager* users_manager, char* user_name, char* group_name, int client_socket, Mutex* mutex)
 {
     UsersManager_return u_result = user_leave_group(users_manager, user_name, group_name);
@@ -212,21 +177,23 @@ static int leave_group_action(GroupsManager* groups_manager, UsersManager* users
 
 static int leave_private_chat(void* hash_element, void* args)
 {
-	if(leave_group_action(((ArgsForLeavePrivateChat*)args)->groups_manager, 
-                          ((ArgsForLeavePrivateChat*)args)->users_manager, 
+	if(leave_group_action(((ArgsForLeaveGroups*)args)->groups_manager, 
+                          ((ArgsForLeaveGroups*)args)->users_manager, 
                           ((Element*)hash_element)->m_key, 
-                          ((ArgsForLeavePrivateChat*)args)->group_name, 
-                          user_socket(((ArgsForLeavePrivateChat*)args)->users_manager, ((Element*)hash_element)->m_key), 
-                          ((ArgsForLeavePrivateChat*)args)->mutex)){return FALSE;}
+                          ((ArgsForLeaveGroups*)args)->group_name, 
+                          user_socket(((ArgsForLeaveGroups*)args)->users_manager, ((Element*)hash_element)->m_key), 
+                          ((ArgsForLeaveGroups*)args)->mutex)){return FALSE;}
     return TRUE;
 }
 
-static ArgsForLeavePrivateChat* make_args(GroupsManager* groups_manager, UsersManager* users_manager, char* group_name, Mutex* mutex)
+static ArgsForLeaveGroups* make_args(GroupsManager* groups_manager, UsersManager* users_manager, char* user_name, char* group_name, int user_socket, Mutex* mutex)
 {
-    ArgsForLeavePrivateChat* args = (ArgsForLeavePrivateChat*)malloc(sizeof(ArgsForLeavePrivateChat));
+    ArgsForLeaveGroups* args = (ArgsForLeaveGroups*)malloc(sizeof(ArgsForLeaveGroups));
     args->groups_manager = groups_manager;
     args->users_manager = users_manager;
+    strcpy(args->user_name, user_name);
     strcpy(args->group_name, group_name);
+    args->user_socket = user_socket;
     args->mutex = mutex;
     return args;
 }
@@ -236,10 +203,10 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
     char user_name[STRING_SIZE]; char group_name[STRING_SIZE];
     give_2_strings(buffer, user_name, group_name);
 
-    if(is_a_private(groups_manager, group_name))
+    if(is_group_private(groups_manager, group_name))
     {
-        ArgsForLeavePrivateChat* args = make_args(groups_manager, users_manager, group_name, mutex);
-        HashMap* users = group_users(groups_manager, group_name);
+        ArgsForLeaveGroups* args = make_args(groups_manager, users_manager, "", group_name, TRUE, mutex);
+        HashMap* users = group_users_list(groups_manager, group_name);
         hash_map_for_each(users, leave_private_chat, (void*)args);
         free(args);
     }
@@ -249,6 +216,7 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
 
 static void open_group_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name, char* group_name, char* ip,  int is_private, int client_socket)
 {
+    printf("open_group_action\n");
     GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
     switch (g_result)
     {
@@ -295,8 +263,9 @@ static int open_private_chat(GroupsManager* groups_manager, UsersManager* users_
     GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
     switch (g_result)
     {
-        case GROUP_MANAGER_USER_ALREADY_IN_GROUP:
+        case GROUPS_MANAGER_USER_ALREADY_IN_GROUP:
             send_message_with_1_string(group_name, OPEN_PRIVATE_CHAT_PRIVATE_CHAT_ALREADY_EXISTS, client_socket, mutex);
+            return FALSE;
 
         case GROUPS_MANAGER_SUCCESS:
             break;   
@@ -335,6 +304,8 @@ static int open_private_chat(GroupsManager* groups_manager, UsersManager* users_
 
 static void open_private_chat_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name_1, char* user_name_2, char* ip,  int is_private, int client_socket)
 {
+        printf("open_private_chat_action\n");
+
     if(!user_log_in_check(users_manager, user_name_2))
     {
         send_only_message(OPEN_PRIVATE_CHAT_USER_NOT_EXISTS, client_socket, mutex);
@@ -343,10 +314,9 @@ static void open_private_chat_action(GroupsManager* groups_manager, UsersManager
 
     char group_name[STRING_SIZE];
     set_group_name(group_name, user_name_1, user_name_2);
-
    if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
    {
-        usleep(200000); //relevant only when you run multy clients from the same computer
+        usleep(200000); //relevant only when you run multi clients from the same computer
         if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
             leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
    }
@@ -389,7 +359,7 @@ static void print_existing_users_request(GroupsManager* groups_manager, int clie
     send_message_with_1_string(users_names_list, PRINT_EXISTING_USERS_SUCCESS, client_socket, mutex);
 }
 
-static void join_existing_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
+static void join_existing_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)
 {
     char user_name[STRING_SIZE]; char group_name[STRING_SIZE]; char return_ip[IP_SIZE]; 
     give_2_strings(buffer, user_name, group_name);
@@ -400,6 +370,10 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
         case GROUPS_MANAGER_GROUP_NOT_EXISTS:
             send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_GROUP_NOT_EXISTS, client_socket, mutex);
             return;
+
+        case GROUPS_MANAGER_USER_ALREADY_IN_GROUP:
+                send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
+                return;
 
         case GROUPS_MANAGER_INSERT_CLIENT_FAIL:
             send_message_with_1_string(group_name, JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT, client_socket, mutex);
@@ -439,6 +413,76 @@ static void join_existing_request(GroupsManager* groups_manager, UsersManager* u
     }
 }
 
+static int is_he_the_other_user(void* element, void* user)
+{
+    if(strcmp((char*)((Element*)element)->m_key, (char*)user) != 0)
+        return FALSE;
+    return TRUE;
+}
+
+static int leave_all_group(void* group, void* args)
+{
+    if(!is_group_private(((ArgsForLeaveGroups*)args)->groups_manager, ((Group*)group)->m_name))
+    {
+        leave_group(
+            ((ArgsForLeaveGroups*)args)->groups_manager,
+            ((Group*)group)->m_name, 
+            ((ArgsForLeaveGroups*)args)->user_name);
+            return TRUE;
+    }
+
+    HashMap* users_lisr = group_users_list(((ArgsForLeaveGroups*)args)->groups_manager, ((Group*)group)->m_name);
+    Element* element = hash_map_for_each(users_lisr, is_he_the_other_user, ((ArgsForLeaveGroups*)args)->user_name);
+    leave_group_action(
+            ((ArgsForLeaveGroups*)args)->groups_manager,
+            ((ArgsForLeaveGroups*)args)->users_manager, 
+            (char*)element->m_key,
+            ((Group*)group)->m_name, 
+            user_socket(((ArgsForLeaveGroups*)args)->users_manager, element->m_key),
+            ((ArgsForLeaveGroups*)args)->mutex);
+
+    return TRUE;
+}
+
+int delete_disconnected_client(ActionIn* action_in, int client_socket, Mutex* mutex)
+{
+    User* user = give_user_by_socket(action_in->m_users_manager, client_socket);
+    if(user == NULL) {return EXIT_CHAT_USER_NOT_EXISTS;}
+
+    List* group_list = user_groups_list(action_in->m_users_manager, user->m_name);
+    if(group_list == NULL) {return EXIT_CHAT_FAIL;}
+
+    char* name = user_name(action_in->m_users_manager, user);
+    ArgsForLeaveGroups* args = make_args(action_in->m_gruops_manager, action_in->m_users_manager, name, "", user_socket(action_in->m_users_manager, name), mutex);
+    list_for_each(group_list, leave_all_group ,args);
+    free(args);
+
+    return user_log_out(action_in->m_users_manager,user->m_name);
+}
+
+static void leave_chat_request(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex)
+{
+    char name[STRING_SIZE]; 
+    give_1_strings(buffer, name);
+    
+    int result = delete_disconnected_client(action_in, client_socket, mutex);
+    switch (result)
+    {
+        case USER_MANAGER_USER_NOT_EXISTS:
+            send_only_message(EXIT_CHAT_USER_NOT_EXISTS, client_socket, mutex);
+            break;
+
+         case USER_MANAGER_SUCCESS:
+            send_message_with_1_string(name, EXIT_CHAT_SUCCESS, client_socket, mutex);
+            break;
+
+        default:
+            printf("user_log_out fail! UsersManager_return: %d\n", result);
+            send_only_message(EXIT_CHAT_FAIL, client_socket, mutex);
+            break;
+    }
+}
+
 void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mutex)
 {
     Message_type type = message_type(buffer);
@@ -454,7 +498,7 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             break;
 
         case EXIT_CHAT_REQUEST:
-            leave_chat_request(action_in->m_users_manager, action_in->m_gruops_manager, buffer, client_socket, mutex);
+            leave_chat_request(action_in, buffer, client_socket, mutex);
             break; 
 
         case OPEN_NEW_GROUP_REQUEST:
@@ -470,7 +514,7 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             break;
 
         case JOIN_EXISTING_GROUP_REQUEST:
-            join_existing_request(action_in->m_gruops_manager, action_in->m_users_manager, buffer, client_socket, mutex);
+            join_existing_group_request(action_in->m_gruops_manager, action_in->m_users_manager, buffer, client_socket, mutex);
             break;
 
         case LEAVE_GROUP_REQUEST:
@@ -489,20 +533,4 @@ void get_buffer(ActionIn* action_in, char* buffer, int client_socket, Mutex* mut
             break;
     }
 }
-
-void delete_disconnected_client(ActionIn* action_in, int client_socket)
-{
-    User* user = give_user_by_socket(action_in->m_users_manager, client_socket);
-    if(user == NULL) {return;}
-
-    List* group_list = user_groups_list(action_in->m_users_manager, user->m_name);
-    if(group_list == NULL) {return;}
-
-    //need to fix for private chats 
-    GroupsManager_return resoult = leave_all_groups(action_in->m_gruops_manager, group_list, user->m_name);
-    if(resoult != GROUPS_MANAGER_SUCCESS) {printf("leave_all_groups fail\n");}
-
-    user_log_out(action_in->m_users_manager,user->m_name);
-}
-
 

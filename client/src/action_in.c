@@ -16,7 +16,6 @@ ActionIn* create_action_in(Socket* soket, Mutex* mutex, User* user)
         return NULL;
     }
 
-    action_in->m_i_am_in_work = FALSE;
     action_in->m_user = user;
     action_in->m_mutex = mutex;
     action_in->m_socket = soket;
@@ -78,7 +77,6 @@ static void new_group(User* user, char* buffer, Message_type message_type)
     give_2_strings(buffer, group_name, group_ip);
 
     Group* group = group_create(group_ip, GROUPS_PORT, group_name, name(user));
-    printf("add %s group to %s user\n", group->m_name, user->m_name);
     add_group_for_user(user, group);
     print_message(message_type, group_name);
 }
@@ -108,7 +106,6 @@ void get_buffer(ActionIn* action_in, char* buffer)
     action_in->m_lest_message = message;
     char user_name[STRING_SIZE];
     char group_name[STRING_SIZE];
-    int dont_release = FALSE;
 
     switch (message)
     {
@@ -177,7 +174,6 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
 
         case PRINT_EXISTING_GROUPS_SUCCESS:
-            dont_release = TRUE;
             print_list_of_names(buffer);
             break;
 
@@ -186,7 +182,6 @@ void get_buffer(ActionIn* action_in, char* buffer)
             break;
         
         case PRINT_EXISTING_USERS_SUCCESS:
-            dont_release = TRUE;
             print_list_of_names(buffer);
             break;
 
@@ -258,9 +253,6 @@ void get_buffer(ActionIn* action_in, char* buffer)
         default:
             break;
     }
-    
-    if(!dont_release)
-        set_work_status(action_in, FALSE);
 }
 
 int lest_message_arrive(ActionIn* action_in)
@@ -270,21 +262,4 @@ int lest_message_arrive(ActionIn* action_in)
 
     return action_in->m_lest_message;
 }
-
-void set_work_status(ActionIn* action_in, int status)
-{
-    if(action_in == NULL)
-        return;
-
-    action_in->m_i_am_in_work =  status;
-}
-
-int work_in_is_working(ActionIn* action_in)
-{    
-    if(action_in == NULL)
-        return FALSE;
-
-    return action_in->m_i_am_in_work;
-}
-
 

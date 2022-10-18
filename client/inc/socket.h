@@ -5,8 +5,8 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define SOCKET_NOT_INITIALIZE -1
 #define SUCCESS 1

@@ -12,13 +12,13 @@
 #define IP_SIZE 20
 #define NOT_EQUAL 0
 #define NUM_OF_IPS 250
-#define OPEN_MESSAGE_SIZE 100
 #define MAGIC_NUMBER 144522
+#define OPEN_MESSAGE_SIZE 100
 
 typedef struct GroupsManager
 {
-	HashMap* m_groups;
 	Queue* m_ips;
+    HashMap* m_groups;
 	int m_magic_number;
 
 }GroupsManager;
@@ -35,7 +35,7 @@ typedef enum GroupsManager_return
     GROUPS_MANAGER_GROUP_DELETED,
     GROUPS_MANAGER_INSERT_CLIENT_FAIL,
     GROUPS_MANAGER_REMOVE_CLIENT_FAIL,
-    GROUP_MANAGER_USER_ALREADY_IN_GROUP,
+    GROUPS_MANAGER_USER_ALREADY_IN_GROUP,
     GROUPS_MANAGER_USER_NOT_EXISTS
 
 }GroupsManager_return;
@@ -59,9 +59,9 @@ void give_all_users_names(GroupsManager* groups_manager, char* users_names_list)
 
 int num_of_groups(GroupsManager* groups_manager);
 
-int is_a_private(GroupsManager* groups_manager, char* group_name);
+int is_group_private(GroupsManager* groups_manager, char* group_name);
 
-HashMap* group_users(GroupsManager* groups_manager, char* group_name);
+HashMap* group_users_list(GroupsManager* groups_manager, char* group_name);
 
 
 #endif // GROUPS_MANAGER_H

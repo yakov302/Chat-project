@@ -246,7 +246,7 @@ Element* hash_map_for_each(HashMap* map, ActionFunction action , void* context)
 		{
 			Element* element = list_for_each(map->m_lists[i], action , context);
 			if(element != NULL)
-				return element;
+				return get_data(element);
 		}
 	}
 	

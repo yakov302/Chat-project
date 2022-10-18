@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-
 #define YELLOW "\x1B[33m"
 #define NORMAL "\x1B[0m"
 #define RED "\x1B[91m"
@@ -16,11 +15,13 @@ int main(int argc, char* argv[])
     if(argc < 3){return FALSE;}
 
     printf("%s", argv[1]);
+
 	printf("\n\n    ");
     for(int i = 2; i < argc; ++i)
 	    printf("%s ", argv[i]);
 	printf("\n");
-    sleep(2);
 
+    sleep(2);
+    
     return TRUE;
 }

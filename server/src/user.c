@@ -85,3 +85,10 @@ int my_socket(User* user)
 	return user->m_socket;
 }
 
+char* name(User* user)
+{
+	if (user == NULL)
+	    return FALSE;
+		
+	return user->m_name;
+}

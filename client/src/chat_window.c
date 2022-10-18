@@ -94,12 +94,12 @@ static int enter_time_out_select(int socket_number, fd_set* fd)
     return activity;
 }
 
-static void check_if_main_process_still_alive(pid_t main_process_id, pid_t text_bar_process_id)
+static void check_if_main_process_still_alive(pid_t main_process_id, pid_t text_bar_process_id, int* run_loop)
 {
     if(kill(main_process_id, 0) == PROCESS_KILLED)
     {
         kill(text_bar_process_id, SIGKILL);
-        kill(getpid(), SIGKILL);
+        *run_loop = FALSE;
     }
 }
 
@@ -112,7 +112,6 @@ static void fatal_error(char* explain, int* run_loop)
 int main(int argc, char* argv[])
 {
     save_process_id_to_file();
-    sleep(1);
 
     if(argc < 5) 
     {printf("IP, PORT, MAIN PROCESS ID and TEXT BAR PROCESS ID required\n"); return FALSE;}
@@ -125,10 +124,10 @@ int main(int argc, char* argv[])
     if(!udp_server_init(&socket_number, &sin, argv[1], atoi(argv[2])))
     {printf("udp_server_init fail!\n"); return FALSE;}
 
-    fd_set* fd;
     int run_loop = TRUE;
     char buffer[BUFFER_SIZE];
     socklen_t sin_len = sizeof(sin);
+    fd_set* fd = (fd_set*)malloc(sizeof(*fd));
 
     while(run_loop) 
     {
@@ -144,8 +143,9 @@ int main(int argc, char* argv[])
         }
         else if(result == SELECT_FAIL) {fatal_error("select fail", &run_loop);}
 
-        check_if_main_process_still_alive(main_process_id, text_bar_process_id);
+        check_if_main_process_still_alive(main_process_id, text_bar_process_id, &run_loop);
     }
 
+    free(fd);
     return TRUE;
 }

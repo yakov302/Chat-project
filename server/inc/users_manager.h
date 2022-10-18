@@ -53,5 +53,7 @@ User* give_user_by_socket(UsersManager* users_manager, int socket);
 
 int user_socket(UsersManager* users_manager, char* name);
 
+char* user_name(UsersManager* users_manager, User* user);
+
 
 #endif // USERS_MANAGER_H

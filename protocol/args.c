@@ -36,7 +36,7 @@ static void malloc_floats(float** m_floats, int num_of_floats)
     }
     else
     {
-        *m_floats = (float*)malloc(num_of_floats*sizeof(float));
+        *m_floats = (float*)calloc(num_of_floats, sizeof(float));
         if(*m_floats == NULL)
             perror("malloc m_ints fail: \n");
     }

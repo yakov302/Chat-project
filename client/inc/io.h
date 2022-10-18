@@ -4,20 +4,20 @@
 #include "protocol.h"
 
 #include <poll.h>
-#include<unistd.h>
+#include <unistd.h>
 
 #define YELLOW "\x1B[33m"
 #define NORMAL "\x1B[0m"
-#define RED "\x1B[91m"
 #define GREEN "\x1B[32m"
+#define RED "\x1B[91m"
 
 #define TRUE 1 
 #define FALSE 0
 #define ERROR -1
-#define INVALID_CHOICE 20
-#define GET_OUT_FROM_SCANF 187
 #define COMMAND_SIZE 256
 #define MESSAGE_SIZE 100
+#define GET_OUT_FROM_SCANF 187
+
 
 int menu(int is_looged_in);
 

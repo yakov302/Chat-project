@@ -68,7 +68,7 @@ Queue_return queue_remove(Queue* queue, void** deleted_item)
 	
 	if (queue->m_num_of_item == 0)
 		return QUEUE_EMPTY;
-		
+	
 	*deleted_item = queue->m_queue[queue->m_out];
 	queue->m_out = (queue->m_out + 1)%(queue->m_size);
 	queue->m_num_of_item--;

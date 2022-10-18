@@ -22,9 +22,9 @@ typedef enum User_return
 typedef struct User
 {
 	char m_name[STRING_SIZE];
-    List* m_groups;
     int m_is_logged_in;
 	int m_magic_number;
+	List* m_groups;
 
 }User;
 

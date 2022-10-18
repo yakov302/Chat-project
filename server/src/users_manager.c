@@ -63,7 +63,7 @@ void destroy_users_manager(UsersManager* user_manager)
 
 static char* create_key(const char* name)
 {
-    char* user_name = (char*)malloc(sizeof(name));
+    char* user_name = (char*)malloc(sizeof(char)*strlen(name));
     if (user_name == NULL)
         return NULL;
 
@@ -187,5 +187,13 @@ int user_socket(UsersManager* users_manager, char* user_name)
 	return my_socket(user);
 }
 
+
+char* user_name(UsersManager* users_manager, User* user)
+{
+	if (users_manager == NULL || user == NULL)
+	    return "";
+
+	return name(user);
+}
 
 	

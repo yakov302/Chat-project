@@ -14,9 +14,7 @@ static size_t hash_for_group_name(void* group_name)
 static int compare_group_names (const void* hash_element, const void* group_name)	
 {
 	if (strcmp ((char*)((Group*)((Element*)hash_element)->m_value)->m_name, (char*)group_name) == 0)
-	{
 		return EQUAL;
-	}
 	return NOT_EQUAL;
 }
 
@@ -39,11 +37,6 @@ static void destroy_ip(void* ip)
     }
 }
 
-static int print_ips(void* element, void* context)
-{
-    printf("%s\n", (char*)element);
-}
-
 static void fill_queue_with_ips(Queue* queue)
 {
 	char ip_format [IP_SIZE] = "224.255.255.";
@@ -60,7 +53,6 @@ static void fill_queue_with_ips(Queue* queue)
 		strcat(ip, number);
 		queue_insert(queue, ip);	
 	}
-    //queue_for_each(queue, print_queue, NULL);
 }
 
 GroupsManager* create_groups_manager(int capacity)
@@ -103,10 +95,7 @@ void destroy_groups_manager(GroupsManager* groups_manager)
 static GroupsManager_return add_client_to_group(Group* group, char* user_name)
 {
 	Group_return g_result = insert_client_to_group(group, user_name);
-
-	printf("add_client %s to %s group \nnum of client in %s group:%d\n",user_name, group->m_name,  group->m_name, number_of_clients(group));
-
-	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUP_MANAGER_USER_ALREADY_IN_GROUP;}
+	if(g_result == GROUP_USER_ALREADY_IN_GROUP){return GROUPS_MANAGER_USER_ALREADY_IN_GROUP;}
 	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_INSERT_CLIENT_FAIL;};
     return GROUPS_MANAGER_SUCCESS;
 }
@@ -132,12 +121,13 @@ static Group* create_new_group(GroupsManager* groups_manager, const char* group_
     if (group == NULL) {return NULL;}
     strcpy (return_ip, ip);
     free(ip);
+
 	return group;
 }
 
 static char* create_key(const char* group_name)
 {
-    char* key = (char*)malloc(sizeof(group_name));
+    char* key = (char*)malloc(sizeof(char)*strlen(group_name));
     if (key == NULL)
         return NULL;
 
@@ -213,11 +203,9 @@ static void insert_ip_to_queue(GroupsManager* groups_manager, Group* group)
 
 GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name, char* user_name)
 {
-	if (groups_manager == NULL || group_name == NULL || user_name == NULL )
+	if(groups_manager == NULL || group_name == NULL || user_name == NULL )
 	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
 	
-	printf("%s leave %s group\n", user_name, group_name);
-
     Group* group;
 	Map_return m_result = hash_map_find(groups_manager->m_groups, group_name , (void**)&group);
 	if(m_result == MAP_KEY_NOT_EXISTS) {return GROUPS_MANAGER_GROUP_NOT_EXISTS;}
@@ -226,11 +214,8 @@ GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name
 	if(g_result == GROUP_USER_NOT_EXISTS){return GROUPS_MANAGER_USER_NOT_EXISTS;}
 	if(g_result != GROUP_SUCCESS){return GROUPS_MANAGER_REMOVE_CLIENT_FAIL;};
 
-	printf("num of client in %s group: %d\n", group_name, number_of_clients(group));
-
 	if(number_of_clients(group) < 1)
 	{
-		printf("group %s deleted\n", group_name);
         insert_ip_to_queue(groups_manager, group);
 		hash_map_remove_and_free(groups_manager->m_groups, group_name);
 		return GROUPS_MANAGER_GROUP_DELETED;
@@ -306,7 +291,7 @@ int num_of_groups(GroupsManager* groups_manager)
 	return hash_map_size(groups_manager->m_groups);
 }
 
-int is_a_private(GroupsManager* groups_manager, char* group_name)
+int is_group_private(GroupsManager* groups_manager, char* group_name)
 {
 	if (groups_manager == NULL || group_name == NULL) {return FALSE;}
 
@@ -316,7 +301,7 @@ int is_a_private(GroupsManager* groups_manager, char* group_name)
 	return is_private(group);
 }
 
-HashMap* group_users(GroupsManager* groups_manager, char* group_name)
+HashMap* group_users_list(GroupsManager* groups_manager, char* group_name)
 {
 	if (groups_manager == NULL || group_name == NULL) {return FALSE;}
 

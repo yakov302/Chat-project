@@ -205,7 +205,7 @@ void print_message(Message_type message_type, char* string)
             break;
 
         case JOIN_EXISTING_GROUP_USER_ALREADY_CONNECT:
-            concat_string_at_the_end(string, "You lready in ", concat_message);
+            concat_string_at_the_end(string, "You already in ", concat_message);
             print_in_color_format(RED, concat_message);
             break;
 

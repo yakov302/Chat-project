@@ -38,5 +38,7 @@ User_return add_group_for_user(User* user, char* group_name);
 
 int my_socket(User* user);
 
+char* name(User* user);
+
 
 #endif // USER_H

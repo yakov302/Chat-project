@@ -5,8 +5,8 @@
 
 #define PROCESS_KILLED -1
 #define STRING_SIZE 68
-#define TRUE 1
 #define FALSE 0
+#define TRUE 1
 #define ESC 27
 
 #define REGISTERATION 1

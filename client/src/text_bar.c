@@ -6,8 +6,8 @@
 
 #define BUFFER_SIZE 1024
 #define MESSAGE_SIZE 1088
-#define TRUE 1
 #define FALSE 0
+#define TRUE 1
 
 static void save_process_id_to_file()
 {	    	
@@ -56,12 +56,9 @@ static void encrypt(const char* key, char* buffer, int message_size)
 int main(int argc, char *argv[])
 {
     save_process_id_to_file();
-    sleep(1);
-    
+
     if(argc < 4) 
     {printf("IP, PORT and USER NAME required\n"); return FALSE;}
-
-    save_process_id_to_file();
 
     int socket_number;
     struct sockaddr_in sin;

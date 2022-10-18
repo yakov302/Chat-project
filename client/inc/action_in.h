@@ -8,8 +8,8 @@
 #define GROUPS_PORT 5555
 #define BUFFER_SIZE 1536
 #define STRING_SIZE 68
-#define TRUE 1
 #define FALSE 0
+#define TRUE 1
 
 typedef struct ActionIn
 {
@@ -30,8 +30,5 @@ void get_buffer(ActionIn* action_in, char* buffer);
 
 int lest_message_arrive(ActionIn* action_in);
 
-void set_work_status(ActionIn* action_in, int status);
-
-int work_in_is_working(ActionIn* action_in);
 
 #endif // ACTION_IN_H
