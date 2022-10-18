@@ -1,8 +1,7 @@
 # Chat-project
 Chat application that supports multiple users, rooms and private chats simultaneously.  TCP &amp; UDP network protocols, sha256 password encryption and Multithreading.
 
-Requirements:
-    a. linux (ubuntu) virtualization (GUI) enable
+Requirements: linux (ubuntu) virtualization (GUI) enable
   
 1. Run the server:   
     a. set server ip & port: 
