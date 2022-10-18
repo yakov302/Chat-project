@@ -216,7 +216,6 @@ static void leave_group_request(GroupsManager* groups_manager, UsersManager* use
 
 static void open_group_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name, char* group_name, char* ip,  int is_private, int client_socket)
 {
-    printf("open_group_action\n");
     GroupsManager_return g_result = new_group(groups_manager, group_name, user_name, ip, is_private);
     switch (g_result)
     {
@@ -304,8 +303,6 @@ static int open_private_chat(GroupsManager* groups_manager, UsersManager* users_
 
 static void open_private_chat_action(GroupsManager* groups_manager, UsersManager* users_manager, Mutex* mutex, char* user_name_1, char* user_name_2, char* ip,  int is_private, int client_socket)
 {
-        printf("open_private_chat_action\n");
-
     if(!user_log_in_check(users_manager, user_name_2))
     {
         send_only_message(OPEN_PRIVATE_CHAT_USER_NOT_EXISTS, client_socket, mutex);
@@ -314,12 +311,12 @@ static void open_private_chat_action(GroupsManager* groups_manager, UsersManager
 
     char group_name[STRING_SIZE];
     set_group_name(group_name, user_name_1, user_name_2);
-   if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
-   {
-        usleep(200000); //relevant only when you run multi clients from the same computer
-        if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
-            leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
-   }
+    if(open_private_chat(groups_manager, users_manager, mutex, user_name_1, group_name, ip, is_private, client_socket))
+    {
+            usleep(200000); //relevant only when you run multi clients from the same computer
+            if(!open_private_chat(groups_manager, users_manager, mutex, user_name_2, group_name, ip, is_private, user_socket(users_manager, user_name_2)))
+                leave_group_action(groups_manager, users_manager, user_name_1, group_name, client_socket, mutex);
+    }
 }
 
 static void open_group_request(GroupsManager* groups_manager, UsersManager* users_manager, char* buffer, int client_socket, Mutex* mutex)

@@ -37,13 +37,13 @@ int receive_from_client(int client_socket, char* buffer, Mutex* mutex)
 	if(!mutex_lock(mutex)) {return MUTEX_FAIL;}
 	
 	int receive_bytes = recv(client_socket, buffer, sizeof(int), 0);
-	if(receive_bytes == 0) {perror("receive fail: \n"); mutex_unlock(mutex); return RECEIVE_FAIL;}
+	if(receive_bytes == 0) {perror("receive fail"); mutex_unlock(mutex); return RECEIVE_FAIL;}
 
 	int message_len = message_size(buffer);
 	while(receive_bytes < message_len)
 	{
 		int current_receive = recv(client_socket, (buffer + receive_bytes), message_len - receive_bytes, 0);
-		if(current_receive == 0) {perror("receive fail: \n"); mutex_unlock(mutex); return RECEIVE_FAIL;}
+		if(current_receive == 0) {perror("receive fail"); mutex_unlock(mutex); return RECEIVE_FAIL;}
 		receive_bytes += current_receive;
 	}	
 
@@ -61,7 +61,7 @@ int send_to_client(int client_socket, char* buffer, int message_size, Mutex* mut
 	while((sent_byte < message_size) && (errno != EPIPE))
 	{
     	int current_byte = send(client_socket, (buffer + sent_byte), (message_size - sent_byte), 0);
-		if(current_byte < 0){perror("send fail: \n");}
+		if(current_byte < 0){perror("send fail");}
 		sent_byte += current_byte;
 	}
 

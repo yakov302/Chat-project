@@ -8,7 +8,7 @@ static void load_frome_file(char* server_ip, int* server_port)
     {
         strcpy(server_ip, "0.0.0.0");
         *server_port = 5555;
-        perror("fopen fail: ");
+        perror("fopen fail");
     }
 
     fscanf(file ,"%s%d", server_ip, server_port);
@@ -30,7 +30,7 @@ static int set_socket(Socket* socket_struct)
 	socket_struct->m_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(socket_struct->m_socket < 0)
     {
-		perror("Set socket fail!\n");
+		perror("Set socket fail");
         return FAIL;
     }
 
@@ -44,7 +44,7 @@ static int set_setsockopt(int* socket)
     int optval = 1;		
 	if(setsockopt(*socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
     {
-		perror("set_setsockopt fail: \n");
+		perror("set_setsockopt fail");
         return FAIL;
     }
 
@@ -67,7 +67,7 @@ Socket* socket_create()
     Socket* socket;
     if((socket = (Socket*)malloc(sizeof(Socket))) == NULL)
     {
-        perror("malloc socket_create fail: \n");
+        perror("malloc socket_create fail");
         return NULL;
     }
 

@@ -17,7 +17,7 @@ static void load_frome_file(char* server_ip, int* server_port)
     {
         strcpy(server_ip, "0.0.0.0");
         *server_port = 5555;
-        perror("fopen fail: ");
+        perror("fopen fail");
     }
 
     fscanf(file ,"%s%d", server_ip, server_port);
@@ -39,7 +39,7 @@ static int open_listen_socket(int* listen_socket, fd_set* set)
 	*listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(*listen_socket < 0)
     {
-		perror("open_listen_socket fail: \n");
+		perror("open_listen_socket fail");
         return FAIL;
     }
 
@@ -52,7 +52,7 @@ static int set_listen_socket(int* listen_socket)
 {
 	if(listen(*listen_socket, LISTEN_QUEUE_SIZE) < 0)
     {
-		perror("set_listen_socket fail: \n");
+		perror("set_listen_socket fail");
         return FAIL;
     }
 
@@ -64,7 +64,7 @@ static int set_setsockopt(int* listen_socket)
     int optval = 1;		
 	if(setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
     {
-		perror("set_setsockopt fail: \n");
+		perror("set_setsockopt fail");
         return FAIL;
     }
 
@@ -75,7 +75,7 @@ static int set_bind(int* listen_socket, struct sockaddr_in* sin)
 {
 	if(bind(*listen_socket, (struct sockaddr*)sin, sizeof(*sin)) < 0)
     {
-		perror("set_bind fail: \n");
+		perror("set_bind fail");
         return FAIL;
     }
 
@@ -87,7 +87,7 @@ Socket* socket_create()
     Socket* socket;
     if((socket = (Socket*)malloc(sizeof(Socket))) == NULL)
     {
-        perror("malloc socket_create fail: \n");
+        perror("malloc socket_create fail");
         return NULL;
     }
 
@@ -148,7 +148,7 @@ Socket* socket_create()
     socket->m_deleted_sockets = list_create();
     if(socket->m_deleted_sockets == NULL)
     {
-        perror("ListCreate fail: \n");
+        perror("ListCreate fail");
         list_destroy(&socket->m_connected_sockets, element_destroy);
         free(socket->m_active_fd);
         free(socket);

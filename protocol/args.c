@@ -10,7 +10,7 @@ static void malloc_strings(char** m_strings, int num_of_strings)
     {
         *m_strings = (char*)malloc(STRING_SIZE*sizeof(char)*num_of_strings);
         if(*m_strings == NULL)
-            perror("malloc m_strings fail: \n");
+            perror("malloc m_strings fail");
     }
 }
 
@@ -24,7 +24,7 @@ static void malloc_ints(int** m_ints, int num_of_ints)
     {
         *m_ints = (int*)malloc(num_of_ints*sizeof(int));
         if(*m_ints == NULL)
-            perror("malloc m_ints fail: \n");
+            perror("malloc m_ints fail");
     }
 }
 
@@ -38,7 +38,7 @@ static void malloc_floats(float** m_floats, int num_of_floats)
     {
         *m_floats = (float*)calloc(num_of_floats, sizeof(float));
         if(*m_floats == NULL)
-            perror("malloc m_ints fail: \n");
+            perror("malloc m_ints fail");
     }
 }
 

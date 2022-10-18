@@ -80,7 +80,7 @@ static void print_in_color_format(char* color, char* text)
     sprintf(command, "gnome-terminal -q --geometry=%s --title=pop_up_message -- ./pop_up_message %s %s",windwo_size, color, text); 
            
     int result = system(command);
-    if(result == ERROR) {perror("system fail!");}
+    if(result == ERROR) {perror("system fail");}
 }
 
 void print_invalid_choice()

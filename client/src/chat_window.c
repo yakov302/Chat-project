@@ -47,7 +47,7 @@ static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip
 {
     *socket_number = socket(AF_INET, SOCK_DGRAM, 0);
     if (*socket_number < 0) 
-    {perror("open_socket failed!"); return FALSE;}
+    {perror("open_socket failed"); return FALSE;}
 
     int optval = 1;
     if (setsockopt(*socket_number, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
@@ -60,7 +60,7 @@ static int udp_server_init(int* socket_number, struct sockaddr_in* sin, char* ip
 
     set_sin(sin, ip, port);
     if(bind(*socket_number, (struct sockaddr*)sin, sizeof(*sin)) < 0) 
-    {perror("bind fail!"); return FALSE;}
+    {perror("bind fail"); return FALSE;}
 
     return TRUE;
 }

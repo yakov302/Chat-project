@@ -20,7 +20,7 @@ int mutex_destroy(Mutex* mutex)
 
     if(pthread_mutex_destroy(&mutex->m_lock) != 0)
     {
-        perror("mutex_destroy fail: \n");
+        perror("mutex_destroy fail");
         return FAIL;
     }
     return SUCCESS;
@@ -33,7 +33,7 @@ int mutex_lock(Mutex* mutex)
 
     if(pthread_mutex_lock(&mutex->m_lock) != 0)
     {
-        perror("mutex_lock fail: \n");
+        perror("mutex_lock fail");
         return FAIL;
     }
     return SUCCESS;
@@ -46,7 +46,7 @@ int mutex_unlock(Mutex* mutex)
 
     if(pthread_mutex_unlock(&mutex->m_lock) != 0)
     {
-        perror("mutex_lock fail: \n");
+        perror("mutex_lock fail");
         return FAIL;
     }
     return SUCCESS;

@@ -32,7 +32,7 @@ static int udp_client_init(int* socket_number, struct sockaddr_in* sin, char* ip
 {
     *socket_number = socket(AF_INET, SOCK_DGRAM, 0);
     if (*socket_number < 0) 
-    {perror("open_socket failed!"); return FALSE;}
+    {perror("open_socket failed"); return FALSE;}
 
     set_sin(sin, ip, port);
     return TRUE;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
         int bytes_dend = sendto(socket_number, message, strlen(message), 0, (struct sockaddr*)&sin, sizeof(sin));
         if (bytes_dend < 0) 
-        {perror("sendto fail!"); return FALSE;}
+        {perror("sendto fail"); return FALSE;}
 
         printf("\n");
     }

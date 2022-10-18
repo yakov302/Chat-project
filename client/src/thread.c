@@ -35,7 +35,7 @@ int run_thread(ThreadFunc function, void* arg)
     }
 
     if(pthread_create(&thread[i], NULL, function, arg) != 0)
-        perror("pthread_create fail: \n");
+        perror("pthread_create fail");
     
     status[i] = USED;
     return i;
@@ -44,7 +44,7 @@ int run_thread(ThreadFunc function, void* arg)
 void join_thread(int thread_id)
 {
     if(pthread_join(thread[thread_id], NULL) != 0)
-        perror("pthread_join fail: \n");
+        perror("pthread_join fail");
     
     status[thread_id] = UNUSED;
 }

@@ -20,7 +20,7 @@ static int read_text_bar_process_id_from_file()
 	FILE* file = fopen("../resources/text_bar_process_id.txt","r");
     if(file == NULL)
 	{
-		perror("fopen fail!\n");
+		perror("fopen fail\n");
 		return ERROR;
 	}
 
@@ -35,7 +35,7 @@ static int open_text_bar_window(char* ip, int port, char* group_name, char* user
     char command[COMMAND_SIZE];
     sprintf(command, "gnome-terminal -q --geometry=55x3 --title=%s -- ./text_bar %s %d %s",group_name, ip, port, user_name);            
     int result = system(command);
-    if(result == ERROR) {perror("system fail!"); return ERROR;}
+    if(result == ERROR) {perror("system fail"); return ERROR;}
     return read_text_bar_process_id_from_file();
 }
 
@@ -44,7 +44,7 @@ static int open_chat_window(char* ip, int port, char* group_name, int text_bar_p
     char command[COMMAND_SIZE];
     sprintf(command, "gnome-terminal -q --geometry=55x13 --title=%s -- ./chat_window %s %d %d %d ", group_name, ip, port, getpid(), text_bar_process_id); 
     int result = system(command);
-    if(result == ERROR) {perror("system fail!"); return ERROR;}
+    if(result == ERROR) {perror("system fail"); return ERROR;}
     return read_chat_window_process_id_from_file();
 }
 
@@ -61,7 +61,7 @@ Group* group_create(char* ip, int port, char* group_name, char* user_name)
 	group->m_chat_window_process_id = open_chat_window(ip, port, group_name, group->m_text_bar_process_id);
 	if(group->m_chat_window_process_id == ERROR || group->m_text_bar_process_id == ERROR)
 	{printf("open windows fail!\n"); return NULL;}
-	
+
 	return group;
 }
 

@@ -29,7 +29,7 @@ int receive_from_server(Socket* socket, char* buffer, Mutex* mutex)
 	while(receive_bytes < message_len)
 	{
 		int current_receive = recv(my_socket(socket), (buffer + receive_bytes), message_len - receive_bytes, 0);
-		if(current_receive == 0) {perror("receive fail: \n"); mutex_unlock(mutex); return RECEIVE_FAIL;}
+		if(current_receive == 0) {perror("receive fail"); mutex_unlock(mutex); return RECEIVE_FAIL;}
 		receive_bytes += current_receive;
 	}	
 
@@ -46,7 +46,7 @@ int send_to_server(Socket* socket, char* buffer, int message_size, Mutex* mutex)
 	while((sent_byte < message_size) && (errno != EPIPE))
 	{
     	int current_byte = send(my_socket(socket), (buffer + sent_byte), (message_size - sent_byte), 0);
-		if(current_byte < 0){perror("send fail: \n");}
+		if(current_byte < 0){perror("send fail");}
 		sent_byte += current_byte;
 	}
 
