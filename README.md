@@ -20,7 +20,8 @@ Requirements: linux (ubuntu) virtualization (GUI) enable.
           go to file - Chat-project/client/resources/server_ip_and_port.txt 
           Write in first line - server ip.
           Write in second line -server port. 
-            
+
     b. bild & run client:
+    
           go to directory - Chat-project/client/src
           run command - make check.
