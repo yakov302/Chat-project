@@ -1,4 +1,4 @@
-#include "group.h"
+#include "../inc/group.h"
 
 static int read_chat_window_process_id_from_file()
 {

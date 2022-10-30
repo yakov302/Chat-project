@@ -1,4 +1,4 @@
-#include "server_manager.h"
+#include "../inc/server_manager.h"
 
 ServerManager* server_manager_create(int max_num_of_groups, int max_num_of_users,int max_num_of_subscribs)
 {

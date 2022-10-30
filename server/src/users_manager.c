@@ -1,4 +1,4 @@
-#include "users_manager.h"
+#include "../inc/users_manager.h"
 
 static size_t hash_for_user_name(void* name)
 {

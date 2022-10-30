@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "../inc/socket.h"
 
 static void load_frome_file(char* server_ip, int* server_port)
 {

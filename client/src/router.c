@@ -1,4 +1,4 @@
-#include "router.h"
+#include "../inc/router.h"
 
 static void* thread_function(void* arg)
 {

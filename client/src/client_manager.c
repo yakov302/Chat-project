@@ -1,4 +1,4 @@
-#include "client_manager.h"
+#include "../inc/client_manager.h"
 
 ClientManager* client_manager_create()
 {

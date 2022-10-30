@@ -1,4 +1,4 @@
-# include "subscribs_manager.h"
+# include "../inc/subscribs_manager.h"
 
 static size_t hash_for_subscriber_name(void* name)
 {
@@ -126,7 +126,7 @@ static void encrypt_password(char* encrypted_password, char* password)
     BYTE buf[SHA256_BLOCK_SIZE];
     
     sha256_init(&ctx);
-	sha256_update(&ctx, password, strlen(password));
+	sha256_update(&ctx, (BYTE*)password, strlen(password));
 	sha256_final(&ctx, buf);
 
     int j = 0;
@@ -181,7 +181,7 @@ SubscribsManager_return new_subscriber(SubscribsManager* subscribs_manager, cons
 
 static int is_password_valid(BYTE* first, BYTE* second)
 {
-    if (strcmp(first, second) == 0)
+    if (strcmp((char*)first, (char*)second) == 0)
 		return TRUE;
 
 	return FALSE;
@@ -198,7 +198,7 @@ SubscribsManager_return log_in_chack(SubscribsManager* subscribs_manager, const 
 
     char encrypted_password[STRING_SIZE];
     encrypt_password(encrypted_password, password);
-    if(is_password_valid(subscriber->m_password, encrypted_password))
+    if(is_password_valid((BYTE*)subscriber->m_password, (BYTE*)encrypted_password))
         return SUBSCRIBS_MANAGER_SUCCESS;
 
     return SUBSCRIBS_MANAGER_INVALID_PASSWORD;

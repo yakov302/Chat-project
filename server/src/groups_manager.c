@@ -1,4 +1,4 @@
-#include "groups_manager.h"
+#include "../inc/groups_manager.h"
 
 static size_t hash_for_group_name(void* group_name)
 {
@@ -219,24 +219,6 @@ GroupsManager_return leave_group(GroupsManager* groups_manager, char* group_name
         insert_ip_to_queue(groups_manager, group);
 		hash_map_remove_and_free(groups_manager->m_groups, group_name);
 		return GROUPS_MANAGER_GROUP_DELETED;
-	}
-
-	return GROUPS_MANAGER_SUCCESS;
-}
-
-GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups, char* user_name)
-{
-	if (groups_manager == NULL || list_of_user_groups == NULL || user_name == NULL)
-	    return GROUPS_MANAGER_UNINITIALIZED_ARGS;
-
-	ListItr it_next;
-	ListItr it = begin(list_of_user_groups);
-	ListItr it_end = end(list_of_user_groups);
-	while(it != it_end)
-	{
-		it_next = next(it);
-		leave_group(groups_manager, ((Group*)get_data(it))->m_name, user_name);
-		it = it_next;
 	}
 
 	return GROUPS_MANAGER_SUCCESS;

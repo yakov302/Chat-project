@@ -1,4 +1,4 @@
-#include "user.h"
+#include "../inc/user.h"
 
 User* create_user(const char* name)
 {

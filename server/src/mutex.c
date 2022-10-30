@@ -1,4 +1,4 @@
-#include "mutex.h"
+#include "../inc/mutex.h"
 
 int mutex_create(Mutex* mutex)
 {

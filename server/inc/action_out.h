@@ -1,7 +1,7 @@
 #ifndef ACTION_OUT_H
 #define ACTION_OUT_H
 
-#include "protocol.h"
+#include "../../protocol/protocol.h"
 #include "mutex.h"
 #include "tcp.h"
 

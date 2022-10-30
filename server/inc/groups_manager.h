@@ -51,8 +51,6 @@ GroupsManager_return join_existing_group (GroupsManager* groups_manager, char* g
 
 GroupsManager_return leave_group (GroupsManager* groups_manager, char* group_name, char* user_name);
 
-GroupsManager_return leave_all_groups(GroupsManager* groups_manager, List* list_of_user_groups, char* user_name);
-
 void give_all_groups_names(GroupsManager* groups_manager, char* groups_names_list);
 
 void give_all_users_names(GroupsManager* groups_manager, char* users_names_list);

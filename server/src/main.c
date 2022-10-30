@@ -1,4 +1,4 @@
-#include "server_manager.h"
+#include "../inc/server_manager.h"
 
 int main()
 {

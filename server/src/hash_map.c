@@ -1,4 +1,4 @@
-#include "hash_map.h"
+#include "../inc/hash_map.h"
 
 static int is_prime(int number) 
 {

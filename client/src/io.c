@@ -1,4 +1,4 @@
-#include "io.h"
+#include "../inc/io.h"
 
 static void print_menu(int is_looged_in)
 {
@@ -30,7 +30,8 @@ int menu(int is_looged_in)
 
     int choice = GET_OUT_FROM_SCANF;
 	scanf("%d", &choice);
-	return choice;
+    fgetc(stdin);
+    return choice;
 }
 
 void enter_user_name(char* user_name)
@@ -42,7 +43,8 @@ void enter_user_name(char* user_name)
     }
 
 	printf("Enter user name (Esc for back): ");
-	scanf("%s", user_name);  
+	scanf("%s", user_name);
+    user_name[MAX_INPUT_SIZE] = '\0';
 }
 
 void enter_group_name(char* group_name)
@@ -55,6 +57,7 @@ void enter_group_name(char* group_name)
 
    	printf("Enter group name (Esc for back): ");
 	scanf("%s", group_name);
+    group_name[MAX_INPUT_SIZE] = '\0';
 }
 
 void enter_password(char* password)
@@ -66,7 +69,8 @@ void enter_password(char* password)
     }
 
     printf("Enter password (Esc for back): ");
-	scanf("%s", password); 
+	scanf("%s", password);
+    password[MAX_INPUT_SIZE] = '\0'; 
 }
 
 
@@ -224,8 +228,8 @@ void print_message(Message_type message_type, char* string)
 
         case LEAVE_GROUP_GROUP_DELETED:
             concat_string_at_the_end(string, "Successfully left ", concat_message);
+            strcat(concat_message, " group deleted!");
             print_in_color_format(GREEN, concat_message);
-            print_in_color_format(GREEN, "You are last - group deleted!");
             break;
 
         case LEAVE_GROUP_FAIL:

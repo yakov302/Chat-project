@@ -1,4 +1,4 @@
-#include "action_out.h"
+#include "../inc/action_out.h"
 
 void send_only_message(Message_type message_type, Socket* socket, Mutex* mutex)
 {

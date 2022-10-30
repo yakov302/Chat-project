@@ -1,4 +1,4 @@
-#include "thread.h" 
+#include "../inc/thread.h" 
 
 #define NUM_OF_THREADS 30
 #define FAIL -1

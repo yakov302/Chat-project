@@ -1,4 +1,4 @@
-#include "queue.h"
+#include "../inc/queue.h"
 
 Queue* queue_create(size_t capacity, DestroyItem destroy_item)
 {	

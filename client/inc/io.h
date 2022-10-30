@@ -1,7 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
-#include "protocol.h"
+#include "../../protocol/protocol.h"
 
 #include <poll.h>
 #include <unistd.h>
@@ -16,8 +16,8 @@
 #define ERROR -1
 #define COMMAND_SIZE 256
 #define MESSAGE_SIZE 100
+#define MAX_INPUT_SIZE 15
 #define GET_OUT_FROM_SCANF 187
-
 
 int menu(int is_looged_in);
 

@@ -1,4 +1,4 @@
-# include "app.h"
+# include "../inc/app.h"
 
 static void* run_app_loop(void* arg)
 {
@@ -169,9 +169,6 @@ static void logged_switch(App* app, int choice)
             exit_chat(app);
             break;
 
-        case GET_OUT_FROM_SCANF:
-            break;
-
         default:
             print_invalid_choice();
             break;
@@ -197,9 +194,6 @@ static void unlogged_switch(App* app, int choice)
             exit_chat(app);
             break;
 
-        case GET_OUT_FROM_SCANF:
-            break;
-
         default:
             print_invalid_choice();
             break;
@@ -211,7 +205,7 @@ void run_app(App* app)
     while (!app->m_stop)
     {
         int choice = menu(is_logged_in(app->m_user));
-   
+        
         if(is_logged_in(app->m_user))
             logged_switch(app, choice);
         else

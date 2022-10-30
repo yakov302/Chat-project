@@ -5,7 +5,7 @@
 
 #include "socket.h"
 #include "mutex.h"
-#include "protocol.h"
+#include "../../protocol/protocol.h"
 
 #define UNINITIALIZED_ARGS -1
 #define ACCEPT_FAIL -2

@@ -1,4 +1,4 @@
-#include "list.h"
+#include "../inc/list.h"
 
 List* list_create()
 {

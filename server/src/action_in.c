@@ -1,4 +1,4 @@
-#include "action_in.h"
+#include "../inc/action_in.h"
 
 ActionIn* create_action_in(SubscribsManager* subscribs_manager, UsersManager* users_manager, GroupsManager* gruops_manager)
 {
